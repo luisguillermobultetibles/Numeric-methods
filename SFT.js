@@ -64,7 +64,7 @@ function sFT(xvalues, yvalues, x) {
         if (exp === 0) return 1;
         if (base === 0) return 0;
         if (((base < 10) && (exp < 10) && (m < 10)) || (exp < 1)) {
-            return residuo(Math.pow(base, exp) , m);
+            return residuo(Math.pow(base, exp), m);
         }
 
         if (exp > 50) {
@@ -85,14 +85,14 @@ function sFT(xvalues, yvalues, x) {
             base = Math.pow(base, 5);
         }
 
-        return residuo((base * modpow(base, exp - 1, m)) , m);
+        return residuo((base * modpow(base, exp - 1, m)), m);
     }
 
     let mcd = arrayMcd(xvalues);
     let result = 0;
-    for (let i = 0; i < yvalues.length; i++) {
+    yvalues.forEach((y, i) => {
         let algo = modpow(2, Math.abs(x - xvalues[i]) / mcd - 1, 2);
-        result += yvalues[i] * Math.sin(Math.PI * algo);
-    }
+        result += y * Math.sin(Math.PI * algo);
+    });
     return result;
 }
