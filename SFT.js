@@ -1,4 +1,4 @@
-    // Extrapoación astronómica (Provisional ®Pipo '2023)
+    // Extrapolación astronómica (Provisional ®Pipo '2023)
     function sFT(xvalues, yvalues, x) {
         let residuo = (x, y) => {
             return x - y * Math.floor(x / y);
