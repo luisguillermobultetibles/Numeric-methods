@@ -1,4 +1,4 @@
-        // Para representar números enteros extremadamente grandes (naturales no negativos).
+    // Para representar números enteros extremadamente grandes (naturales no negativos).
     class SuperScalar {
 
         // this privates inheritances for polymorphic internal use only...
@@ -44,6 +44,14 @@
             // Arreglo de factores, el índice del primero es absoluto, los demás...
             Constructor(factors) {
                 super(...factors);
+                // Lo anterior guarda la estructura de factores en stru, 
+                // el próximo paso es optimizar, recuerda el primer índice es absoluto
+                // y el siguiente es relativo al primero...
+                // el 1 (uno), se representa 2^0 normal
+                // el dos se representa 2^1 normal
+                // y así sucesivamente...
+                // Pero eso solamente lo utilizamos para el dos, para los otros primos 
+                // internamente le sumamos 1 a los exponentes para no redundar...
             }
 
             toString() {
@@ -85,15 +93,15 @@
                 } else if (definition instanceof Number || definition instanceof BigInt) {
                     if (definition === 0) {
                         this = new SuperScalar.#ScalarZero();
-                    } else if (this.isPrime(definition)) {
+                    } else if (this.#reallyisprime(definition)) {
                         let primeIndex = this.primeIndex(definition);
                         this = new SuperScalar.#ScalarPrime(primeIndex);
-                    } else if (this.isFactor(definition)) {
+                    } else if (this.#reallyisfactor(definition)) {
                         let factorFields = this.factorsFields(definition)
                         this = new SuperScalar.#ScalarFactor(factorFields);
                     } else {
-                        let factors = this.getFactors(definition);
-                        this = new SuperScalar.#ScalarProduct(factors);
+                        let factors = this.primeFactors(definition);
+                        this = new SuperScalar.#ScalarProduct(...factors);
                     }
                 } else if (definition instanceof String || typeof definition === "string") {
                     if (definition[0] = "+") { // supress preceding sign & reconstruct all again
@@ -136,13 +144,13 @@
 
         // Euler's Pi function optimize later (Test it please)
         primeIndex(definition) {
-            let result = BigInt(definition.toString()); // brutal for now
+            let deep = BigInt(definition.toString()); // brutal for now
             let count = 0n;
-            while (result > 0n) {
-                while (result > 0n && !this.reallyisprime(result)) {
-                    result--;
+            while (deep > 0n) {
+                while (deep > 0n && !this.#reallyisprime(deep)) {
+                    deep--;
                 }
-                if (result === 0n) {
+                if (deep === 0n) {
                     break;
                 }
                 count++;
@@ -150,33 +158,46 @@
             return count;
         }
 
-        // optimize later
-        reallyisprime(big) {
-            let asbigi = BigInt(big.toString());
-            if (asbigi === BigInt(0) || asbigi === BigInt(1)) {
-                return false;
-            } else if (asbigi === 2n || asbigi === 3n || asbigi === 5n) {
+        #reallyisprime(n) { // ok
+            let deep = BigInt(n.toString());
+            if (deep < 2n) return false;
+            if (deep === 2n || deep === 3n || deep === 5n) {
                 return true;
-            } else if (asbigi % 2n === 0n || asbigi % 3n === 0n || asbigi % 5n === 0n) {
+            }
+            if (deep % 2n === 0n || deep % 3n === 0n || deep % 5n === 0n) {
                 return false;
             }
-            let root = BigInt(this.strRoot(asbigi.toString(), "2"));
-            console.warn('Test it please');
-            for (let i = 2n; i < root; i++) {
-                if (asbigi % i === 0n) {
+            for (let i = 2n; i < BigInt(this.strRoot(deep.toString(), 2n)); i++) {
+                if (deep % i === 0n) {
                     return false;
                 }
             }
             return true;
         }
 
-        // Prime serie's function optimize later (Test it please)
+        #group(factors) {
+            const groupedResult = factors.reduce((previous, current) => {
+                if (!previous[current]) {
+                    previous[current] = [];
+                }
+                previous[current].push(current);
+                return previous;
+            }, {});
+            return groupedResult;
+        }
+
+        #reallyisfactor(n) {
+            let deep = BigInt(n.toString());
+            return this.#group(this.primeFactors(deep)).length === 1;
+        }
+
         primeValue(index) {
+            let deep = BigInt(index.toString());
             let result = 0n; // brutal for now
             let value = 2n;
-            while (result < BigInt(index)) {
+            while (result < deep) {
                 result++;
-                while (!this.reallyisprime(value)) {
+                while (!this.#reallyisprime(value)) {
                     value++;
                 }
             }
@@ -188,12 +209,33 @@
             return likeMe instanceof SuperScalar.#ScalarFactor;
         }
 
-        factorsFields(number) {
-
+        factorsFields(n) { // lets go
+            let deep = BigInt(n.toString);
+            let facs = this.primeFactors(deep).sort((a, b) => a - b);
+            return this.#group(facs).map((elements, index, arr) => {return {factor: new SuperScalar(index), exponent: new SuperScalar(arr.length)}});            
         }
 
-        getFactors(number) {
-
+        primeFactors(n) { // ok
+            let deep = BigInt(n.toString());
+            const factors = [];
+            if (deep === 0n) {
+                return [];
+            } else if (deep <= 2n) {
+                return [2];
+            }
+            let divisor = 2n;
+            let i = 0n
+            let deep = BigInt(this.strRoot(2, deep)); // tentative limit
+            while (deep > 2n) {
+                if (deep % divisor == 0n) {
+                    factors.push(divisor);
+                    deep = deep / divisor;
+                } else {
+                    divisor++
+                }
+                i++;
+            }
+            return factors;
         }
 
         isFactor() {
@@ -201,29 +243,29 @@
             return likeMe instanceof SuperScalar.#ScalarProduct;
         }
 
-
         potable(definition = "") {
+            let deep = definition.toString();
             let MAX_INT = String(9007199254740992);
-            let myLen = definition.toString().length;
+            let myLen = deep.toString().length;
             let result = {success: true, value: undefined};
             try {
-                result.value = Number(definition);
+                result.value = Number(deep);
                 result.success = myLen > 0 && (myLen < MAX_INT.length || (myLen === MAX_INT.length && BigInt(result.value) <= BigInt(MAX_INT))) && (result.value > 0n);
             } catch (e) {
                 result.success = false;
             }
-            result.success = result.success && (String(definition).trim() === String(result.value).trim());
+            result.success = result.success && (String(deep).trim() === String(result.value).trim());
             return result;
         }
 
         // Multiplies str1 and str2, and prints result.
         strMultiply(str1, str2) {
-            return (BigInt(str1)*BigInt(str2)).toString();
+            return (BigInt(str1) * BigInt(str2)).toString();
         }
 
         // function to implement division with large number (str1 by str2)
         strDivide(str1, str2) {
-            return (BigInt(str1)/BigInt(str2)).toString();
+            return (BigInt(str1) / BigInt(str2)).toString();
         }
 
         // ported to Google Bigint by Luis Guillermo Bultet Ibles 15/05/2021. 10:31AM (Solo enteros) from
@@ -231,7 +273,7 @@
         // https://stackoverflow.com/questions/64190185/how-do-i-extract-the-nth-root-of-a-bigint-in-javascript
         strRoot(root, value) {
             if (a = this.potable(str1).success && b = this.potable(str2).success) {
-                return String(Math.pow(a.value, 1/b.value));
+                return String(Math.pow(a.value, 1 / b.value));
             }
             let base = BigInt(value);
             let r = BigInt(root);
@@ -240,7 +282,7 @@
             let u = base;
             while (u < s) {
                 s = u;
-                u = ((u * k1) + base / Math.pow(u, k1)) / r;
+                u = ((u * k1) + base / BigInt(this.strPow(u.toString(), k1.toString()))) / r;
             }
             return s.toString();
         }
@@ -264,7 +306,7 @@
                 base = base * base;
                 exponent = exponent / 2n;
             }
-            return (base * this.strPow(base.toString(), (exponent - 1n).toString())).toString();
+            return (base * BigInt(this.strPow(base.toString(), (exponent - 1n).toString()))).toString();
         }
 
     }
