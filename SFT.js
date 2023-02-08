@@ -1,4 +1,4 @@
-    // Extrapolación astronómica (Provisional ®Pipo '2023)
+        // Extrapoación astronómica (Provisional ®Pipo '2023)
     function sFT(xvalues, yvalues, x) {
         let residuo = (x, y) => {
             return x - y * Math.floor(x / y);
@@ -60,16 +60,21 @@
 
         // fast decay modpow
         function modpow(base, exp, m) {
+
+            // Utility function to do
+            // modular exponentiation.
+
             if (m === 1) return 0;
             if (exp === 0) return 1;
             if (base === 0) return 0;
             if (((base < 10) && (exp < 10) && (m < 10)) || (exp < 1)) {
-                return residuo(Math.pow(base, exp) , m);
+                return residuo(Math.pow(base, exp), m);
             }
 
             let mcd = gcd(base, m);
             if (mcd > 1) { // this is another way, pack and leave.
-                return mcd*modpow(base/mcd, exp, m/mcd);
+                let mmcdd = m / mcd;
+                return residuo(modpow(mcd, exp, mmcdd) * mcd * modpow(base / mcd, exp, mmcdd), m);
             }
 
             while (exp >= 2 && divisibilidad(exp, 2)) {
@@ -86,7 +91,7 @@
             }
 
             if (exp > 1000000) {
-                return modpow(Math.exp(1), exp*Math.log(base), m);
+                return modpow(Math.exp(1), exp * Math.log(base), m);
             }
 
             if (exp > 1000) {
@@ -94,7 +99,7 @@
                 return modpow(modpow(base, r, m), r, m);
             }
 
-            return residuo((base * modpow(base, exp - 1, m)) , m);
+            return residuo((base * modpow(base, exp - 1, m)), m);
         }
 
         let mcd = arrayMcd(xvalues);
@@ -102,6 +107,8 @@
         yvalues.forEach((y, i) => {
             let algo = modpow(2, Math.abs(x - xvalues[i]) / mcd - 1, 2);
             result += y * Math.sin(Math.PI * algo);
+            // result += y * (1-Math.tan(Math.PI * algo/4));
+
         });
         return result;
     }
