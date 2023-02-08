@@ -1,5 +1,5 @@
-    // Para representar números enteros extremadamente grandes (naturales no negativos).
-    class SuperScalar {
+// Para representar números enteros extremadamente grandes (naturales no negativos).
+class SuperScalar {
 
         // this privates inheritances for polymorphic internal use only...
         static #ScalarZero = class extends SuperScalar {
@@ -36,7 +36,7 @@
             }
 
             toString() {
-                return this.strPow(this.prime(this.stru.index).toString(), this.stru.exponent.toString());
+                return this.strPow(this.primeValue(this.stru.base), this.stru.exponent).toString();
             }
         }
 
@@ -46,19 +46,21 @@
                 super(...factors);
                 // Lo anterior guarda la estructura de factores en stru,
                 // el próximo paso es optimizar, recuerda el primer índice es absoluto
-                // y el siguiente es relativo al primero...
-                // el 1 (uno), se representa 2^0 normal
-                // el dos se representa 2^1 normal
-                // y así sucesivamente...
-                // Pero eso solamente lo utilizamos para el dos, para los otros primos
-                // internamente le sumamos 1 a los exponentes para no redundar...
+                // y los consecuentes, relativos a los precedentes
+                // el 1 (uno), normalmente se representa 2^0, y
+                // el dos se representa 2^1 (ambos se expresan como potencias de dos)
+                // pero eso solamente lo utilizamos para el dos, para los otros números
+                // primos, desactivamos esta posibilidad, con el fin de evitar redundancias
+                // se asume que todas las potencias comienzan en 2...
             }
 
             toString() {
                 let product = "1";
+                let previousPrimeIndex = 0n;
                 this.stru.factors.forEach((fac) => {
-                    product = this.strMultiply(product, (new SuperScalar(fac)).toString());
-                })
+                    product = this.strMultiply(product, this.strPow(this.primeValue(this.strAdd(previousPrimeIndex, fac.base)), fac.exponent));
+                    previousPrimeIndex = this.strSubtract(fac.base, previousPrimeIndex);
+                });
                 return product;
             }
         }
@@ -142,16 +144,31 @@
             return likeMe instanceof SuperScalar.#ScalarInfinity;
         }
 
-        // Euler's Pi function optimize later (Test it please)
-        primeIndex(definition) {
-            let deep = BigInt(definition.toString());
-            let point = 0n;
+        // Algunos valores para función pi de Euler en los valores 2^i (i=1 to 76)
+        // from: http://sweet.ua.pt/tos/hobbies.html (c) 2012-2016, Tomás Oliveira e Silva
+        static piOfTwoPowers_1_to_76 = ['1','2','4','6','11','18','31','54','97','172','309','564','1028','1900','3512',
+            '6542','12251','23000','43390','82025','155611','295947','564163','1077871','2063689','3957809','7603553',
+            '14630843','28192750','54400028','105097565','203280221','393615806','762939111','1480206279','2874398515',
+            '5586502348','10866266172','21151907950','41203088796','80316571436','156661034233','305761713237',
+            '597116381732','1166746786182','2280998753949','4461632979717','8731188863470','17094432576778',
+            '33483379603407','65612899915304','128625503610475','252252704148404','494890204904784','971269945245201',
+            '1906879381028850','3745011184713964','7357400267843990','14458792895301660','28423094496953330',
+            '55890484045084135','109932807585469973','216289611853439384','425656284035217743','837903145466607212',
+            '1649819700464785589','3249254387052557215','6400771597544937806','12611864618760352880',
+            '24855455363362685793','48995571600129458363','96601075195075186855','190499823401327905601',
+            '375744164937699609596','741263521140740113483','1462626667154509638735'];
+
+        // Euler's Pi function optimize later (test it please)
+        primeIndex(to, from = 0n) {
+            let deep = BigInt(to.toString());
+            let point = BigInt(from.toString());
             let count = 0n;
+            let step = from <= to ? 1n : -1n;
             while (point <= deep) {
                 if (this.reallyisprime(point)) {
                     count = count + 1n;
                 }
-                point = point + 1n;
+                point = point + step;
             }
             return count;
         }
@@ -238,7 +255,7 @@
             return factors;
         }
 
-        isFactor() {
+        isProduct() {
             let likeMe = definition instanceof SuperScalar ? definition : new SuperScalar(definition);
             return likeMe instanceof SuperScalar.#ScalarProduct;
         }
@@ -258,6 +275,14 @@
             return result;
         }
 
+        strAdd(str1, str2) {
+            return (BigInt(str1.toString()) + BigInt(str2.toString())).toString();
+        }
+
+        strSubtract(str1, str2) {
+            return (BigInt(str1.toString()) - BigInt(str2.toString())).toString();
+        }
+
         // Multiplies two stringifisable factors whatever they are, and return result.
         strMultiply(str1, str2) {
             return (BigInt(str1.toString()) * BigInt(str2.toString())).toString();
@@ -274,7 +299,7 @@
             let a = this.potable(root.toString());
             let b = this.potable(value.toString());
             if (a.success && b.success) {
-                result = String(Math.trunc(Math.pow(b.value, 1 / a.value)));
+                result = Math.trunc(Math.pow(b.value, 1 / a.value));
             } else {
                 let base = BigInt(value.toString());
                 let r = BigInt(root.toString());
@@ -283,39 +308,32 @@
                 let u = base;
                 while (u < s) {
                     s = u;
-                    u = ((u * k1) + base / BigInt(this.strPow(u.toString(), k1.toString()))) / r;
+                    u = ((u * k1) + base / BigInt(this.strPow(u, k1))) / r;
                 }
-                result = s.toString();
+                result = s;
             }
-            return result;
+            return result.toString();
         }
 
-        // And raise ba at the power of ex
-        strPow(ba, ex) {
-            let result;
-            let a = this.potable(ba.toString());
-            let b = this.potable(ex.toString());
-            if (a.success && b.success) {
-                result = String(Math.pow(a.value, b.value));
+        // Raise the base at the power of exponent
+        strPow(base, exponent) {
+            // just work with strings (again)
+            let bigBase = BigInt(String(base));
+            let bigExponent = BigInt(String(exponent));
+            let result = 1n;
+            if (bigBase === 0n) {
+                result = "0";
+            } else if (bigExponent === 1n) {
+                result = bigBase;
+            } else if (bigExponent === 0n) {
+                result = "1";
             } else {
-                // just work with strings (again)
-                let base = BigInt(ba.toString());
-                let exponent = BigInt(ex.toString());
-                let result = 1n;
-                if (base === 0n) {
-                    result = "0";
-                } else if (exponent === 1n) {
-                    result = base.toString();
-                } else if (exponent === 0n) {
-                    result = "1";
-                } else {
-                    while (exponent > 2n && exponent % 2n === 0n) { // Legendre alg.
-                        base = base * base;
-                        exponent = exponent / 2n;
-                    }
-                    result = (base * BigInt(this.strPow(base.toString(), (exponent - 1n).toString()))).toString();
+                while (bigExponent > 2n && bigExponent % 2n === 0n) { // Legendre alg.
+                    bigBase = bigBase * bigBase;
+                    bigExponent = bigExponent / 2n;
                 }
+                result = (bigBase * BigInt(this.strPow(bigBase, (bigExponent - 1n))));
             }
-            return result;
+            return String(result);
         }
     }
