@@ -1,5 +1,5 @@
-// Para representar números enteros extremadamente grandes (naturales no negativos).
-class SuperScalar {
+    // Para representar números enteros extremadamente grandes (naturales no negativos).
+    class SuperScalar {
 
         // this privates inheritances for polymorphic internal use only...
         static #ScalarZero = class extends SuperScalar {
@@ -51,7 +51,7 @@ class SuperScalar {
                 // el dos se representa 2^1 (ambos se expresan como potencias de dos)
                 // pero eso solamente lo utilizamos para el dos, para los otros números
                 // primos, desactivamos esta posibilidad, con el fin de evitar redundancias
-                // se asume que todas las potencias comienzan en 2...
+                // se asume que todas las potencias comienzan en 1...
             }
 
             toString() {
@@ -85,8 +85,26 @@ class SuperScalar {
             }
         }
 
-        // Pueden crearse clases auxiliares para representar números en forma de sumas, diferencias o
-        // factoriales sin evaluar... especialmente cuando se dificulte la factorización.
+        // from: http://sweet.ua.pt/tos/hobbies.html (c) 2012-2016, Tomás Oliveira e Silva
+        static mersennesPrimesIndexes = ['1', '2', '4', '6', '11', '18', '31', '54', '97', '172', '309', '564', '1028', '1900', '3512',
+            '6542', '12251', '23000', '43390', '82025', '155611', '295947', '564163', '1077871', '2063689', '3957809', '7603553',
+            '14630843', '28192750', '54400028', '105097565', '203280221', '393615806', '762939111', '1480206279', '2874398515',
+            '5586502348', '10866266172', '21151907950', '41203088796', '80316571436', '156661034233', '305761713237',
+            '597116381732', '1166746786182', '2280998753949', '4461632979717', '8731188863470', '17094432576778',
+            '33483379603407', '65612899915304', '128625503610475', '252252704148404', '494890204904784', '971269945245201',
+            '1906879381028850', '3745011184713964', '7357400267843990', '14458792895301660', '28423094496953330',
+            '55890484045084135', '109932807585469973', '216289611853439384', '425656284035217743', '837903145466607212',
+            '1649819700464785589', '3249254387052557215', '6400771597544937806', '12611864618760352880',
+            '24855455363362685793', '48995571600129458363', '96601075195075186855', '190499823401327905601',
+            '375744164937699609596', '741263521140740113483', '1462626667154509638735'];
+        // Lately restrict just to Mersenne ones...
+
+
+        // some Mersenne numbers (the two exponent) from 1 to 50
+        static mersennes = ['2', '3', '5', '7', '13', '17', '19', '31', '61', '89', '107', '127', '521', '607', '1279', '2203', '2281',
+            '3217', '4253', '4423', '9689', '9941', '11213', '19937', '21701', '23209', '44497', '86243', '110503', '132049',
+            '216091', '756839', '859433', '1257787', '1398269', '2976221', '3021377', '6972593', '13466917', '20996011',
+            '24036583', '25964951', '30402457', '32582657', '37156667', '42643801', '43112609', '57885161', '74207281', '77232917'];
 
         constructor(definition) {
             if (definition) {
@@ -122,8 +140,6 @@ class SuperScalar {
             }
         }
 
-        // Primitives
-
         isZero(definition) {
             let likeMe = definition instanceof SuperScalar ? definition : new SuperScalar(definition);
             return likeMe instanceof SuperScalar.#ScalarZero;
@@ -134,43 +150,53 @@ class SuperScalar {
             return likeMe instanceof SuperScalar.#ScalarPrime;
         }
 
+        // Pueden crearse clases auxiliares para representar números en forma de sumas, diferencias o
+        // factoriales sin evaluar... especialmente cuando se dificulte la factorización.
+
         isProduct(definition) { // Todos excepto 0, 1, y los números primos (∞ siempre se considera).
             let likeMe = definition instanceof SuperScalar ? definition : new SuperScalar(definition);
             return likeMe instanceof SuperScalar.#ScalarProduct;
         }
+
+        // Primitives
 
         isInfinity(definition) { // 2 is considered prime number 0
             let likeMe = definition instanceof SuperScalar ? definition : new SuperScalar(definition);
             return likeMe instanceof SuperScalar.#ScalarInfinity;
         }
 
-        // Algunos valores para función pi de Euler en los valores 2^i (i=1 to 76)
-        // from: http://sweet.ua.pt/tos/hobbies.html (c) 2012-2016, Tomás Oliveira e Silva
-        static piOfTwoPowers_1_to_76 = ['1','2','4','6','11','18','31','54','97','172','309','564','1028','1900','3512',
-            '6542','12251','23000','43390','82025','155611','295947','564163','1077871','2063689','3957809','7603553',
-            '14630843','28192750','54400028','105097565','203280221','393615806','762939111','1480206279','2874398515',
-            '5586502348','10866266172','21151907950','41203088796','80316571436','156661034233','305761713237',
-            '597116381732','1166746786182','2280998753949','4461632979717','8731188863470','17094432576778',
-            '33483379603407','65612899915304','128625503610475','252252704148404','494890204904784','971269945245201',
-            '1906879381028850','3745011184713964','7357400267843990','14458792895301660','28423094496953330',
-            '55890484045084135','109932807585469973','216289611853439384','425656284035217743','837903145466607212',
-            '1649819700464785589','3249254387052557215','6400771597544937806','12611864618760352880',
-            '24855455363362685793','48995571600129458363','96601075195075186855','190499823401327905601',
-            '375744164937699609596','741263521140740113483','1462626667154509638735'];
-
         // Euler's Pi function optimize later (test it please)
-        primeIndex(to, from = 0n) {
-            let deep = BigInt(to.toString());
-            let point = BigInt(from.toString());
-            let count = 0n;
-            let step = from <= to ? 1n : -1n;
-            while (point <= deep) {
-                if (this.reallyisprime(point)) {
-                    count = count + 1n;
+        primeIndex(value) {
+            function subPrimeIndex(to, from = 0n) {
+                let deep = BigInt(to.toString());
+                let point = BigInt(from.toString());
+                let count = 0n;
+                let step = from <= to ? 1n : -1n;
+                while (point <= deep) {
+                    if (this.reallyisprime(point)) {
+                        count = count + 1n;
+                    }
+                    point = point + step;
                 }
-                point = point + step;
+                return step * count;
             }
-            return count;
+
+            let deep = BigInt(value);
+
+            // Distancia que podemos recorrar localizando un primo desde uno conocido
+            const carrier = 10000;
+
+            let result;
+
+            if (deep < carrier) {
+                result = subPrimeIndex(deep);
+            } else {
+                // Tratar de encontrar el índice por cercanía,
+                // si no está lo suficientemente cerca, utiliza la función Li,
+                // o lo mejor que tengas, no hay de otra.
+                result = subPrimeIndex(0, deep.value);
+            }
+            return result;
         }
 
         reallyisprime(n) { // ok
@@ -190,20 +216,20 @@ class SuperScalar {
             return true;
         }
 
-        #group(factors) {
-            const groupedResult = factors.reduce((previous, current) => {
+        // Based on the grupby posted by Solomon Yunana (location Kaduna, Nigeria.) to https://dev.to/solexy on 14 mar 2022...
+        group(factors) {
+            return factors.reduce((previous, current) => {
                 if (!previous[current]) {
                     previous[current] = [];
                 }
                 previous[current].push(current);
                 return previous;
-            }, {});
-            return groupedResult;
+            }, []).filter(curra => curra.length > 0);
         }
 
         #reallyisfactor(n) {
             let deep = BigInt(n.toString());
-            return this.#group(this.primeFactors(deep)).length === 1;
+            return this.group(this.primeFactors(deep)).length === 1;
         }
 
         primeValue(index) {
@@ -224,33 +250,35 @@ class SuperScalar {
             return likeMe instanceof SuperScalar.#ScalarFactor;
         }
 
-        factorsFields(n) { // lets go
+        // fix
+        factorsFields(n, previousIndex = 0) { // lets go
             let deep = BigInt(n.toString);
             let facs = this.primeFactors(deep).sort((a, b) => a - b);
-            return this.#group(facs).map((elements, index, arr) => {
-                return {factor: new SuperScalar(index), exponent: new SuperScalar(arr.length)}
+            return this.group(facs).map((element, index, arr) => {
+                return {factor: new SuperScalar.#ScalarPrime(index), exponent: new SuperScalar(arr.length)}
             });
         }
 
         primeFactors(n) { // ok
             let deep = BigInt(n.toString());
-            const factors = [];
+            let factors = [];
             if (deep === 0n) {
                 return [];
             } else if (deep <= 2n) {
                 return [2];
             }
             let divisor = 2n;
-            let i = 0n
-            deep = BigInt(this.strRoot(2, deep)); // tentative limit
-            while (deep > 2n) {
-                if (deep % divisor === 0n) {
+            let root = BigInt(this.strRoot(2, deep)); // tentative limit
+            while (divisor <= root) {
+                while (deep % divisor === 0n) {
+                    console.warn('Divide ', divisor);
                     factors.push(divisor);
                     deep = deep / divisor;
-                } else {
-                    divisor++
                 }
-                i++;
+                divisor++;
+            }
+            if (factors.length === 0) {
+                factors.push(deep);
             }
             return factors;
         }
