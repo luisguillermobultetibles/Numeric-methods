@@ -224,7 +224,7 @@
                 }
                 previous[current].push(current);
                 return previous;
-            }, []).filter(curra => curra.length > 0);
+            }, []).filter(curr => curr.length > 0);
         }
 
         #reallyisfactor(n) {
