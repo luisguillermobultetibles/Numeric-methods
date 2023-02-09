@@ -74,7 +74,7 @@
             let mcd = gcd(base, m);
             if (mcd > 1) { // this is another way, pack and leave.
                 let mmcdd = m / mcd;
-                return residuo(modpow(mcd, exp, mmcdd) * mcd * modpow(base / mcd, exp, mmcdd), m);
+                return residuo(modpow(mcd, exp - 1, mmcdd) * mcd * modpow(base / mcd, exp, mmcdd), m);
             }
 
             while (exp >= 2 && divisibilidad(exp, 2)) {
@@ -108,7 +108,6 @@
             let algo = modpow(2, Math.abs(x - xvalues[i]) / mcd - 1, 2);
             result += y * Math.sin(Math.PI * algo);
             // result += y * (1-Math.tan(Math.PI * algo/4));
-
         });
         return result;
     }
