@@ -1,4 +1,5 @@
-    // Para representar números enteros extremadamente grandes (naturales no negativos).
+    // Clase para representar números enteros extremadamente grandes (naturales no negativos),
+    // implementación del Teorema fundamental de la aritmética, en lenguaje OOP de Javascript.
     class SuperScalar {
 
         // this privates inheritances for polymorphic internal use only...
@@ -52,6 +53,10 @@
                 // pero eso solamente lo utilizamos para el dos, para los otros números
                 // primos, desactivamos esta posibilidad, con el fin de evitar redundancias
                 // se asume que todas las potencias comienzan en 1...
+                // al optimizarse, solamente el primero número es el índice de un número
+                // primo, los subsiguientes ni siquiera son índices de ellos (primos) sino
+                // que constituyen diferencias relativas, donde 0, desde luego significa
+                // el siguiente número primo de la criba, pd ds.
             }
 
             toString() {
@@ -264,14 +269,13 @@
             let factors = [];
             if (deep === 0n) {
                 return [];
-            } else if (deep <= 2n) {
+            } else if (deep === 1n) {
                 return [2];
             }
             let divisor = 2n;
-            let root = BigInt(this.strRoot(2, deep)); // tentative limit
-            while (divisor <= root) {
+            let root = BigInt(this.strRoot(2, deep)) + 2n; // tentative limit
+            while (divisor < root) {
                 while (deep % divisor === 0n) {
-                    console.warn('Divide ', divisor);
                     factors.push(divisor);
                     deep = deep / divisor;
                 }
@@ -281,6 +285,12 @@
                 factors.push(deep);
             }
             return factors;
+        }
+
+        testNow(h) {
+            for (let i = 0; i < h; i++) {
+                console.log(`Para el número ${i}, devuelve los primos [${this.primeFactors(i).join(", ")}].`);
+            }
         }
 
         isProduct() {
