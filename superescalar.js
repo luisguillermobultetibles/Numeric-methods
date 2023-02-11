@@ -265,6 +265,41 @@ class SuperScalar {
         return (m + this.#modpow(base, exp, m) + d % m) % m; // m added to > 0 results.
     }
 
+    gcd(aP, bP) {
+        function min(x,y) {
+            if (x<y) return x; else return y;
+        }
+        function max(x,y) {
+            if (x>y) return x; else return y;
+        }
+        let a = BigInt(aP);
+        let b = BigInt(bP);
+        let result;
+        let [minFactor, maxFactor] = [BigInt(min(a, b)), BigInt(max(a, b))];
+        // this trivial checks avoids div. by zero.
+        if (minFactor === 0n) {
+            if (maxFactor === 0n) {
+                result = Infinity;
+            } else {
+                result = maxFactor;
+            }
+        } else if (maxFactor === 0n) {
+            if (minFactor === 0n) {
+                result = Infinity;
+            } else {
+                result = minFactor;
+            }
+        } else {
+            result = maxFactor;
+            while (minFactor !== 0n) {
+                maxFactor = result;
+                result = minFactor;
+                minFactor = maxFactor % minFactor;
+            }
+        }
+        return result;
+    }
+
     // Hipótesis china
     hch(n) {
         return this.#modpow(2n, n, n) === 2n;
