@@ -1,4 +1,4 @@
-    // Clase para representar números enteros extremadamente grandes (naturales no negativos),
+        // Clase para representar números enteros extremadamente grandes (naturales no negativos),
     // implementación del Teorema fundamental de la aritmética, en lenguaje OOP de Javascript.
     class SuperScalar {
 
@@ -53,10 +53,12 @@
                 // pero eso solamente lo utilizamos para el dos, para los otros números
                 // primos, desactivamos esta posibilidad, con el fin de evitar redundancias
                 // se asume que todas las potencias comienzan en 1...
-                // al optimizarse, solamente el primero número es el índice de un número
+                // al optimizarse, solamente el primer número es el índice de un número
                 // primo, los subsiguientes ni siquiera son índices de ellos (primos) sino
                 // que constituyen diferencias relativas, donde 0, desde luego significa
                 // el siguiente número primo de la criba, pd ds.
+                // Esto es solamente para las bases, los exponentes de cada factor se
+                // codifican normalmente y no se les aplica tal relativización.
             }
 
             toString() {
@@ -101,7 +103,7 @@
             '55890484045084135', '109932807585469973', '216289611853439384', '425656284035217743', '837903145466607212',
             '1649819700464785589', '3249254387052557215', '6400771597544937806', '12611864618760352880',
             '24855455363362685793', '48995571600129458363', '96601075195075186855', '190499823401327905601',
-            '375744164937699609596', '741263521140740113483', '1462626667154509638735'];
+            '375744164937699609596', '741263521140740113483', '1462626667154509638735', '2886507381056867953916'];
         // Lately restrict just to Mersenne ones...
 
 
@@ -221,17 +223,6 @@
             return true;
         }
 
-        // Based on the grupby posted by Solomon Yunana (location Kaduna, Nigeria.) to https://dev.to/solexy on 14 mar 2022...
-        group(factors) {
-            return factors.reduce((previous, current) => {
-                if (!previous[current]) {
-                    previous[current] = [];
-                }
-                previous[current].push(current);
-                return previous;
-            }, []).filter(curr => curr.length > 0);
-        }
-
         #reallyisfactor(n) {
             let deep = BigInt(n.toString());
             return this.group(this.primeFactors(deep)).length === 1;
@@ -258,10 +249,26 @@
         // fix
         factorsFields(n, previousIndex = 0) { // lets go
             let deep = BigInt(n.toString);
-            let facs = this.primeFactors(deep).sort((a, b) => a - b);
-            return this.group(facs).map((element, index, arr) => {
-                return {factor: new SuperScalar.#ScalarPrime(index), exponent: new SuperScalar(arr.length)}
+            let facs = this.group(this.primeFactors(deep));
+            let previous = 0;
+            return facs.map((element, index, arr) => {
+                let newIndex = this.strSubtract(this.primeIndex(element.factor), previous);
+                previous = newIndex;
+                return {factor: new SuperScalar.#ScalarPrime(newIndex), exponent: new SuperScalar(element.exponent)}
             });
+        }
+
+        group(array) {
+            let groupedResult = array.reduce((previous, current) => {
+                if (!previous[current]) previous[current] = [];
+                previous[current].push(current);
+                return previous;
+            }, []);
+            groupedResult = groupedResult.sort((a, b) => a - b).filter((defined) => defined);
+            groupedResult = groupedResult.map((factors) => {
+                return {factor: factors[0], exponent: factors.length}
+            });
+            return groupedResult;
         }
 
         primeFactors(n) { // ok
@@ -270,7 +277,9 @@
             if (deep === 0n) {
                 return [];
             } else if (deep === 1n) {
-                return [2];
+                return [2n];
+            } else if (deep === 2n || deep === 3n || deep === 5n) {
+                return [deep];
             }
             let divisor = 2n;
             let root = BigInt(this.strRoot(2, deep)) + 2n; // tentative limit
@@ -285,12 +294,6 @@
                 factors.push(deep);
             }
             return factors;
-        }
-
-        testNow(h) {
-            for (let i = 0; i < h; i++) {
-                console.log(`Para el número ${i}, devuelve los primos [${this.primeFactors(i).join(", ")}].`);
-            }
         }
 
         isProduct() {
