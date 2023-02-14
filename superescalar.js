@@ -1,4 +1,4 @@
-        // Clase para representar números enteros extremadamente grandes (naturales no negativos),
+    // Clase para representar números enteros extremadamente grandes (naturales no negativos),
     // implementación del Teorema fundamental de la aritmética, en lenguaje OOP de Javascript.
     class SuperScalar {
 
