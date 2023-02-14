@@ -1,4 +1,4 @@
-    // Clase para representar números enteros extremadamente grandes (naturales no negativos),
+        // Clase para representar números enteros extremadamente grandes (naturales no negativos),
     // implementación del Teorema fundamental de la aritmética, en lenguaje OOP de Javascript.
     class SuperScalar {
 
@@ -11,35 +11,35 @@
             toString() {
                 return "0";
             }
-        }
+        };
 
         static #ScalarPrime = class extends SuperScalar {
             constructor(index) {
-                super({index}, true);
+                super({ index }, true);
             }
 
             toString() {
                 return this.primeValue(this.stru.index).toString();
             }
-        }
+        };
 
         static #ScalarFactor = class extends SuperScalar { // 1 is considered
-            constructor({base, exponent}) {
+            constructor({ base, exponent }) {
 
                 let baseLikeMe = base instanceof SuperScalar ? base : new SuperScalar(base);
                 let exponentLikeMe = exponent instanceof SuperScalar ? exponent : new SuperScalar(exponent);
 
-                if (baseLikeMe instanceof SuperScalar.ScalarZero) {
-                    new SuperScalar.ScalarZero();
+                if (baseLikeMe instanceof SuperScalar.#ScalarZero) {
+                    new SuperScalar.#ScalarZero();
                 } else { // incluir lo que pasa cuando la base es 1... o es un número primo de exponente 1, se crean dos cosas diferentes...
-                    super({base: baseLikeMe, exponent: exponentLikeMe});
+                    super({ base: baseLikeMe, exponent: exponentLikeMe });
                 }
             }
 
             toString() {
                 return this.strPow(this.primeValue(this.stru.base), this.stru.exponent).toString();
             }
-        }
+        };
 
         static #ScalarProduct = class extends SuperScalar {
             // Arreglo de factores, el índice del primero es absoluto, los demás...
@@ -70,7 +70,7 @@
                 });
                 return product;
             }
-        }
+        };
 
         static #ScalarInfinity = class extends SuperScalar.#ScalarProduct {
             constructor() {
@@ -80,7 +80,7 @@
             toString() {
                 return "∞";
             }
-        }
+        };
 
         static #ScalarUndefined = class extends SuperScalar {
             constructor() {
@@ -90,11 +90,13 @@
             toString() {
                 return "undefined";
             }
-        }
-        static mersennesPrimesIndexes = ['1', '2', '4', '6', '11', '18', '31', '54', '97', '172', '309', '564', '1028', '1900', '3512', '6542', '12251', '23000', '43390', '82025', '155611', '295947', '564163', '1077871', '2063689', '3957809', '7603553', '14630843', '28192750', '54400028', '105097565', '203280221', '393615806', '762939111', '1480206279', '2874398515', '5586502348', '10866266172', '21151907950', '41203088796', '80316571436', '156661034233', '305761713237', '597116381732', '1166746786182', '2280998753949', '4461632979717', '8731188863470', '17094432576778', '33483379603407', '65612899915304', '128625503610475', '252252704148404', '494890204904784', '971269945245201', '1906879381028850', '3745011184713964', '7357400267843990', '14458792895301660', '28423094496953330', '55890484045084135', '109932807585469973', '216289611853439384', '425656284035217743', '837903145466607212', '1649819700464785589', '3249254387052557215', '6400771597544937806', '12611864618760352880', '24855455363362685793', '48995571600129458363', '96601075195075186855', '190499823401327905601', '375744164937699609596', '741263521140740113483', '1462626667154509638735', '2886507381056867953916', '5697549648954257752872', '11248065615133675809379', '22209558889635384205844', '43860397052947409356492', '86631124695994360074872', '171136408646923240987028', '338124238545210097236684', '668150111666935905701562', '1320486952377516565496055', '2610087356951889016077639', '5159830247726102115466054', '10201730804263125133012340', '20172933541156002700963336', '39895115987049029184882256', '78908656317357166866404346'];
+        };
+
+        // https://oeis.org/A007053/b007053.txt
+        static mersennesPrimesIndexes = ["1", "2", "4", "6", "11", "18", "31", "54", "97", "172", "309", "564", "1028", "1900", "3512", "6542", "12251", "23000", "43390", "82025", "155611", "295947", "564163", "1077871", "2063689", "3957809", "7603553", "14630843", "28192750", "54400028", "105097565", "203280221", "393615806", "762939111", "1480206279", "2874398515", "5586502348", "10866266172", "21151907950", "41203088796", "80316571436", "156661034233", "305761713237", "597116381732", "1166746786182", "2280998753949", "4461632979717", "8731188863470", "17094432576778", "33483379603407", "65612899915304", "128625503610475", "252252704148404", "494890204904784", "971269945245201", "1906879381028850", "3745011184713964", "7357400267843990", "14458792895301660", "28423094496953330", "55890484045084135", "109932807585469973", "216289611853439384", "425656284035217743", "837903145466607212", "1649819700464785589", "3249254387052557215", "6400771597544937806", "12611864618760352880", "24855455363362685793", "48995571600129458363", "96601075195075186855", "190499823401327905601", "375744164937699609596", "741263521140740113483", "1462626667154509638735", "2886507381056867953916", "5697549648954257752872", "11248065615133675809379", "22209558889635384205844", "43860397052947409356492", "86631124695994360074872", "171136408646923240987028", "338124238545210097236684", "668150111666935905701562", "1320486952377516565496055", "2610087356951889016077639", "5159830247726102115466054", "10201730804263125133012340", "20172933541156002700963336", "39895115987049029184882256", "78908656317357166866404346"];
 
         // some Mersenne numbers (the two exponent) from 1 to 50
-        static mersennes = ['2', '3', '5', '7', '13', '17', '19', '31', '61', '89', '107', '127', '521', '607', '1279', '2203', '2281', '3217', '4253', '4423', '9689', '9941', '11213', '19937', '21701', '23209', '44497', '86243', '110503', '132049', '216091', '756839', '859433', '1257787', '1398269', '2976221', '3021377', '6972593', '13466917', '20996011', '24036583', '25964951', '30402457', '32582657', '37156667', '42643801', '43112609', '57885161', '74207281', '77232917'];
+        static mersennes = ["2", "3", "5", "7", "13", "17", "19", "31", "61", "89", "107", "127", "521", "607", "1279", "2203", "2281", "3217", "4253", "4423", "9689", "9941", "11213", "19937", "21701", "23209", "44497", "86243", "110503", "132049", "216091", "756839", "859433", "1257787", "1398269", "2976221", "3021377", "6972593", "13466917", "20996011", "24036583", "25964951", "30402457", "32582657", "37156667", "42643801", "43112609", "57885161", "74207281", "77232917"];
 
         constructor(definition) {
             if (definition) {
@@ -115,7 +117,7 @@
                         }
                     }
                 } else if (definition instanceof String || typeof definition === "string") {
-                    if (definition[0] = "+") { // supress preceding sign & reconstruct all again
+                    if (definition[0] === "+") { // supress preceding sign & reconstruct all again
                         new SuperScalar(definition.substr(1).trim);
                     }
                     if (this.potable(definition).success) {
@@ -157,20 +159,21 @@
         }
 
         // Euler's Pi function optimize later (test it please)
-        primeIndex(value) {
-            function subPrimeIndex(to, from = 0n) {
-                let deep = BigInt(to.toString());
-                let point = BigInt(from.toString());
-                let count = 0n;
-                let step = from <= to ? 1n : -1n;
-                while (step > 0 ? point <= deep : point >= deep) {
-                    if (this.reallyisprime(point)) {
-                        count = count + 1n;
-                    }
-                    point = point + step;
+        #subPrimeIndex(to, from = 0n) {
+            let deep = BigInt(to.toString());
+            let point = BigInt(from.toString());
+            let count = 0n;
+            let step = from <= to ? 1n : -1n;
+            while (step > 0 ? point <= deep : point >= deep) {
+                if (this.primality(point)) {
+                    count = count + 1n;
                 }
-                return step * count;
+                point = point + step;
             }
+            return step * count;
+        }
+        primeIndex(value) {
+
 
             let deep = BigInt(value);
 
@@ -180,12 +183,12 @@
             let result;
 
             if (deep < carrier) {
-                result = subPrimeIndex(deep);
+                result = this.#subPrimeIndex(deep);
             } else {
                 // Tratar de encontrar el índice por cercanía,
                 // si no está lo suficientemente cerca, utiliza la función Li,
                 // o lo mejor que tengas, no hay de otra.
-                result = subPrimeIndex(0, deep.value);
+                result = this.#subPrimeIndex(0, deep.value);
             }
             return result;
         }
@@ -239,7 +242,7 @@
             }
         }
 
-        // Función resto de la división [(base^exp) ± d] mod m
+        // Función "resto" de la división [(base^exp) ± d] mod m
         #modpowplus(base, exp, d, m) {
             return (m + this.#modpow(base, exp, m) + d % m) % m; // m added to > 0 results.
         }
@@ -319,27 +322,27 @@
             let value = 2n;
             while (result < deep) {
                 result++;
-                while (!this.reallyisprime(value)) {
+                while (!this.primality(value)) {
                     value++;
                 }
             }
             return value;
         }
 
-        isFactor() {
+        isFactor(definition) {
             let likeMe = definition instanceof SuperScalar ? definition : new SuperScalar(definition);
             return likeMe instanceof SuperScalar.#ScalarFactor;
         }
 
         // fix
         factorsFields(n, previousIndex = 0) { // lets go
-            let deep = BigInt(n.toString);
+            let deep = BigInt(String(n));
             let facs = this.group(this.primeFactors(deep));
             let previous = 0;
             return facs.map((element, index, arr) => {
                 let newIndex = this.strSubtract(this.primeIndex(element.factor), previous);
                 previous = newIndex;
-                return {factor: new SuperScalar.#ScalarPrime(newIndex), exponent: new SuperScalar(element.exponent)}
+                return { factor: new SuperScalar.#ScalarPrime(newIndex), exponent: new SuperScalar(element.exponent) };
             });
         }
 
@@ -351,7 +354,7 @@
             }, []);
             groupedResult = groupedResult.sort((a, b) => a - b).filter((defined) => defined);
             groupedResult = groupedResult.map((factors) => {
-                return {factor: factors[0], exponent: factors.length}
+                return { factor: factors[0], exponent: factors.length };
             });
             return groupedResult;
         }
@@ -381,16 +384,11 @@
             return factors;
         }
 
-        isProduct() {
-            let likeMe = definition instanceof SuperScalar ? definition : new SuperScalar(definition);
-            return likeMe instanceof SuperScalar.#ScalarProduct;
-        }
-
         potable(definition = "") {
             let deep = definition.toString();
             let MAX_INT = String(9007199254740992);
             let myLen = deep.toString().length;
-            let result = {success: true, value: undefined};
+            let result = { success: true, value: undefined };
             try {
                 result.value = Number(deep);
                 result.success = myLen > 0 && (myLen < MAX_INT.length || (myLen === MAX_INT.length && BigInt(result.value) <= BigInt(MAX_INT))) && (result.value > 0n);
@@ -446,7 +444,7 @@
             // just work with strings (again)
             let bigBase = BigInt(String(base));
             let bigExponent = BigInt(String(exponent));
-            let result = 1n;
+            let result;
             if (bigBase === 0n) {
                 result = "0";
             } else if (bigExponent === 1n) {
