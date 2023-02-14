@@ -299,7 +299,7 @@
 
         // Teorema de Wilson (is BigInt, pls use 0n, 2n, 3n,... instead of 0, 1, 2, 3).
         tw(n) {
-            return this.#gamma(n) % n === 1n;
+            return this.#gamma(n - 1n) % n === 1n;
         }
 
         primality(n) { // ok
