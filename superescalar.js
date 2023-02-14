@@ -287,6 +287,23 @@
             return this.gcd(tmp, p);
         }
 
+        // big factor 14/02/2003 (is public, one more day to fix).
+        bigFac(n) {
+            let deep = BigInt(n);
+            let result;
+            if (deep < 3n) {
+                result = deep;
+            } else if (deep % 2n === 0n) {
+                return 2n;
+            } else if (deep % 3n === 0n) {
+                return 3n;
+            } else {
+                console.log(deep);
+                result = this.gcd(deep, this.#modpowplus(2n, deep, deep, -this.#modpow(2n, deep, deep)));
+            }
+            return result;
+        }
+
         // Hipótesis china
         hch(n) {
             return this.#modpow(2n, n, n) === 2n;
