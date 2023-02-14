@@ -47,7 +47,7 @@
                 super(...factors);
                 // Lo anterior guarda la estructura de factores en stru,
                 // (que a propósito, creo que es innecesaria: debido al polimorfismo
-                // probablemente no se necesiten otros datos que el tipo de objeto, 
+                // probablemente no se necesiten otros datos que el tipo de objeto,
                 // lo que pasa con la clase 0, pero para demostrar eso primero tengo que terminar),
                 // el próximo paso es optimizar, recuerda el primer índice es absoluto
                 // y los consecuentes, relativos a los precedentes
@@ -301,8 +301,8 @@
             } else if (deep % 3n === 0n) {
                 return 3n;
             } else {
-                console.log(deep);
-                result = this.gcd(deep, this.#modpowplus(2n, deep, deep, -this.#modpow(2n, deep, deep)));
+                console.log(this.#modpow(2n, deep - 1n, deep));
+                result = this.gcd(deep, this.#modpow(2n, deep - 1n, deep) - 1n);
             }
             return result;
         }
