@@ -293,16 +293,21 @@
         // big factor 14/02/2003 (is public, one more day to fix).
         bigFac(n) {
             let deep = BigInt(n);
-            let result;
+            let result = 0n;
             if (deep < 3n) {
                 result = deep;
             } else if (deep % 2n === 0n) {
-                return 2n;
+                result = 2n;
             } else if (deep % 3n === 0n) {
-                return 3n;
+                result = 3n;
             } else {
-                console.log(this.#modpow(2n, deep - 1n, deep));
-                result = this.gcd(deep, this.#modpow(2n, deep - 1n, deep) - 1n);
+                result = this.gcd(deep, this.#modpow(2n, deep - 1n, deep) - 1n); // some times == deep
+                if (result === 1n || result === deep) {
+                    result = this.gcd(deep, deep - this.#modpowplus(2n, (deep - 1n) / 2n, 1n, deep));
+                    if (result === 1n || result === deep) {
+                        result = this.gcd(deep, deep - this.#modpowplus(2n, (deep - 1n) / 2n, -1n, deep));
+                    }
+                }
             }
             return result;
         }
