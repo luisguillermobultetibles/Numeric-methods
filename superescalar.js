@@ -15,7 +15,7 @@
 
         static #ScalarPrime = class extends SuperScalar {
             constructor(index) {
-                super({ index }, true);
+                super({index}, true);
             }
 
             toString() {
@@ -24,7 +24,7 @@
         };
 
         static #ScalarFactor = class extends SuperScalar { // 1 is considered
-            constructor({ base, exponent }) {
+            constructor({base, exponent}) {
 
                 let baseLikeMe = base instanceof SuperScalar ? base : new SuperScalar(base);
                 let exponentLikeMe = exponent instanceof SuperScalar ? exponent : new SuperScalar(exponent);
@@ -32,7 +32,7 @@
                 if (baseLikeMe instanceof SuperScalar.#ScalarZero) {
                     new SuperScalar.#ScalarZero();
                 } else { // incluir lo que pasa cuando la base es 1... o es un número primo de exponente 1, se crean dos cosas diferentes...
-                    super({ base: baseLikeMe, exponent: exponentLikeMe });
+                    super({base: baseLikeMe, exponent: exponentLikeMe});
                 }
             }
 
@@ -46,6 +46,9 @@
             constructor(factors) {
                 super(...factors);
                 // Lo anterior guarda la estructura de factores en stru,
+                // (que a propósito, creo que es innecesaria: debido al polimorfismo
+                // probablemente no se necesiten otros datos que el tipo de objeto, 
+                // lo que pasa con la clase 0, pero para demostrar eso primero tengo que terminar),
                 // el próximo paso es optimizar, recuerda el primer índice es absoluto
                 // y los consecuentes, relativos a los precedentes
                 // el 1 (uno), normalmente se representa 2^0, y
@@ -240,7 +243,7 @@
 
         // Función "resto" de la división [(base^exp) ± d] mod m
         #modpowplus(base, exp, d, m) {
-            return (m + this.#modpow(base, exp, m) + d % m) % m; // m added to > 0 results.
+            return (m + this.#modpow(base, exp, m) + d) % m; // m added to > 0 results.
         }
 
         gcd(aP, bP) {
@@ -362,7 +365,7 @@
             return facs.map((element, index, arr) => {
                 let newIndex = this.strSubtract(this.primeIndex(element.factor), previous);
                 previous = newIndex;
-                return { factor: new SuperScalar.#ScalarPrime(newIndex), exponent: new SuperScalar(element.exponent) };
+                return {factor: new SuperScalar.#ScalarPrime(newIndex), exponent: new SuperScalar(element.exponent)};
             });
         }
 
@@ -374,7 +377,7 @@
             }, []);
             groupedResult = groupedResult.sort((a, b) => a - b).filter((defined) => defined);
             groupedResult = groupedResult.map((factors) => {
-                return { factor: factors[0], exponent: factors.length };
+                return {factor: factors[0], exponent: factors.length};
             });
             return groupedResult;
         }
@@ -408,7 +411,7 @@
             let deep = definition.toString();
             let MAX_INT = String(9007199254740992);
             let myLen = deep.toString().length;
-            let result = { success: true, value: undefined };
+            let result = {success: true, value: undefined};
             try {
                 result.value = Number(deep);
                 result.success = myLen > 0 && (myLen < MAX_INT.length || (myLen === MAX_INT.length && BigInt(result.value) <= BigInt(MAX_INT))) && (result.value > 0n);
