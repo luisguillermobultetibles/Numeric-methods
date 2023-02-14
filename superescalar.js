@@ -1,4 +1,4 @@
-    // Clase para representar números enteros extremadamente grandes (naturales no negativos),
+        // Clase para representar números enteros extremadamente grandes (naturales no negativos),
     // implementación del Teorema fundamental de la aritmética, en lenguaje OOP de Javascript.
     class SuperScalar {
 
@@ -172,16 +172,12 @@
             }
             return step * count;
         }
+
         primeIndex(value) {
-
-
             let deep = BigInt(value);
-
             // Distancia que podemos recorrar localizando un primo desde uno conocido
             const carrier = 10000;
-
             let result;
-
             if (deep < carrier) {
                 result = this.#subPrimeIndex(deep);
             } else {
@@ -282,6 +278,13 @@
                 }
             }
             return result;
+        }
+
+        // función "resto" de la división GCD( [(base^exp) ± d] mod m, p)
+        // Útil para factorizar números muy grandes
+        #gcdModPowPlus(base, exp, d, m, p) {
+            let tmp = this.#modpowplus(base, exp, d, m) % p;
+            return this.gcd(tmp, p);
         }
 
         // Hipótesis china
