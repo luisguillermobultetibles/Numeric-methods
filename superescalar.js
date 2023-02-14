@@ -46,7 +46,7 @@
             constructor(factors) {
                 super(...factors);
                 // Lo anterior guarda la estructura de factores en stru,
-                // (que a propósito, creo que es innecesaria: debido al polimorfismo
+                // (...que a propósito, creo que es innecesaria: debido al polimorfismo
                 // probablemente no se necesiten otros datos que el tipo de objeto,
                 // lo que pasa con la clase 0, pero para demostrar eso primero tengo que terminar),
                 // el próximo paso es optimizar, recuerda el primer índice es absoluto
