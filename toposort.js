@@ -16,6 +16,6 @@ function solve(tasks) {
         return deps(task1, task2);
     }
     // main
-    tasks.sort((task1, task2) => depends(task1, task2));
+    tasks = tasks.sort((task1, task2) => depends(task1, task2));
     return tasks;
 }
