@@ -1,30 +1,21 @@
-// Topological sorting --- WARNING INESTABLE BLUE CCPY WORKING DRAFT ---
-// let tasks = [{name: "tarea 2", dependencies : ["tarea 2", "tarea 1"]}, {name: "tarea 1", dependencies : ["tarea 4", "tarea 5"]}];
+// Topological sorting 
+// let tasks = [{name: "tarea 2", dependencies : ["tarea 3", "tarea 4"]}, {name: "tarea 1", dependencies : ["tarea 2", "tarea 3"]}];
 function solve(tasks) {
     function depends(task1, task2) { // task2 depends of task1 ?
         let vis = [];
         function deps(t1, t2) {
-            if (vis.indexOf(t1) !== -1) {
-                return false;
+            if (vis.indexOf(t1.name) !== -1) {
+                return 1;
             } else {
-                vis.push(t1);
-                return (tasks.dependencies.some((element) => {
-                    return element.name === t2 && (element.dependencies.indexOf(t1) !== -1 || this.depVis(element.name, t2)); // <- o al revés
-                }));
+                vis.push(t1.name);
+                return (task1.dependencies.some((element) => {
+                    return element.name === t2 && (element.dependencies.indexOf(t1) !== -1 || (this.depVis(t1, element.name) && this.depVis(element.name, t2)));
+                })) ? -1 : 1;
             }
-            return `Referencia circular entre ${task1} y ${task2}.`;
         }
         return deps(task1, task2);
     }
     // main
-    for (let i = 0; i < tasks.length - 1; i++) {
-        const first = tasks[i];
-        for (let j = i + 1; j < tasks.length; j++) {
-            const next = tasks[j];
-            if (depends(first, next)) {
-                [tasks[i], tasks[j]] = [tasks[j], tasks[i]];
-            }
-        }
-    }
+    tasks.sort((task1, task2) => depends(task1, task2));
     return tasks;
 }
