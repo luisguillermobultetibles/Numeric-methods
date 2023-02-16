@@ -1,18 +1,16 @@
-// Topological sorting (task dependency scheduling) (NOT TESTED I AM WORKING IN THIS RIGHT NOW).
-// let tasks = [{name: "tarea 2", dependencias : ["tarea 4", "tarea 5"]}, {name: "tarea 1", dependencias : ["tarea 2", "tarea 3"]}];
+// Topological sorting 
+// let tasks = [{name: "tarea 2", dependencies : ["tarea 2", "tarea 1"]}, {name: "tarea 1", dependencies : ["tarea 4", "tarea 5"]}];
 function solve(tasks) {
     function depends(name1, name2) {
         let vis = [];
-        function depVis(me, n2) {
+        function depVis(me, me_of) {
             if (vis.indexOf(me) !== -1) {
                 return false;
             } else {
                 vis.push(me);
-                return tasks.some((task) => {
-                    return (task.dependencies.some((element) => {
-                        return element.name === n2 && (task.dependencies.indexOf(me !== -1) || this.depVis(me, element.name)); // <- o al revés
-                    }));
-                })
+                return (tasks.dependencies.some((element) => {
+                    return element.name === me_of && this.depVis(element.name, me_of); // <- o al revés
+                }));
             }
             return `Referencia circular entre ${name1} y ${name2}.`;
         }
