@@ -5,12 +5,12 @@ function solve(tasks) {
         let vis = [];
         function deps(t1, t2) {
             if (vis.indexOf(t1.name) !== -1) {
-                return 1;
+                return -1;
             } else {
                 vis.push(t1.name);
                 return (task1.dependencies.some((element) => {
                     return element.name === t2 && (element.dependencies.indexOf(t1) !== -1 || (this.depVis(t1, element.name) && this.depVis(element.name, t2)));
-                })) ? -1 : 1;
+                })) ? 1 : -1;
             }
         }
         return deps(task1, task2);
