@@ -3,8 +3,11 @@
 function solve(tasks) {
     function depends(task1, task2) { // task2 depends of task1 ?
         let vis = [];
-        function deps(t1, t2) {
+        function depVis(t1, t2) {
             if (vis.indexOf(t1.name) !== -1) {
+                if (t2 === task1) {
+                    console.warn(`Circular dependence: ${t1.name} of ${$task1.name}.`);
+                }
                 return -1;
             } else {
                 vis.push(t1.name);
@@ -15,6 +18,5 @@ function solve(tasks) {
         }
         return deps(task1, task2);
     }
-    // main
     return tasks.sort((task1, task2) => depends(task1, task2));
 }
