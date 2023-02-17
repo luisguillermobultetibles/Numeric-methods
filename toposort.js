@@ -5,9 +5,6 @@ function solve(tasks) {
         let vis = [];
         function depVis(t1, t2) {
             if (vis.indexOf(t1.name) !== -1) {
-                if (t2.name === task1.name) {
-                    console.warn(`Circular dependence: ${t1.name} of ${$task1.name}.`);
-                }
                 return -1;
             } else {
                 vis.push(t1.name);
