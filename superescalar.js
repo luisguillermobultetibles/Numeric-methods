@@ -1,4 +1,4 @@
-      // Clase para representar números enteros extremadamente grandes (naturales no negativos),
+        // Clase para representar números enteros extremadamente grandes (naturales no negativos),
         // implementación del Teorema fundamental de la aritmética, en lenguaje OOP de Javascript.
         class SuperScalar {
 
@@ -300,21 +300,24 @@
                     result = 2n;
                 } else if (deep % 3n === 0n) {
                     result = 3n;
-                } else {
+                } else {                    
                     let d = deep;
-                    while (d > 1n) {
+                    while (d > 1n) {                        
                         result = this.gcd(deep, deep - (this.modpow(2n, d, deep) + 1n));
                         if (result !== 1n && result !== deep) return result;
                         result = this.gcd(deep, deep - (this.modpow(2n, d, deep) - 1n));
                         if (result !== 1n && result !== deep) return result;
-                        if (d % 2n === 0n) {
+                        if (d === 1n) {
+                            result = deep;
+                            break;
+                        } else if (d % 2n === 0n) {
                             d = d / 2n;
                         } else {
                             d = d - 1n;
                         }
                     }
                 }
-                return deep;
+                return result;
             }
 
             // Hipótesis china
