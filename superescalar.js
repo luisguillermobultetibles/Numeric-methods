@@ -300,14 +300,20 @@
                     result = 2n;
                 } else if (deep % 3n === 0n) {
                     result = 3n;
-                } else {                    
+                } else {
                     let d = deep;
-                    while (d > 1n) {                        
-                        result = this.gcd(deep, deep - (this.modpow(2n, d, deep) + 1n));
+                    let u = deep + 1;
+                    let r = BigInt(this.strRoot(2n, deep));
+                    if (deep % r === 0n) {
+                        return r;
+                    }
+                    while (d > 1n) {
+                        result = this.gcd(deep, deep - (this.modpow(r, d, deep) + 1n));
                         if (result !== 1n && result !== deep) return result;
-                        result = this.gcd(deep, deep - (this.modpow(2n, d, deep) - 1n));
+                        result = this.gcd(deep, deep - (this.modpow(r, d, deep) - 1n));
                         if (result !== 1n && result !== deep) return result;
-                        if (d === 1n) {
+                        // sección 1
+                        if (d <= 1n) {
                             result = deep;
                             break;
                         } else if (d % 2n === 0n) {
@@ -315,6 +321,18 @@
                         } else {
                             d = d - 1n;
                         }
+                        // sección 2
+                        if (u <= 1n || u === d) {
+                            continue;
+                        } else if (u % 2n === 0n) {
+                            u = u / 2n;
+                        } else {
+                            u = u + 1n;
+                        }
+                        result = this.gcd(deep, deep - (this.modpow(r, u, deep) + 1n));
+                        if (result !== 1n && result !== deep) return result;
+                        result = this.gcd(deep, deep - (this.modpow(r, u, deep) - 1n));
+                        if (result !== 1n && result !== deep) return result;
                     }
                 }
                 return result;
@@ -322,12 +340,12 @@
 
             // Hipótesis china
             hch(n) {
-                return this.modpow(2n, n, n) === 2n;
+                return n % 2n !== 0 && this.modpow(2n, n, n) === 2n;
             }
 
             // Pequeño teorema de Fermat
-            ptf(n) {
-                return this.modpow(2n, n - 1n, n) === 1n;
+            ptf(n, base = 2n) {
+                return n % 2n !== 0 &&this.modpow(base, n - 1n, n) === 1n;
             }
 
             // Teorema de Wilson (is BigInt, pls use 0n, 2n, 3n,... instead of 0, 1, 2, 3).
@@ -472,7 +490,6 @@
             // Raise the base at the power of exponent
             strPow(base, exponent) {
                 // just work with strings (again)
-                console.log(base, exponent);
                 let bigBase = BigInt(String(base));
                 let bigExponent = BigInt(String(exponent));
                 let result;
