@@ -9,7 +9,7 @@
                     } else {
                         vis.push(t1.name);
                         return (task1.dependencies.some((element) => {
-                            return element.name === t2 && (element.dependencies.indexOf(t1) !== -1 || (this.depVis(t1, element.name) && this.depVis(element.name, t2)));
+                            return element.name === t2 && (element.dependencies.indexOf(t1) !== -1 || (depVis(t1, element.name) && depVis(element.name, t2)));
                         })) ? 1 : -1;
                     }
                 }
