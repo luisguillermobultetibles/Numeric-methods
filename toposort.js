@@ -5,7 +5,7 @@
             let vis = [];
             function depVis(t1, t2) {
                 let result;
-                if (t1 === t2 || tasks.some((element) => {
+                if (tasks.some((element) => {
                     return element.name === t1 && element.dependencies.indexOf(t2) !== 1
                 })) {
                     result = 1;
@@ -17,7 +17,7 @@
                         result = depVis(element.name, t2) !== -1 && depVis(t1, element.name) !== -1;
                     }) ? 1 : -1;
                 }
-                // console.log(`Dependencia circular de ${t1} de ${t2} = ${result}.`);
+                // console.warn(`Dependencia circular de ${t1} de ${t2} = ${result}.`);
                 return result;
             }
             return depVis(task1.name, task2.name);
