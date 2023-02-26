@@ -5,12 +5,14 @@
         .Curvatura media entre 0 y 1.
         .Radio medio.
         .Dimensión.
-        .Densidad media.
+        .Densidad media (de la mezcla en cada punto, se relaciona con los huecos y la masa).
+        .Masa (no se refiere exclusivamente a la masa física, sino a la sumatoria del peso de cada punto de la geometría).
+        .Centro de geometría (centroide) y centro de masa...
         .Torcedura.
         .Enrarecimiento: Relativo al número o densidad de asas (o agujeros) = caras o ciclos. Tiene que ver con el género, puede no ser un escalar.
         .Entrelazamientos: (Nada que ver con el cuántico) Relativa a los nudos y lazos entre las asas o agujeros.
         .Grupos: Relativo a la cantidad de grupos aislados no conexos.
-        .Topología: Relativa al orden de los caminos, resultado de la métrica de las distancias y recorridos internos.    
+        .Topología: Relativa al orden de los caminos, resultado de la métrica de las distancias y recorridos internos.       
         
         
    Objetivos:
