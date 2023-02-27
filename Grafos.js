@@ -53,6 +53,7 @@
         
         dimension() {
             // Para los cálculos, se utiliza el radio unitario
+            // Se infiere del la fórmula del volumen V(n) = 1 = Math.(π, n/2) / Γ(1 + n/2)
         }
 
         curvatura() {
