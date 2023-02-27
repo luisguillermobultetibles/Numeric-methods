@@ -1,6 +1,7 @@
     Propiedades que caracteriza un variedad n-dimensional:
     
         .Continuidad y derivabilidad (por lo general se queda en el nivel especulativo, puramente matemático).
+        .Grupos topológicos (en sentido de la conexión): En caso de que producto de la discontinuidad, haya desconexión se analiza cada grupo por separado.
         .Volumen: Se relaciona proporcionalmente con la cantidad de nodos.
         .Curvatura media entre 0 y 1.
         .Radio medio.
