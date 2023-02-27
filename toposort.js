@@ -16,5 +16,6 @@
                 }) ? 1 : -1;
             }
         }
+        // optimize    
         return tasks.sort((a, b) => a.name < b.name ? 1 : -1).sort((task1, task2) => depVis(task1, task2));
     }
