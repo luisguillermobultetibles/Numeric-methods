@@ -50,6 +50,16 @@
             }
             return this.anomalía() * (this.Ҳ - 2) / -2;
         }
+        
+        dimension() {
+            // Para los cálculos, se utiliza el radio unitario
+        }
+
+        curvatura() {
+            // Puede obtenerse de V = [ 2*Math.pow(Math.sqrt(π), n) / Γ(n/2) ] * [ Math.pow(n, Ω -1) ]
+            // Donde n -> es la dimensión 
+            // y Ω, la curvatura entre 0 y 1; 0 es una superficie de una bola n + 1 dimensional, 1: una n-bola.
+        }
 
         existeNodo(n) {
             return this.nodos.some((node) => node === n);
