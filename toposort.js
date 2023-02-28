@@ -11,5 +11,5 @@
                 return depVis(task1, it) === dependant && depVis(it, task2) === dependant;
             }) ? dependant : notDependant;
         }
-        return tasks.sort((a, b) => a.name < b.name ? dependant : notDependant).sort((task1, task2) => depVis(task1, task2)).reverse();
+        return tasks.sort((a, b) => a.name < b.name ? dependant : notDependant).sort((task1, task2) => -depVis(task1, task2)).reverse();
     }
