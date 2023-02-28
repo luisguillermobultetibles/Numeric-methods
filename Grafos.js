@@ -48,7 +48,7 @@
                 }
                 return (r() * this.vertices) / (2 * this.arcos); // or inverse?
             }
-            return this.anomalía() * (this.Ҳ - 2) / -2;
+            return anomalía() * (this.Ҳ - 2) / -2;
         }
         
         dimension() {
