@@ -893,7 +893,7 @@ class TArreglo extends WebSystemObject {
         return solutions;
 
     }
-
+    
     // Extrapoación astronómica (Provisional ®Pipo '2023)
     sFT(xvalues, yvalues, x) {
         let residuo = (x, y) => {
@@ -956,6 +956,10 @@ class TArreglo extends WebSystemObject {
 
         // fast decay modpow
         function modpow(base, exp, m) {
+
+            // Utility function to do
+            // modular exponentiation.
+
             if (m === 1) return 0;
             if (exp === 0) return 1;
             if (base === 0) return 0;
@@ -965,7 +969,8 @@ class TArreglo extends WebSystemObject {
 
             let mcd = gcd(base, m);
             if (mcd > 1) { // this is another way, pack and leave.
-                return mcd * modpow(base / mcd, exp, m / mcd);
+                let mmcdd = m / mcd;
+                return residuo(modpow(mcd, exp - 1, mmcdd) * mcd * modpow(base / mcd, exp, mmcdd), m);
             }
 
             while (exp >= 2 && divisibilidad(exp, 2)) {
@@ -998,6 +1003,7 @@ class TArreglo extends WebSystemObject {
         yvalues.forEach((y, i) => {
             let algo = modpow(2, Math.abs(x - xvalues[i]) / mcd - 1, 2);
             result += y * Math.sin(Math.PI * algo);
+            // result += y * (1-Math.tan(Math.PI * algo/4));
         });
         return result;
     }
