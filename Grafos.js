@@ -38,7 +38,7 @@
         }
 
         get genus() {
-            let anomalía = () => {
+            let anomalía = () => { // ¿Será = curvatura ó = 1 - curvatura? Si es así... suprimir el método.
                 let r = () => {
                     let aristasIncidentes = 0;
                     this.nodes.forEach((node) => {
