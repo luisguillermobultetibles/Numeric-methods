@@ -53,11 +53,11 @@
         
         dimension() {
             // Para los cálculos, se utiliza el radio unitario
-            // Se infiere del la fórmula del volumen V(n) = 1 = Math.(π, n/2) / Γ(1 + n/2)
+            // Se infiere del la fórmula del volumen V(n) = this.vertices = Math.(π, n/2) / Γ(1 + n/2)
         }
 
         curvatura() {
-            // Puede obtenerse de V = [ 2*Math.pow(Math.sqrt(π), n) / Γ(n/2) ] * [ Math.pow(n, Ω -1) ]
+            // Puede obtenerse de V = this.vertices = [ 2*Math.pow(Math.sqrt(π), n) / Γ(n/2) ] * [ Math.pow(n, Ω -1) ]
             // Donde n -> es la dimensión 
             // y Ω, la curvatura entre 0 y 1; 0 es una superficie de una bola n + 1 dimensional, 1: una n-bola.
         }
