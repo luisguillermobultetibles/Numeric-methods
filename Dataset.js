@@ -1,6 +1,5 @@
 // const fs = require("fs");
 
-import fs from "fs";
 
 class DataSet extends TArreglo {
     constructor(datasource) {
@@ -10,48 +9,36 @@ class DataSet extends TArreglo {
         } else {
             this.open([]);
         }
+        this.#filename = null;
     }
 
     // Cargar de un formato .json clásico
-    loadFromFile(filename, standard = false) {
-        try {
-            if (fs) {
-                const data = fs.readFileSync(filename, 'utf8');
-                const content = JSON.parse(data);
-                if (standard) {
-                    this.ds = content.RECORDS;
-                } else {
-                    this.ds = content;
-                }
-                console.log('Loaded config \'' + filename + '\'');
-            } else {
-                throw new Error(`File system innacessible from browser, you must declare "const fs = require("fs");", 
-or "import fs from 'fs';" at the top of module`);
-            }
-        } catch (e) {
-            console.warn(e);
+    loadFromFile(filename) {
+        if (filename && !this.#filename) {
+            this.#filename = filename;
+        }
+        if (this.#filename) {
+            const data = super.readFromFile(filename);
+            const content = JSON.parse(data);
+            this._array = content["RECORDS"];
+        } else {
+            throw new Error('You must specify a file name at lest once time.');
         }
     }
 
-    writeToFile(fileName, standard = false) {
-        try {
-            if (fs) {
-                const
-                    magicNumber = 0o777;
-
-                if (standard) {
-                    fs.writeFileSync(fileName, this.ds.RECORDS, {mode: magicNumber});
-                } else {
-                    fs.writeFileSync(fileName, this.ds, {mode: magicNumber});
-                }
-            } else {
-                throw new Error(`File system innacessible from browser, you must declare "const fs = require("fs");", 
-or "import fs from 'fs';" at the top of module`);
+    writeToFile(fileName) {
+        if (filename && !this.#filename) {
+                this.#filename = filename;
             }
-        } catch (e) {
-            console.warn(e);
+        if (this.#filename) {
+            super.writeToFile(fileName, `{"RECORDS":${JSON.stringify(this._array)}}`);
+        } else {
+            throw new Error('You must specify a file name at lest once time.');
         }
     }
+
+    // Sin ser tan mongo, puedes desarrollar tu propio SGDB.
+
 
 // Agregar una nueva relación... (no chequea., luego)., foreign es la tabla física con la que se relaciona, también de tipo Table.
 
