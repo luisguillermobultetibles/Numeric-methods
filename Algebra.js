@@ -26,7 +26,7 @@ class SubSpace extends WebSystemObject {
             super();
         }
     }
-    // El contenido o parte de una hiperesfera
+    // El contenido o parte de una bola
     static Wall = class extends SubSpace.#Euclidean {
         constructor() {
             super();
