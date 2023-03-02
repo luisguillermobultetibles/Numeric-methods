@@ -23,105 +23,105 @@ class Keyboard {
     static #UpDownstates = [];
     static #DownEvents = [];
     static #UpEvents = [];
-    keyBACKSPACE = 8;
-    keyTAB = 9;
-    keyENTER = 13;
-    keySHIFT = 16;
-    keyCTRL = 17;
-    keyALT = 18;
-    keyPAUSE_BREAK = 19;
-    keyCAPS_LOCK = 20;
-    keyESCAPE = 27;
-    keySPACE = 32;
-    keyPAGE_UP = 33;
-    keyPAGE_DOWN = 34;
-    keyEND = 35;
-    keyHOME = 36;
-    keyLEFT_ARROW = 37;
-    keyUP_ARROW = 38;
-    keyRIGHT_ARROW = 39;
-    keyDOWN_ARROW = 40;
-    keyINSERT = 45;
-    keyDELETE = 46;
-    key0 = 48;
-    key1 = 49;
-    key2 = 50;
-    key3 = 51;
-    key4 = 52;
-    key5 = 53;
-    key6 = 54;
-    key7 = 55;
-    key8 = 56;
-    key9 = 57;
-    keya = 65;
-    keyb = 66;
-    keyc = 67;
-    keyd = 68;
-    keye = 69;
-    keyf = 70;
-    keyg = 71;
-    keyh = 72;
-    keyi = 73;
-    keyj = 74;
-    keyk = 75;
-    keyl = 76;
-    keym = 77;
-    keyn = 78;
-    keyo = 79;
-    keyp = 80;
-    keyq = 81;
-    keyr = 82;
-    keys = 83;
-    keyt = 84;
-    keyu = 85;
-    keyv = 86;
-    keyw = 87;
-    keyx = 88;
-    keyy = 89;
-    keyz = 90;
-    keyLET_WINDOW = 91;
-    keyRIGHT_WINDOW = 92;
-    keySELECT = 93;
-    keyNUMPAD_0 = 96;
-    keyNUMPAD_1 = 97;
-    keyNUMPAD_2 = 98;
-    keyNUMPAD_3 = 99;
-    keyNUMPAD_4 = 100;
-    keyNUMPAD_5 = 101;
-    keyNUMPAD_6 = 102;
-    keyNUMPAD_7 = 103;
-    keyNUMPAD_8 = 104;
-    keyNUMPAD_9 = 105;
-    keyMULTIPLY = 106;
-    keyADD = 107;
-    keySUBTRACT = 109;
-    keyDECIMAL_POINT = 110;
-    keyDIVIDE = 111;
-    keyF1 = 112;
-    keyF2 = 113;
-    keyF3 = 114;
-    keyF4 = 115;
-    keyF5 = 116;
-    keyF6 = 117;
-    keyF7 = 118;
-    keyF8 = 119;
-    keyF9 = 120;
-    keyF10 = 121;
-    keyF11 = 122;
-    keyF12 = 123;
-    keyNUM_LOCK = 144;
-    keySCROLL_LOCK = 145;
-    keySEMI_COLON = 186;
-    keyEQUAL_SIGN = 187;
-    keyCOMMA = 188;
-    keyDASH = 189;
-    keyPERIOD = 190;
-    keyFORWARD_SLASH = 191;
-    keyGRAVE_ACENT = 192;
-    keyOPEN_BRACKET = 219;
-    keyBACK_SLASH = 220;
-    keyOPEN_BRACKET = 221;
-    keySINGLE_QUOTE = 222;
+    static #keyBACKSPACE = 8;
+    static #keyTAB = 9;
+    static #keyENTER = 13;
+    static #keySHIFT = 16;
+    static #keyCTRL = 17;
+    static #keyALT = 18;
+    static #keyPAUSE_BREAK = 19;
+    static #keyCAPS_LOCK = 20;
+    static #keyESCAPE = 27;
+    static #keySPACE = 32;
+    static #keyPAGE_UP = 33;
+    static #keyPAGE_DOWN = 34;
+    static #keyEND = 35;
+    static #keyHOME = 36;
+    static #keyLEFT_ARROW = 37;
+    static #keyUP_ARROW = 38;
+    static #keyRIGHT_ARROW = 39;
+    static #keyDOWN_ARROW = 40;
+    static #keyINSERT = 45;
+    static #keyDELETE = 46;
+    static #key0 = 48;
+    static #key1 = 49;
+    static #key2 = 50;
+    static #key3 = 51;
+    static #key4 = 52;
+    static #key5 = 53;
+    static #key6 = 54;
+    static #key7 = 55;
+    static #key8 = 56;
+    static #key9 = 57;
+    static #keya = 65;
+    static #keyb = 66;
+    static #keyc = 67;
+    static #keyd = 68;
+    static #keye = 69;
+    static #keyf = 70;
+    static #keyg = 71;
+    static #keyh = 72;
+    static #keyi = 73;
+    static #keyj = 74;
+    static #keyk = 75;
+    static #keyl = 76;
+    static #keym = 77;
+    static #keyn = 78;
+    static #keyo = 79;
+    static #keyp = 80;
+    static #keyq = 81;
+    static #keyr = 82;
+    static #keys = 83;
+    static #keyt = 84;
+    static #keyu = 85;
+    static #keyv = 86;
+    static #keyw = 87;
+    static #keyx = 88;
+    static #keyy = 89;
+    static #keyz = 90;
+    static #keyLET_WINDOW = 91;
+    static #keyRIGHT_WINDOW = 92;
+    static #keySELECT = 93;
+    static #keyNUMPAD_0 = 96;
+    static #keyNUMPAD_1 = 97;
+    static #keyNUMPAD_2 = 98;
+    static #keyNUMPAD_3 = 99;
+    static #keyNUMPAD_4 = 100;
+    static #keyNUMPAD_5 = 101;
+    static #keyNUMPAD_6 = 102;
+    static #keyNUMPAD_7 = 103;
+    static #keyNUMPAD_8 = 104;
+    static #keyNUMPAD_9 = 105;
+    static #keyMULTIPLY = 106;
+    static #keyADD = 107;
+    static #keySUBTRACT = 109;
+    static #keyDECIMAL_POINT = 110;
+    static #keyDIVIDE = 111;
+    static #keyF1 = 112;
+    static #keyF2 = 113;
+    static #keyF3 = 114;
+    static #keyF4 = 115;
+    static #keyF5 = 116;
+    static #keyF6 = 117;
+    static #keyF7 = 118;
+    static #keyF8 = 119;
+    static #keyF9 = 120;
+    static #keyF10 = 121;
+    static #keyF11 = 122;
+    static #keyF12 = 123;
+    static #keyNUM_LOCK = 144;
+    static #keySCROLL_LOCK = 145;
+    static #keySEMI_COLON = 186;
+    static #keyEQUAL_SIGN = 187;
+    static #keyCOMMA = 188;
+    static #keyDASH = 189;
+    static #keyPERIOD = 190;
+    static #keyFORWARD_SLASH = 191;
+    static #keyGRAVE_ACENT = 192;
+    static #keyOPEN_BRACKET = 219;
+    static #keyBACK_SLASH = 220;
+    static #keyCLOSE_BRACKET = 221;
+    static #keySINGLE_QUOTE = 222;
 
     constructor(keyCode, onPressed, onReleased) {
         if (arguments.length === 1 && arguments[0] instanceof Array) {
@@ -130,9 +130,9 @@ class Keyboard {
         } else {
             // The normal
             if (Keyboard.#DownEvents.length === 0 && Keyboard.#UpEvents.length === 0) {
-                window.addEventListener("keypress", Keyboard.#keyPress, false);
-                window.addEventListener("keyup", Keyboard.#keyUpEvent, false);
-                window.addEventListener("keydown", Keyboard.#keyDownEvent, false);
+                window.addEventListener('keypress', Keyboard.#keyPress, false);
+                window.addEventListener('keyup', Keyboard.#keyUpEvent, false);
+                window.addEventListener('keydown', Keyboard.#keyDownEvent, false);
             }
             this.keyCode = keyCode;
             this.onPressed = Object(onPressed);
@@ -150,20 +150,20 @@ class Keyboard {
     }
 
     static #keyDownEvent = (e) => {
-        let deco = e.keyCode ? e.keyCode : Keyboard.#lastKeyCode;
+        const deco = e.keyCode ? e.keyCode : Keyboard.#lastKeyCode;
         Keyboard.#UpDownstates[deco] = true;
         if (Keyboard.#DownEvents[deco]) {
             Keyboard.#DownEvents[deco](e);
         }
-    }
+    };
 
     static #keyUpEvent = (e) => {
-        let deco = e.keyCode ? e.keyCode : Keyboard.#lastKeyCode;
+        const deco = e.keyCode ? e.keyCode : Keyboard.#lastKeyCode;
         Keyboard.#UpDownstates[deco] = false;
         if (Keyboard.#UpEvents[deco]) {
             Keyboard.#UpEvents[deco](e);
         }
-    }
+    };
 
     free() {
         if (this.onPressed) {
@@ -173,9 +173,9 @@ class Keyboard {
             Keyboard.#DownEvents = Keyboard.#UpEvents.filter((event, Index) => Index !== this.keyCode);
         }
         if (Keyboard.#DownEvents.length === 0 && Keyboard.#UpEvents.length === 0) {
-            window.removeEventListener("keypress", Keyboard.#keyPress);
-            window.removeEventListener("keyup", Keyboard.#keyUpEvent);
-            window.removeEventListener("keydown", Keyboard.#keyDownEvent);
+            window.removeEventListener('keypress', Keyboard.#keyPress);
+            window.removeEventListener('keyup', Keyboard.#keyUpEvent);
+            window.removeEventListener('keydown', Keyboard.#keyDownEvent);
         }
     }
 }

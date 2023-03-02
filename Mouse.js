@@ -1,6 +1,6 @@
 // Clase para controlar el ratón...
 class Mouse {
-    isMouseDown = false;
+    static #isMouseDown = false;
     static x = 0;
     static y = 0;
 
@@ -10,41 +10,41 @@ class Mouse {
     static #WheelEvents = [];
 
     static #mouseDown(e) {
-        Mouse.isMouseDown = true;
-        document.title = `Mouse abajo ${e}: estado ${Mouse.isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
+        Mouse.#isMouseDown = true;
+        document.title = `Mouse abajo ${e}: estado ${Mouse.#isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
         Mouse.#DownEvents.forEach((event) => event(e));
     };
 
     static #mouseUp(e) {
-        Mouse.isMouseDown = false;
-        document.title = `Mouse arriba ${e}: estado ${Mouse.isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
+        Mouse.#isMouseDown = false;
+        document.title = `Mouse arriba ${e}: estado ${Mouse.#isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
         Mouse.#UpEvents.forEach((event) => event(e));
     };
 
     static #mouseMove(e) {
         Mouse.x = e.clientX;
         Mouse.y = e.clientY;
-        document.title = `Mouse moviéndose ${e}: estado ${Mouse.isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
+        document.title = `Mouse moviéndose ${e}: estado ${Mouse.#isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
         Mouse.#MoveEvents.forEach((event) => event(e));
     };
 
     static #mouseWheel(e) {
         Mouse.x = e.clientX;
         Mouse.y = e.clientY;
-        document.title = `Mouse scroll ${e}: estado ${Mouse.isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
+        document.title = `Mouse scroll ${e}: estado ${Mouse.#isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
         Mouse.#WheelEvents.forEach((event) => event(e));
     };
 
     constructor(onMouseDown, onMouseMove, onMouseUp, onMouseWheel) {
-        if (Mouse.#DownEvents.length === 0 & Mouse.#UpEvents.length === 0 & Mouse.#MoveEvents.length === 0) {
-            window.addEventListener("mousedown", Mouse.#mouseDown, false);
-            window.addEventListener("mouseup", Mouse.#mouseUp, false);
-            window.addEventListener("mousemove", Mouse.#mouseMove, false);
-            window.addEventListener("wheel", Mouse.#mouseWheel, false);
+        if (Mouse.#DownEvents.length === 0 && Mouse.#UpEvents.length === 0 && Mouse.#MoveEvents.length === 0) {
+            window.addEventListener('mousedown', Mouse.#mouseDown, false);
+            window.addEventListener('mouseup', Mouse.#mouseUp, false);
+            window.addEventListener('mousemove', Mouse.#mouseMove, false);
+            window.addEventListener('wheel', Mouse.#mouseWheel, false);
             /*
-                Revisar los eventos: "touchstart" y "touchend".
+                      Revisar los eventos: "touchstart" y "touchend".
 
-            */
+             */
         }
         this.downEventsPosition = -1;
         this.upEventsPosition = -1;
@@ -67,17 +67,21 @@ class Mouse {
         }
     }
 
+    get down() { // don't care if move all around
+        return Mouse.#isMouseDown;
+    }
+
     free() {
         Mouse.#DownEvents = Mouse.#DownEvents.filter((event, Index) => Index !== this.downEventsPosition);
         Mouse.#UpEvents = Mouse.#UpEvents.filter((event, Index) => Index !== this.upEventsPosition);
         Mouse.#MoveEvents = Mouse.#MoveEvents.filter((event, Index) => Index !== this.moveEventsPosition);
         Mouse.#WheelEvents = Mouse.#WheelEvents.filter((event, Index) => Index !== this.wheelEventsPosition);
 
-        if (Mouse.#DownEvents.length === 0 & Mouse.#UpEvents.length === 0 & Mouse.#MoveEvents.length === 0) {
-            window.removeEventListener("mousedown", Mouse.#mouseDown, false);
-            window.removeEventListener("mouseup", Mouse.#mouseUp, false);
-            window.removeEventListener("mousemove", Mouse.#mouseMove, false);
-            window.removeEventListener("wheel", Mouse.#mouseMove, false);
+        if (Mouse.#DownEvents.length === 0 & Mouse.#UpEvents.length === 0 && Mouse.#MoveEvents.length === 0) {
+            window.removeEventListener('mousedown', Mouse.#mouseDown, false);
+            window.removeEventListener('mouseup', Mouse.#mouseUp, false);
+            window.removeEventListener('mousemove', Mouse.#mouseMove, false);
+            window.removeEventListener('wheel', Mouse.#mouseMove, false);
         }
     }
 }

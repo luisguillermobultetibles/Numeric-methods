@@ -73,7 +73,7 @@ class TArreglo extends WebSystemObject {
 
     /**
      * removes an indexed item from the array
-     * @param  {any} index zero based index to item
+     * @param position
      */
     removePosition(position) {
         this._array = this._array.filter((data, index) => index !== position);
@@ -96,7 +96,7 @@ class TArreglo extends WebSystemObject {
      */
     log() {
         // console.log(this.array.join(' '));
-        return this._array.join(" ");
+        return this._array.join(' ');
     }
 
     // verdadero si este arreglo es igual a otro arreglo b, es decir, tienen los mismos elementos en ese orden.
@@ -108,7 +108,7 @@ class TArreglo extends WebSystemObject {
      * Obtener un subarreglo en sus propios términos.
      */
     subArray(start, end) {
-        let resultado = new TArreglo(end - start + 1);
+        const resultado = new TArreglo(end - start + 1);
         for (let i = start; i < end - start + 1; i++) {
             resultado[i - start] = this.getValue(i);
         }
@@ -123,7 +123,7 @@ class TArreglo extends WebSystemObject {
      * Convert to a real Array.
      */
     toArray(start, end) {
-        let resultado = Array(end - start + 1);
+        const resultado = Array(end - start + 1);
         for (let i = start; i < end - start + 1; i++) {
             resultado[i - start] = this.getValue(i);
         }
@@ -136,9 +136,9 @@ class TArreglo extends WebSystemObject {
     esUnArregloOrdenado() {
         // Solamente para definir funciones flecha, recuérdalo.
         // Este determina si un arreglo está ordenado utilizando iteradores y es mucho + rápido.
-        //const isArraySorted = (array) => {
+        // const isArraySorted = (array) => {
         //    return array.every((val, i, arr) => !i || (val >= arr[i - 1]));
-        //};
+        // };
         // return _array.every((val, i, arr) => !i || (val >= arr[i - 1]));
         for (let i = 1; i < this._array.length; i++) {
             if (this._array[i] < this._array[i - 1]) return false; // Hay un atraso
@@ -148,13 +148,12 @@ class TArreglo extends WebSystemObject {
 
     /**
      * Binary Search implementation using iteration
-     * @param  {array} sortedArray
      * @param  {string|number} target
      * @return {number} the index of the found element
      */
     busquedaBinaria(target) {
         if (!this.esUnArregloOrdenado()) {
-            throw new Error("El arreglo provisto no está ordenado.");
+            throw new Error('El arreglo provisto no está ordenado.');
         }
 
         let start = 0;
@@ -177,7 +176,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * Linear Search implementation
-     * @param  {array} array
      * @param  {string|number} target
      * @return {number}        the index of the found element
      */
@@ -193,13 +191,12 @@ class TArreglo extends WebSystemObject {
 
     /**
      * Binary Search implementation using recursion
-     * @param  {array} sortedArray
      * @param  {string|number} target
      * @return {number}             the index of the found element
      */
     busquedaBinariaRecursiva(target) {
         if (!this.esUnArregloOrdenado()) {
-            throw new Error("El arreglo provisto no está ordenado.");
+            throw new Error('El arreglo provisto no está ordenado.');
         }
 
         return (function recurse(start, end) {
@@ -223,7 +220,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * bubble sort implementation
-     * @param  {array} array  an unsorted array
      * @return {array}       sorted array
      */
     ordenammientoBurbuja() {
@@ -257,7 +253,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * insertion sort implementation
-     * @param  {array} array  an unsorted array
      * @return {array}       sorted array
      */
     ordenamientoInsercion() {
@@ -309,7 +304,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * merge sort implementation
-     * @param  {array} array  an unsorted array
      * @return {array}       sorted array
      */
     ordenamientoMerge() {
@@ -330,7 +324,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * simple quick sort implementation (pivot is the first element of the array)
-     * @param  {array} array  an unsorted array
      * @return {array}       sorted array
      */
     ordenamientoSimpleQuickSort() {
@@ -370,7 +363,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * swap helper function
-     * @param  {array} array
      * @param  {number} i
      * @param  {number} j
      * @return {void}
@@ -391,7 +383,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * lomuto partition scheme, it is less efficient than the Hoare partition scheme
-     * @param  {array} array array to partion
      * @param  {number} left  leftmost index
      * @param  {number} right rightmost index
      * @return {number}       the pivot element
@@ -399,10 +390,8 @@ class TArreglo extends WebSystemObject {
     partitionLomuto(left, right) {
         let i = left;
         let j = left;
-        const pivot = right;
-
         for (j; j < right; j++) {
-            if (this._array[j] <= this._array[pivot]) {
+            if (this._array[j] <= this._array[right]) {
                 this.swap(i, j);
                 i += 1;
             }
@@ -417,7 +406,6 @@ class TArreglo extends WebSystemObject {
      * hoare partition scheme, it is more efficient than the
      * lomuto partition scheme because it does three times
      * fewer swaps on average
-     * @param  {array} array array to partion
      * @param  {number} left  leftmost index
      * @param  {number} right rightmost index
      * @return {number}       the pivot element
@@ -442,7 +430,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * classic implementation (with hoare or lomuto partition scheme)
-     * @param  {array} array array to be sorted
      * @param  {number} left  leftmost index
      * @param  {number} right rightmost index
      * @return {array}       sorted array
@@ -456,7 +443,6 @@ class TArreglo extends WebSystemObject {
 
     /**
      * selection sort implementation
-     * @param  {array} array  an unsorted array
      * @return {array}       sorted array
      */
     ordenamientoSeleccion() {
@@ -500,12 +486,11 @@ class TArreglo extends WebSystemObject {
      * the method starts by sorting pairs of elements far apart from each
      * other, then progressively reducing the gap between elements to be compared
      *
-     * @param  {array} array
      * @return {array}       sorted array
      */
     ordenamientoShell() {
         // our intervals
-        let GAPS = [500, 240, 128, 54, 26, 9, 4, 1];
+        const GAPS = [500, 240, 128, 54, 26, 9, 4, 1];
         GAPS.forEach((gap) => {
             for (let index = gap; index < this._array.length; index++) {
                 let j = index;
@@ -523,11 +508,11 @@ class TArreglo extends WebSystemObject {
     }
 
     _cartesianProduct(sets, index, current) {
-        let result = [];
+        const result = [];
         if (index === sets.length) {
             return result.push(current.slice());
         }
-        for (var i = 0; i < sets[index].length; i += 1) {
+        for (let i = 0; i < sets[index].length; i += 1) {
             current[index] = sets[index][i];
             this._cartesianProduct(sets, index + 1, current);
         }
@@ -538,7 +523,7 @@ class TArreglo extends WebSystemObject {
      *
      **/
     productoCartesiano() {
-        let result = [];
+        const result = [];
         this._cartesianProduct(this._array, 0, []);
         return result;
     }
@@ -594,7 +579,7 @@ class TArreglo extends WebSystemObject {
 
     // clonar
     clone() {
-        let resultado = new TArreglo(this._array.count);
+        const resultado = new TArreglo(this._array.count);
         resultado._array = [].concat(this._array);
         return resultado;
     }
@@ -606,23 +591,23 @@ class TArreglo extends WebSystemObject {
             if (predicate(element)) {
                 resultado++;
             }
-        })
+        });
         return resultado;
     }
 
     // contar los elementos mayores que él.
     contarMayores(el) {
-        return this.count(x => x > el);
+        return this.count((x) => x > el);
     }
 
     // contar los elementos mayores que el
     contarMenores(el) {
-        return this.count(x => x < el);
+        return this.count((x) => x < el);
     }
 
     // moda (elemento que mas aparece)
     moda() {
-        let conteos = new TArreglo(this.length);
+        const conteos = new TArreglo(this.length);
         for (let k = 0; k < s.length; k++) {
             conteos[k] = this.count(this.getValue[k]);
         }
@@ -631,7 +616,7 @@ class TArreglo extends WebSystemObject {
 
     // moda (elemento no nulo del conjunto que menos aparece)
     antiModa() {
-        let conteos = new TArreglo(this.length);
+        const conteos = new TArreglo(this.length);
         for (let k = 0; k < s.length; k++) {
             conteos[k] = this.count(this.getValue[k]);
         }
@@ -654,7 +639,7 @@ class TArreglo extends WebSystemObject {
 
     // cantidad de elementos diferentes entre sí, del arreglo (revisar)
     universo() {
-        let chequeado = new TArreglo(this.length);
+        const chequeado = new TArreglo(this.length);
         for (let k = 0; k < s.length; k++) {
             chequeado[k] = false;
         }
@@ -662,7 +647,6 @@ class TArreglo extends WebSystemObject {
             for (let l = k + 1; l < s.length; l++) {
                 if ((!chequeado.getValue[k]) && (this.count(this.getValue[l]) > 0)) {
                     chequeado.getValue[k] = true;
-
                 }
             }
         }
@@ -670,7 +654,7 @@ class TArreglo extends WebSystemObject {
     }
 
     desviaciones(ref) {
-        let resultado = new TArreglo(this.length);
+        const resultado = new TArreglo(this.length);
         for (let k = 0; k < s.length; k++) {
             resultado[k] = this.getValue[k] - ref;
         }
@@ -680,7 +664,7 @@ class TArreglo extends WebSystemObject {
     // Propiedad 1: la suma de las desviaciones con respecto a la media debe ser cero
     // Propiedad 2: la suma de los cuadrados de las desviaciones con respecto a la media debe ser cero
     varianza() {
-        let cuadDes = this.desviaciones(this.media());
+        const cuadDes = this.desviaciones(this.media());
         for (let k = 0; k < s.length; k++) {
             cuadDes[k] = cuadDes[k] * cuadDes[k];
         }
@@ -710,7 +694,7 @@ class TArreglo extends WebSystemObject {
 
     // Momentos de Pearson
     momento(orden, ref) {
-        let resultado = new TArreglo(this.length);
+        const resultado = new TArreglo(this.length);
         for (let k = 0; k < s.length; k++) {
             resultado[k] = Math.pow(this.getValue[k] - ref, orden);
         }
@@ -742,8 +726,8 @@ class TArreglo extends WebSystemObject {
     // The faster knapsack solution (mochila unidimensional)... v1.0
     // @author: ®2021 Luis Guillermo Bultet Ibles
     // @sample: knapsack(100, [{name: "calabazas", price: 1.75, weigh: 3}, {name: "yucas", price: 5.50, weigh: 1}, {name: "pepinos", price: 3.25, weigh: 1}])
-    knapsack(capability) {        
-        let reOrdered = this._array.sort((a, b) => { 
+    knapsack(capability) {
+        const reOrdered = this._array.sort((a, b) => {
             if ((a.price / a.weigh) > (b.price / b.weigh)) {
                 return 1;
             } else if ((a.price / a.weigh) < (b.price / b.weigh)) {
@@ -756,7 +740,7 @@ class TArreglo extends WebSystemObject {
             }
             return 0;
         });
-        let theResult = [];
+        const theResult = [];
         let remainingCamability = capability;
         let quantity = 0;
         for (let i = 0; i < reOrdered.length; i++) {
@@ -766,7 +750,7 @@ class TArreglo extends WebSystemObject {
                     name: reOrdered[i].name,
                     price: reOrdered[i].price,
                     weigh: reOrdered[i].weigh,
-                    quantity: quantity
+                    quantity: quantity,
                 });
                 remainingCamability = remainingCamability - quantity * reOrdered[i].weigh;
             } else if (remainingCamability <= 0) {
@@ -783,23 +767,23 @@ class TArreglo extends WebSystemObject {
     // @parameters: weighs -> pesos, eg. [-3, -2, -1 , 0, 1, 2, 3, 0.1, 0.9, 0.5, 0.4]
     sumSet(capacity, eps = this.epsilon) {
         // will contain all solutions.
-        let solutions = [];
+        const solutions = [];
         // console.warn("los elementos recibidos son:", weighs, " para analizar con una capacidad:", capacity, " solución: ", solutions);
 
         // returns ascendant sorted array.
-        let ascendantSort = (s) => {
+        const ascendantSort = (s) => {
             return s.sort((a, b) => a - b);
-        }
+        };
 
         // add new simple solution.
-        let addSolution = (sol) => {
+        const addSolution = (sol) => {
             // just sort it to compare or save
             sol = ascendantSort(sol);
             // risk hypothesis (same sets? => theorem)
-            let numArrayEq = (a, b) => a.length === b.length && a.every((d, i) => this.equivalents(d, b[i]));
+            const numArrayEq = (a, b) => a.length === b.length && a.every((d, i) => this.equivalents(d, b[i]));
             // then verify if it doesn't be registered previously.
             if (!solutions.some((er) => numArrayEq(sol, er))) solutions.push(sol);
-        }
+        };
 
         // register and suppress trivial
         if (this._array.some((element) => this.equivalents(element, capacity))) {
@@ -856,28 +840,28 @@ class TArreglo extends WebSystemObject {
         }
 
         // else calculates mcd
-        let mcd = this.mcd(eps);
+        const mcd = this.mcd(eps);
         if (!this.divides(capacity, mcd, eps)) { // if mcd does not divide sum NTS (Bezout condition), otherwise follow.
             return solutions;
         }
 
         // console.warn(`Buscando la solución del conjunto [${weighs.join(", ")}], con mcd = ${mcd}; para una suma de ${capacity}.`);
         // returns an array with one element deleted from the given zero based position.
-        let supressElement = (arreglo, position) => {
+        const supressElement = (arreglo, position) => {
             return arreglo.filter((data, index) => index !== position);
-        }
+        };
 
         // add multiples sub solutions for a given capacity.
-        let addToSolutionSet = (sols, localCapacity) => {
+        const addToSolutionSet = (sols, localCapacity) => {
             sols.forEach((sol) => {
                 sol = sol.concat(localCapacity);
                 // console.warn(` Encontrada la solución: ${sol}.`);
                 addSolution(sol);
             });
-        }
+        };
 
         // The classic - brutal core.
-        let visiteds = [];
+        const visiteds = [];
         let subSolution = [];
         let subSet = [];
         for (let i = 0; i < this._array.length - 1; i++) {
@@ -891,17 +875,16 @@ class TArreglo extends WebSystemObject {
 
         // returns the resulting solutions set.
         return solutions;
-
     }
-    
+
     // Extrapoación astronómica (Provisional ®Pipo '2023)
     sFT(xvalues, yvalues, x) {
-        let residuo = (x, y) => {
+        const residuo = (x, y) => {
             return x - y * Math.floor(x / y);
-        }
+        };
 
         function gcd(a, b) {
-            let eps = 0.00000000000001;
+            const eps = 0.00000000000001;
             let result;
             let [minFactor, maxFactor] = [Math.min(a, b), Math.max(a, b)];
             // this trivial checks avoids div. by zero.
@@ -944,7 +927,7 @@ class TArreglo extends WebSystemObject {
         }
 
         function divisibilidad(a, b) {
-            let eps = 0.00000000000001;
+            const eps = 0.00000000000001;
             let result;
             if (Math.abs(b) < eps) {
                 result = false;
@@ -956,7 +939,6 @@ class TArreglo extends WebSystemObject {
 
         // fast decay modpow
         function modpow(base, exp, m) {
-
             // Utility function to do
             // modular exponentiation.
 
@@ -967,9 +949,9 @@ class TArreglo extends WebSystemObject {
                 return residuo(Math.pow(base, exp), m);
             }
 
-            let mcd = gcd(base, m);
+            const mcd = gcd(base, m);
             if (mcd > 1) { // this is another way, pack and leave.
-                let mmcdd = m / mcd;
+                const mmcdd = m / mcd;
                 return residuo(modpow(mcd, exp - 1, mmcdd) * mcd * modpow(base / mcd, exp, mmcdd), m);
             }
 
@@ -991,22 +973,20 @@ class TArreglo extends WebSystemObject {
             }
 
             if (exp > 1000) {
-                let r = Math.sqrt(exp);
+                const r = Math.sqrt(exp);
                 return modpow(modpow(base, r, m), r, m);
             }
 
             return residuo((base * modpow(base, exp - 1, m)), m);
         }
 
-        let mcd = arrayMcd(xvalues);
+        const mcd = arrayMcd(xvalues);
         let result = 0;
         yvalues.forEach((y, i) => {
-            let algo = modpow(2, Math.abs(x - xvalues[i]) / mcd - 1, 2);
+            const algo = modpow(2, Math.abs(x - xvalues[i]) / mcd - 1, 2);
             result += y * Math.sin(Math.PI * algo);
             // result += y * (1-Math.tan(Math.PI * algo/4));
         });
         return result;
     }
-
-
 }

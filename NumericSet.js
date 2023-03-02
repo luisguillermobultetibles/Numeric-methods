@@ -48,7 +48,7 @@ class NumericSet extends WebSystemObject {
             definition = arguments;
         }
         if (definition instanceof Array) {
-            definition.forEach(element => this.include(element)); // do it in this way
+            definition.forEach((element) => this.include(element)); // do it in this way
         } else {
             this.asString = definition;
         }
@@ -57,30 +57,30 @@ class NumericSet extends WebSystemObject {
 
     // Conjunto como literal
     get asString() {
-        function addIntervals() {
-            return this.elements.map((element) => {
-                let par = element.join(", ");
+        let addIntervals = () => {
+            return [...this.elements.map((element) => {
+                let par = element.join(', ');
                 if (this.isAnInterval(element)) {
                     if (this.isAnEscalar(element[0])) {
-                        par = "[" + par;
+                        par = '[' + par;
                     } else {
-                        par = "(" + par;
+                        par = '(' + par;
                     }
                     if (this.isAnEscalar(element[1])) {
-                        par = par + "]";
+                        par = par + ']';
                     } else {
-                        par = par + ")";
+                        par = par + ')';
                     }
                 }
                 return par;
-            }).split(" U ");
+            })].split(' U ');
         }
 
-        if (this.elements.some(p => this.isAnEscalar(p))) {
-            if (this.elements.some(p => this.isAnInterval(p))) { // ambos
-                return "{" + this.elements.map(element => this.isAnEscalar(element)).join(", ") + "} U " + addIntervals();
+        if (this.elements.some((p) => this.isAnEscalar(p))) {
+            if (this.elements.some((p) => this.isAnInterval(p))) { // ambos
+                return '{' + this.elements.map((element) => this.isAnEscalar(element)).join(', ') + '} U ' + addIntervals();
             } else { // solamente escalares
-                return "{" + this.elements.join(", ") + "}";
+                return '{' + this.elements.join(', ') + '}';
             }
         } else { // solamente intervalos
             return addIntervals();
@@ -92,42 +92,42 @@ class NumericSet extends WebSystemObject {
         if (!value) {
             return;
         }
-        let impersonal = String(value).replaceAll(" ", "").replaceAll("U", "!");
-        let elementos = impersonal.split("!");
+        const impersonal = String(value).replaceAll(' ', '').replaceAll('U', '!');
+        const elementos = impersonal.split('!');
         elementos.forEach((elemento) => {
             if (elemento.length > 0) {
-                let leftClosed = true, rightClosed = true, interval = false;
-                if (elemento === "R") {
-                    elemento = "(-Infinity, +Infinity)";
+                let leftClosed = true;
+                let rightClosed = true;
+                let interval = false;
+                if (elemento === 'R') {
+                    elemento = '(-Infinity, +Infinity)';
                 }
-                if (elemento.substring(0, 1) === "[") {
-                    elemento = elemento.replaceAll("[", "");
+                if (elemento.substring(0, 1) === '[') {
+                    elemento = elemento.replaceAll('[', '');
                     interval = true;
-                } else if (elemento.substring(0, 1) === "(") {
-                    elemento = elemento.replaceAll("(", "");
+                } else if (elemento.substring(0, 1) === '(') {
+                    elemento = elemento.replaceAll('(', '');
                     leftClosed = false;
                     interval = true;
                 }
-                if (elemento.substring(elemento.length - 1, elemento.length) === "]") {
-                    elemento = elemento.replaceAll("]", "");
+                if (elemento.substring(elemento.length - 1, elemento.length) === ']') {
+                    elemento = elemento.replaceAll(']', '');
                     interval = true;
-                } else if (elemento.substring(elemento.length - 1, elemento.length) === ")") {
-                    elemento = elemento.replaceAll(")", "");
+                } else if (elemento.substring(elemento.length - 1, elemento.length) === ')') {
+                    elemento = elemento.replaceAll(')', '');
                     rightClosed = false;
                     interval = true;
                 }
 
-                function subNumber(y) {
+                let subNumber = (y) => {
                     switch (y) {
-                        case "Infinity":
-                        case "+Infinity":
-                        case "∞":
-                        case "+∞":
+                        case 'Infinity':
+                        case '+Infinity':
+                        case '∞':
+                        case '+∞':
                             return Infinity;
-                        case "Infinity":
-                        case "+Infinity":
-                        case "∞":
-                        case "-∞":
+                        case '-Infinity':
+                        case '-∞':
                             return -Infinity;
                         default:
                             return Number(y);
@@ -135,7 +135,7 @@ class NumericSet extends WebSystemObject {
                 }
 
                 if (interval) {
-                    let extremes = elemento.split(",").map(x => subNumber(x));
+                    const extremes = elemento.split(',').map((x) => subNumber(x));
                     this.include(extremes);
                     if (leftClosed) {
                         this.include(extremes[0]);
@@ -144,9 +144,9 @@ class NumericSet extends WebSystemObject {
                         this.include(extremes[1]);
                     }
                 } else {
-                    if (elemento.substring(0, 1) === "{" && elemento.substring(elemento.length - 1, elemento.length) === "}") {
-                        elemento = elemento.replace("{", "").replace("}", "");
-                        this.elements = [].concat(elemento.split(",").map(x => subNumber(x)));
+                    if (elemento.substring(0, 1) === '{' && elemento.substring(elemento.length - 1, elemento.length) === '}') {
+                        elemento = elemento.replace('{', '').replace('}', '');
+                        this.elements = [].concat(elemento.split(',').map((x) => subNumber(x)));
                     } else {
                         throw new Error(`The set "${elemento}", is ambiguous or bad defined.`);
                     }
@@ -165,8 +165,8 @@ class NumericSet extends WebSystemObject {
 
     sort() { // Revisar, es el que falla no optimiza cuando se re-introduce 1.5 en el demo...
         this.elements = this.elements.sort((a, b) => {
-            let isna = this.isAnEscalar(a);
-            let isnb = this.isAnEscalar(b);
+            const isna = this.isAnEscalar(a);
+            const isnb = this.isAnEscalar(b);
             if (isna && isnb) {
                 return a - b;
             } else if (isna && !isnb) {
@@ -205,8 +205,8 @@ class NumericSet extends WebSystemObject {
             }
             return [a[0], a[1]];
         } else {
-            let result = [];
-            a.forEach(element => {
+            const result = [];
+            a.forEach((element) => {
                 result.push(this.normalization(element));
             });
             return result;
@@ -215,9 +215,9 @@ class NumericSet extends WebSystemObject {
 
     // Puede usarse indistintamente para inclusión o pertenencia
     isIncluded(a) {
-        let isna = !(a instanceof Array);
-        return this.elements.some(b => {
-            let isnb = !(b instanceof Array);
+        const isna = !(a instanceof Array);
+        return this.elements.some((b) => {
+            const isnb = !(b instanceof Array);
             if (isna && isnb) {
                 return a === b;
             } else if (isna && !isnb) {
@@ -227,7 +227,7 @@ class NumericSet extends WebSystemObject {
             } else if (!isna && !isnb) {
                 return (a[0] > b[0]) && (a[1] < b[1]);
             }
-        })
+        });
     }
 
     // just one element or escalar
@@ -269,38 +269,38 @@ class NumericSet extends WebSystemObject {
     }
 
     areEquals(a) {
-        let tmp = new NumericSet(a);
-        return this.elements.every(element => tmp.isIncluded(element)) && tmp.elements.every(element => this.isIncluded(element));
+        const tmp = new NumericSet(a);
+        return this.elements.every((element) => tmp.isIncluded(element)) && tmp.elements.every((element) => this.isIncluded(element));
     }
 
     areInside(a) {
-        let tmp = new NumericSet(a);
-        return this.elements.every(element => tmp.isIncluded(element));
+        const tmp = new NumericSet(a);
+        return this.elements.every((element) => tmp.isIncluded(element));
     }
 
     areOutSide(a) {
-        let tmp = new NumericSet(a);
-        return tmp.elements.every(element => this.isIncluded(element));
+        const tmp = new NumericSet(a);
+        return tmp.elements.every((element) => this.isIncluded(element));
     }
 
     areIsolated(a) {
-        let tmp = new NumericSet(a);
-        return this.elements.every(element => !tmp.isIncluded(element)) && tmp.elements.every(element => !this.isIncluded(element));
+        const tmp = new NumericSet(a);
+        return this.elements.every((element) => !tmp.isIncluded(element)) && tmp.elements.every((element) => !this.isIncluded(element));
     }
 
     // extras valor añadido
 
     areCrossed(a) {
-        let tmp = new NumericSet(a);
+        const tmp = new NumericSet(a);
         return !this.elements.areIsolated(a);
     }
 
     exclude(a) {
         a = this.normalization(a);
-        let isToExcludeEscalar = this.isAnEscalar(a);
-        let result = [];
-        this.elements.forEach(b => {
-            let isActualEscalar = this.isAnEscalar(b);
+        const isToExcludeEscalar = this.isAnEscalar(a);
+        const result = [];
+        this.elements.forEach((b) => {
+            const isActualEscalar = this.isAnEscalar(b);
             if (isToExcludeEscalar && isActualEscalar) {
                 if (a !== b) {
                     result.push(b);
@@ -329,55 +329,55 @@ class NumericSet extends WebSystemObject {
                     result.push(b);
                 }
             }
-        })
+        });
         this.elements = result;
         this.sort();
     }
 
     // Cálculo de la cantidad de clases de un arreglo numérico
     classes() {
-        let groupedArray = this.elements.reduce((previous, current) => {
+        const groupedArray = this.elements.reduce((previous, current) => {
             if (!previous[current]) {
                 previous[current] = [];
             }
             previous[current].push(current);
             return previous;
-        }, []).filter(element => element != null);
+        }, []).filter((element) => element != null);
         return groupedArray.length;
     }
 
     // fix include ranges and infinity ranges...
     total() {
         let sum = 0;
-        this.elements.filter(element => this.isAnEscalar(element)).forEach(x => sum += x);
+        this.elements.filter((element) => this.isAnEscalar(element)).forEach((x) => sum += x);
     }
 
     // Calculo de la entropía de un arreglo numérico
     enthropy() {
-        let groupedArray = this.elements.reduce((previous, current) => {
+        const groupedArray = this.elements.reduce((previous, current) => {
             if (!previous[current]) {
                 previous[current] = [];
             }
             previous[current].push(current);
             return previous;
-        }, []).filter(element => element != null);
-        let probabilities = [];
+        }, []).filter((element) => element != null);
+        const probabilities = [];
         groupedArray.forEach((element) => {
             probabilities.push({
-                element: [element[0]], probability: element.length / this.elements.length
+                element: [element[0]], probability: element.length / this.elements.length,
             });
         });
         let result = 0;
         probabilities.forEach((element) => {
             result = element.probability * Math.log(element.probability);
-        })
+        });
         return result;
     }
 
     // Útil para sumset... NOT TESTED
 
     // Soluciones básicas la capacidad expresada en forma de combinación lineal de pesos (suma diofántica).
-    sumset(capacity, strategy = "scholar") {
+    sumset(capacity, strategy = 'scholar') {
         // divisibilidad de a por b
         function divisibilidad(a, b) {
             // this trivials checks avoids div. by zero (se supone que cero no divide a ninguno),
@@ -386,7 +386,7 @@ class NumericSet extends WebSystemObject {
                 return false;
             }
             // Es divisible si el resto de la división es cero
-            return a % b == 0;
+            return a % b === 0;
         }
 
         // This is my original code... (devuelve el mcd entre a y b)
@@ -406,11 +406,11 @@ class NumericSet extends WebSystemObject {
                     return a;
                 }
             }
-            if ((a == 1) || (b == 1)) {
+            if ((a === 1) || (b === 1)) {
                 return 1;
             }
             // this is Euclides alg.
-            var result = b;
+            let result = b;
             while (!!a) {
                 b = result;
                 result = a;
@@ -425,9 +425,9 @@ class NumericSet extends WebSystemObject {
             if (!a || !b) {
                 return 0;
             }
-            if (a == 1) {
+            if (a === 1) {
                 return b;
-            } else if (b == 1) {
+            } else if (b === 1) {
                 return a;
             }
             // fundamental prop. of mcd.
@@ -436,7 +436,7 @@ class NumericSet extends WebSystemObject {
 
         // calcula el mcd de to do el array
         function arrayEuclides(a) {
-            if (a.length == 0) {
+            if (a.length === 0) {
                 return null;
             }
             let mc = a[0];
@@ -464,14 +464,13 @@ class NumericSet extends WebSystemObject {
 
         // resuelve una ecuación diofántica lineal., encontrar [a, b] tal que ax + by = z
         function diofanticaLineal(x, y, z) {
-
             // encuentra [s, t, r] tal que as + bt = d, donde d = mcd(a, b).
             function euclidesExtendido(a, b) {
-                var q = [];
-                var r = [];
-                var s = [];
-                var t = [];
-                var i;
+                const q = [];
+                const r = [];
+                const s = [];
+                const t = [];
+                let i;
                 r[0] = a;
                 s[0] = 1;
                 t[0] = 0;
@@ -490,13 +489,13 @@ class NumericSet extends WebSystemObject {
             }
 
             // Primero se chequea si la ecuación diofántica lineal tiene solución : mcd(x, y) / z ?
-            let mcd = euclides(x, y);
+            const mcd = euclides(x, y);
             if (!divisibilidad(z, mcd)) {
                 return []; // NTS (Bezout condition)
             }
-            let q = euclidesExtendido(x, y);
-            let a = q[0] * z / mcd;
-            let b = q[1] * z / mcd;
+            const q = euclidesExtendido(x, y);
+            const a = q[0] * z / mcd;
+            const b = q[1] * z / mcd;
             // console.log(`${a} * ${x} + ${b} * ${y} = ${z}`);
             return [a, b];
         }
@@ -504,10 +503,10 @@ class NumericSet extends WebSystemObject {
         // Reportar la solución
         function solution(s) {
             if (!strategy) {
-                strategy = "productive";
+                strategy = 'productive';
             }
             switch (strategy) {
-                case "scholar": {
+                case 'scholar': {
                     if (!s) {
                         return 'NTS';
                     } else if (s instanceof Array) {
@@ -522,7 +521,7 @@ class NumericSet extends WebSystemObject {
                     }
                     break;
                 }
-                case "productive": {
+                case 'productive': {
                     if (!s) {
                         return [];
                     } else if (s instanceof Array) {
@@ -530,28 +529,28 @@ class NumericSet extends WebSystemObject {
                             case 0:
                                 return [];
                             case 1:
-                                return [{ coeff: s[0][0], term: s[0][1] }];
+                                return [{coeff: s[0][0], term: s[0][1]}];
                             case 2:
-                                return [{ coeff: s[0][0], term: s[0][1] }, {
-                                    coeff: s[1][0], term: s[1][1]
+                                return [{coeff: s[0][0], term: s[0][1]}, {
+                                    coeff: s[1][0], term: s[1][1],
                                 }];
                         }
                     }
                     break;
                 }
-                case "development":
+                case 'development':
                     return s;
             }
         }
 
         // Se descartan los errores imperdonables y las soluciones evidentes...
-        if (this.elements.length == 0) {
+        if (this.elements.length === 0) {
             return solution();
         }
-        let c = capacity;
+        const c = capacity;
         let w = [].concat(this.elements);
 
-        let results = [];
+        const results = [];
 
         // Solución trivial, se toma cero por el primero...
         if (!c) {
@@ -564,24 +563,24 @@ class NumericSet extends WebSystemObject {
         });
 
         // Si existe algún divisor: ¿Existen elementos en proporción directa con la capacidad?
-        let divisores = w.filter((element) => capacity % element === 0);
+        const divisores = w.filter((element) => capacity % element === 0);
         if (divisores.length > 0) {
             return solution([[divisores[0], capacity / divisores[0]]]);
         }
 
         // Before the brutal core...
-        let mcd = arrayEuclides(this.elements);
+        const mcd = arrayEuclides(this.elements);
         if (!divisibilidad(capacity, mcd)) {
             return solution();
             // ni sigas, que no tiene solución...
         }
 
         // Brutal core: ¿Existen elementos con los que se pueda establecer una ecuación diofántica lineal?
-        var resultado;
+        let resultado;
         for (let i = 0; i < w.length; ++i) {
             for (let j = 0; j < w.length; ++j) {
                 resultado = diofanticaLineal(w[i], w[j], capacity);
-                if (resultado.length == 2) {
+                if (resultado.length === 2) {
                     return solution([[resultado[0], w[i]], [resultado[1], w[j]]]);
                 }
             }
@@ -589,7 +588,5 @@ class NumericSet extends WebSystemObject {
 
         return solution();
         // No se encuentran más soluciones
-
     }
-
 }

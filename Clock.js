@@ -1,7 +1,5 @@
-
 class Clock extends WebSystemObject {
-
-    // Tech note: Utiliza un único handler, para mapear el tiempo de procesos vitales, industriales o sensibles que deben ser exactos, deberías utilizar otros métodos,
+    // Nota técnica: Utiliza un único manipulador, para mapear el tiempo de procesos vitales, industriales o sensibles que deben ser exactos, deberías utilizar otros métodos,
     // como rutinas a bajo nivel precompiladas por lenguajes de alto nivel.
 
     static _intervalLatency = 15; // increases to 100ms to improve cpu use if not enough the cap of 50ms to ensure responsiveness within the threshold of human perception.
@@ -10,8 +8,8 @@ class Clock extends WebSystemObject {
 
     constructor(duration = 1000, oninterval = null, active = true) {
         super();
-        this.id = this.autoField(Clock._intervalData, "id");
-        this.stopService();
+        this.id = this.autoField(Clock._intervalData, 'id');
+        Clock.stopService();
         Clock._intervalData.push(this.newInterval(oninterval, duration, active, 0, this.id));
         Clock._intervalData.sort((a, b) => a.duration - b.duration); // prioritary duration
         if (Clock._intervalData.length > 0) {
@@ -27,12 +25,12 @@ class Clock extends WebSystemObject {
     }
 
     set active(state) {
-        this.stopService();
+        Clock.stopService();
         Clock._intervalData[this.id].active = state;
         Clock._intervalData[this.id].baseTime = Number(new Date());
         Clock._intervalData[this.id].latchCounter = Clock._intervalData[this.id].baseTime;
         Clock._intervalData[this.id].reachTime = Clock._intervalData[this.id].baseTime + Clock._intervalData[this.id].duration - Clock._intervalLatency;
-        if (state) this.startService();
+        if (state) Clock.startService();
     }
 
     // este es el evento
@@ -43,14 +41,16 @@ class Clock extends WebSystemObject {
     // Eventos para el temporizador
 
     set oninterval(oninterval) {
-        this.stopService();
+        Clock.stopService();
         Clock._intervalData[this.id].oninterval = oninterval;
-        this.startService();
+        Clock.startService();
     }
 
-    static _intervalEvent = () => { // ti mer
-        Clock._intervalData.forEach(interval => {
-            let now, attention = true, delay;
+    static _intervalEvent = async () => { // ti mer
+        Clock._intervalData.forEach((interval) => {
+            let now;
+            let attention = true;
+            let delay;
             while (attention && interval.active) {
                 attention = false;
                 interval.latchCounter += Clock._intervalLatency; // oh no, is time elapsed
@@ -64,7 +64,7 @@ class Clock extends WebSystemObject {
                     interval.reachTime = interval.reachTime + interval.duration; // for next time
                     if (interval.oninterval) {
                         attention = true;
-                        new Promise(async (resolve, reject) => {
+                        new Promise(async function (resolve, reject) {
                             try {
                                 resolve(interval.oninterval(interval.occurrences)); // i promise you that...
                             } catch (error) {
@@ -86,35 +86,35 @@ class Clock extends WebSystemObject {
     };
 
     newInterval(oninterval, duration = 1000, active = true, occurrences = 0, id = 0) {
-        let baseTime = Number(new Date());
+        const baseTime = Number(new Date());
         return {
-            "id": id,
-            "oninterval": oninterval,
-            "latchCounter": baseTime,
-            "duration": duration,
-            "baseTime": baseTime,
-            "reachTime": baseTime + duration,
-            "active": active,
-            "occurrences": 0,
-            "QoS_MeanDelay": 0
+            'id': id,
+            'oninterval': oninterval,
+            'latchCounter': baseTime,
+            'duration': duration,
+            'baseTime': baseTime,
+            'reachTime': baseTime + duration,
+            'active': active,
+            'occurrences': 0,
+            'QoS_MeanDelay': 0,
         };
     }
 
     // Para evitar alterar algún elemento de _intervalData mientras esté siendo utilizado por _intervalEvent //
-    stopService() {
+    static stopService() {
         if (Clock._intervalHandler !== -1) {
             Clock.disableIntervalTimer();
         }
     }
 
-    startService() {
+    static startService() {
         Clock.enableIntervalTimer();
     }
 
     // Esta reinicia el contador...
     resetLatchCounter() {
         Clock.stopService();
-        let position = Clock._intervalData.findIndex((element) => element.id === this.id);
+        const position = Clock._intervalData.findIndex((element) => element.id === this.id);
         if (position !== -1) {
             Clock._intervalData[position].baseTime = Number(new Date());
             Clock._intervalData[position].latchCounter = Clock._intervalData[position].baseTime;
@@ -133,5 +133,4 @@ class Clock extends WebSystemObject {
         }
         // super.free();
     }
-
 }
