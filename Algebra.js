@@ -70,7 +70,7 @@ class SubSpace extends WebSystemObject {
     distance() {
 
     }
-    reachableFrom() {
+    reachableFrom() { 
 
     }
 }
