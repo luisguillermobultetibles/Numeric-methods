@@ -892,7 +892,7 @@ export class Phone extends WebSystemObject {
     }
 
     // función para marcar
-    dial(no, protocol = `tel`, awaiting = false, inSitu = false, anonymous = false, payThere = false, message = null, subject = null) {
+    static dial(no, protocol = `tel`, awaiting = false, inSitu = false, anonymous = false, payThere = false, message = null, subject = null) {
         function detectSeparator() {
             let result;
             const defaultSeparator = '?';
@@ -927,17 +927,17 @@ export class Phone extends WebSystemObject {
     // Función para enviar un sms
     static sms(no, message, awaiting = false, inSitu = false, anonymous = false) {
         // this.speak(`Enviando un sms a ${no ? person.name : person.phone} con el texto "${text}".`);
-        this.dial(no, 'sms', awaiting, inSitu, anonymous, false, message);
+        Phone.dial(no, 'sms', awaiting, inSitu, anonymous, false, message);
     }
 
     // Función imei
     imei(no, anonymous = false, payThere = false) {
-        return dial1('*#06#');
+        return Phone.dial('*#06#');
     }
 
     // Función whoami (mi número)
     whoami(no, anonymous = false, payThere = false) {
-        return dial1('*#62#');
+        return Phone.dial('*#62#');
     }
 
     // Función para transferir o donar saldo de un teléfono a otro, cuba
