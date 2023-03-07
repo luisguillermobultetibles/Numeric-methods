@@ -1,4 +1,4 @@
-import {WebSystemObject} from "./system/WebSystemObject.mjs";
+import {WebSystemObject} from "./WebSystemObject.mjs";
 
 // basado en una vieja idea con algunas interfaces de https://gist.github.com/jjgrainger
 export class Vector extends WebSystemObject {

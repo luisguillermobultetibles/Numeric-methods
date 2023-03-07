@@ -1,4 +1,4 @@
-import {WebSystemObject} from "./system/WebSystemObject.mjs";
+import {WebSystemObject} from "./WebSystemObject.mjs";
 
 export class Arreglo extends WebSystemObject  {
     /**

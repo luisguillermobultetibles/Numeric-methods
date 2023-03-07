@@ -1,38 +1,38 @@
 // Parent class
-import {WebSystemObject} from "./system/WebSystemObject.mjs";
+import {WebSystemObject} from './WebSystemObject.mjs';
 
 export class Person extends WebSystemObject {
-    constructor(name, city, school) {
-        super();
-        this.name = name;
-        this.city = city;
-        this.school = school;
-    };
+  constructor(name, city, school) {
+    super();
+    this.name = name;
+    this.city = city;
+    this.school = school;
+  };
 
-    // Encapsulation
-    getGender() {
-        return this.gender;
-    }
+  // Encapsulation
+  getGender() {
+    return this.gender;
+  }
 
-    setGender(gender) {
-        this.gender = gender;
-    }
+  setGender(gender) {
+    this.gender = gender;
+  }
 
-    getDOB() {
-        return this.dob;
-    }
+  getDOB() {
+    return this.dob;
+  }
 
-    setDOB(DOB) {
-        this.dob = DOB;
-    }
+  setDOB(DOB) {
+    this.dob = DOB;
+  }
 
-    calculateAge() {
-        return new Date().getFullYear() - this.getDOB();
-    } ;
+  calculateAge() {
+    return new Date().getFullYear() - this.getDOB();
+  } ;
 
-    // Abstract Method
-    bio() {
-        throw new Error('Abstract Method');
-    };
+  // Abstract Method
+  bio() {
+    throw new Error('Abstract Method');
+  };
 };
 

@@ -1,5 +1,5 @@
 // Some abstract Algebra
-import {WebSystemObject} from "./system/WebSystemObject.mjs";
+import {WebSystemObject} from "./WebSystemObject.mjs";
 
 export class SubSpace extends WebSystemObject {
     static #Continuous = class extends SubSpace { // Pass throw class, implemented abstraction

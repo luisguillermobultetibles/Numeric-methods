@@ -11,15 +11,15 @@ export class DataSet extends Arreglo {
     } else {
       this.open([]);
     }
-    this.#filename = null;
+    this.filename = null;
   }
 
   // Cargar de un formato .json clásico
   loadFromFile(filename) {
-    if (filename && !this.#filename) {
-      this.#filename = filename;
+    if (filename && !this.filename) {
+      this.filename = filename;
     }
-    if (this.#filename) {
+    if (this.filename) {
       const data = super.readFromFile(filename);
       const content = JSON.parse(data);
       this._array = content['RECORDS'];
@@ -29,10 +29,10 @@ export class DataSet extends Arreglo {
   }
 
   writeToFile(fileName) {
-    if (filename && !this.#filename) {
-      this.#filename = filename;
+    if (filename && !this.filename) {
+      this.filename = filename;
     }
-    if (this.#filename) {
+    if (this.filename) {
       super.writeToFile(fileName, `{"RECORDS":${JSON.stringify(this._array)}}`);
     } else {
       throw new Error('You must specify a file name at lest once time.');
@@ -424,11 +424,9 @@ export class JSONdb extends DataSet {
 
   /**
    * Default configuration values.
-   * @type {{asyncWrite: boolean, syncOnWrite: boolean, jsonSpaces: number}}
+   * @type {{ jsonSpaces: number}}
    */
   static defaultOptions = {
-    asyncWrite: false,
-    syncOnWrite: true,
     jsonSpaces: 4,
     stringify: JSON.stringify,
     parse: JSON.parse,
@@ -451,25 +449,25 @@ export class JSONdb extends DataSet {
 
   // CAUTION !!! UNDER AUTHOR LICENCE, AUTO-TEST AND ADVANCED.
 
-  static #iterableTestsCount = 100;
+  static iterableTestsCount = 100;
 
   /**
    * Generates a file path and name based on current UNIX timestamp.
    * @returns {string}
    */
-  static #genFileName() {
+  static genFileName() {
     return '/tmp/' + Date.now().toString() + '.json';
   }
 
   /**
    * Makes sure that a unique filename is generated.
    */
-  static #genFilePath(timeOut = 10000) {
+  static genFilePath(timeOut = 10000) {
     let loop = true;
     setTimeout(() => loop = false, timeOut);
     while (loop) {
       try {
-        this.filePath = JSONdb.#genFileName();
+        this.filePath = JSONdb.genFileName();
         fs.statSync(this.filePath);
       } catch (err) {
         console.error(err.toString());
@@ -482,14 +480,14 @@ export class JSONdb extends DataSet {
    * Returns a new instance of JSONdb.
    * @returns {JSONdb}
    */
-  static #createInstance() {
+  static createInstance() {
     return new JSONdb(this.filePath);
   }
 
   // Priviledge tests (facultades).
 
   // Tests are not being run as root
-  static #checkRunAsRoot() {
+  static checkRunAsRoot() {
     try {
       let isRoot = process.getuid && process.getuid() === 0;
       if (!isRoot) {
@@ -503,30 +501,30 @@ export class JSONdb extends DataSet {
   // Consistency tests (solidez).
 
   // Database cleanup
-  static #checkDatabaseCleanup() {
+  static checkDatabaseCleanup() {
     try {
-      this.#createInstance().deleteAll();
+      this.createInstance().deleteAll();
     } catch (e) {
       console.error('Cannot check database cleanup, cause:', e.toString());
     }
   }
 
   // Create a new JSONdb instance and test `instanceOf`'
-  static #checkDatabaseInstance() {
+  static checkDatabaseInstance() {
     try {
-       const db = this.#createInstance();
-       if (!(db, JSONdb)) {
-         console.error(`Database is not saved as instance of ${JSONdb.constructor.name}.`);
-       }
+      const db = this.createInstance();
+      if (!(db, JSONdb)) {
+        console.error(`Database is not saved as instance of ${JSONdb.constructor.name}.`);
+      }
     } catch (e) {
       console.error('Cannot check database instance, cause:', e.toString());
     }
   }
 
   // Create a new JSONdb instance and test `instanceOf`'
-  static #checkDatabaseInstance() {
+  static checkDatabaseInstance() {
     try {
-      const db = this.#createInstance();
+      const db = this.createInstance();
       if (!(db, JSONdb)) {
         console.error(`Database is not saved as instance of ${JSONdb.constructor.name}.`);
       }
@@ -545,9 +543,9 @@ export class JSONdb extends DataSet {
   //
 
   // Check that a non-exhistent key returns `undefined`
-  static #checkNonExhistentKey() {
+  static checkNonExhistentKey() {
     try {
-      const db = JSONdb.#createInstance();
+      const db = JSONdb.createInstance();
       if (typeof (db.get(Date.now())) !== 'undefined') {
         console.error('Unexpected type of initial read.');
       }
@@ -559,10 +557,10 @@ export class JSONdb extends DataSet {
   // Mechanic tests (así es la mecánica).
 
   // Check that values can change (deterministic)
-  static #checkVolumeChange() {
+  static checkVolumeChange() {
     try {
-      const db = JSONdb.#createInstance();
-      for (let i = 0; i < JSONdb.#iterableTestsCount; i++) {
+      const db = JSONdb.createInstance();
+      for (let i = 0; i < JSONdb.iterableTestsCount; i++) {
         db.set('foo', new Date().toISOString());
         let firstVal = db.get('foo');
         db.set('foo', new Date().toUTCString());
@@ -577,10 +575,10 @@ export class JSONdb extends DataSet {
   }
 
   // Check that keys can be deleted
-  static #checkKeyDeletion() {
+  static checkKeyDeletion() {
     try {
       const db = JSONdb.createInstance();
-      for (let i = 0; i < tis.#iterableTestsCount; i++) {
+      for (let i = 0; i < this.witerableTestsCount; i++) {
         db.set('foo', Date.now());
         let firstVal = db.get('foo');
         db.delete('foo');
@@ -598,10 +596,10 @@ export class JSONdb extends DataSet {
   }
 
   // Check that keys existence can be verified
-  static #checkKeyInstance() {
+  static checkKeyInstance() {
     try {
-      const db = this.#createInstance();
-      for (let i = 0; i < this.#iterableTestsCount; i++) {
+      const db = this.createInstance();
+      for (let i = 0; i < this.iterableTestsCount; i++) {
         db.set('foo', Date.now());
         if (!db.has('foo')) {
           console.error('Key existence is erroneous (returned False instead of True)');
@@ -617,7 +615,7 @@ export class JSONdb extends DataSet {
   }
 
   // Verify sync to disk
-  static #diskSynch() {
+  static diskSynch() {
     try {
       const db = JSONdb.createInstance();
       db.set('foo', Date.now());
@@ -627,11 +625,11 @@ export class JSONdb extends DataSet {
   }
 
   // Check that the copy of the underlying structure is coherent
-  static #underlyingCoherency() {
+  static underlyingCoherency() {
     try {
-      const db = JSONdb.#createInstance();
+      const db = JSONdb.createInstance();
       const reference = {};
-      for (let i = 0; i < JSONdb.#iterableTestsCount; i++) {
+      for (let i = 0; i < JSONdb.iterableTestsCount; i++) {
         const now = Date.now();
         db.set('foo', now);
         reference.foo = now;
@@ -647,7 +645,7 @@ export class JSONdb extends DataSet {
   }
 
   // Check that the underlying structure can be replaced
-  static #underlyingReplacement() {
+  static underlyingReplacement() {
     try {
       const db = JSONdb.createInstance();
       const replacement = {};
@@ -669,12 +667,12 @@ export class JSONdb extends DataSet {
   }
 
   // Persistency
-  static #persitency() {
+  static persitency() {
     try {
-      let db = JSONdb.#createInstance();
+      let db = JSONdb.createInstance();
       db.set('foo', Date.now());
       let oldVal = db.get('foo');
-      db = JSONdb.#createInstance();
+      db = JSONdb.createInstance();
       if (db.get('foo') !== oldVal) {
         console.error('Reloaded value differs from last written.');
       }
@@ -684,7 +682,7 @@ export class JSONdb extends DataSet {
   }
 
   // Temporary file removal
-  static #cleanUp() {
+  static cleanUp() {
     try {
       fs.unlinkSync(this.filePath);
     } catch (e) {
@@ -696,7 +694,6 @@ export class JSONdb extends DataSet {
    * Main constructor, manages existing storage file and parses options against default ones.
    * @param {string} filePath The path of the file to use as storage.
    * @param {object} [options] Configuration options.
-   * @param {boolean} [options.asyncWrite] Enables the storage to be asynchronously written to disk. Disabled by default (synchronous behaviour).
    * @param {boolean} [options.syncOnWrite] Makes the storage be written to disk after every modification. Enabled by default.
    * @param {boolean} [options.syncOnWrite] Makes the storage be written to disk after every modification. Enabled by default.
    * @param {number} [options.jsonSpaces] How many spaces to use for indentation in the output json files. Default = 4
@@ -763,7 +760,7 @@ export class JSONdb extends DataSet {
    */
   set(key, value) {
     this.storage[key] = value;
-    if (this.options && this.options.syncOnWrite) this.sync();
+    if (this.options) this.sync();
   };
 
   /**
@@ -791,7 +788,7 @@ export class JSONdb extends DataSet {
    */
   delete(key) {
     let retVal = this.storage.hasOwnProperty(key) ? delete this.storage[key] : undefined;
-    if (this.options && this.options.syncOnWrite) this.sync();
+    if (this.options) this.sync();
     return retVal;
   };
 
@@ -811,20 +808,10 @@ export class JSONdb extends DataSet {
    * Writes the local storage object to disk.
    */
   sync() {
-    if (this.options && this.options.asyncWrite) {
+    if (this.options) {
       fs.writeFile(this.filePath, this.options.stringify(this.storage, null, this.options.jsonSpaces), (err) => {
         if (err) throw err;
       });
-    } else {
-      try {
-        fs.writeFileSync(this.filePath, this.options.stringify(this.storage, null, this.options.jsonSpaces));
-      } catch (err) {
-        if (err.code === 'EACCES') {
-          throw new Error(`Cannot access path "${this.filePath}".`);
-        } else {
-          throw new Error(`Error while writing to path "${this.filePath}": ${err}`);
-        }
-      }
     }
   };
 
@@ -852,5 +839,21 @@ export class JSONdb extends DataSet {
   // una pérdida de datos... además, incluir un chequeo de errores.
   // Hacerlo compatible con TypeORM o Massive.js
 
-
 }
+
+/*
+
+function saveToStorage(key, val) {
+    localStorage.setItem(key, JSON.stringify(val))
+}
+
+function loadFromStorage(key) {
+    var val = localStorage.getItem(key)
+    return JSON.parse(val)
+}
+
+function removeFromStorage(key) {
+    localStorage.removeItem(key)
+}
+
+*/

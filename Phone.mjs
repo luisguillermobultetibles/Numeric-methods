@@ -1,4 +1,4 @@
-import {WebSystemObject} from "./system/WebSystemObject.mjs";
+import {WebSystemObject} from "./WebSystemObject.mjs";
 // This is my javascript phone class, initially based on by Maya Shavin: idea Let's divide our phones into Classes
 // I'm a cuban, this is my ideal phone prototype.
 export class Phone extends WebSystemObject {

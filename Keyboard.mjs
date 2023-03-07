@@ -1,4 +1,4 @@
-import {WebSystemObject} from "./system/WebSystemObject.mjs";
+import {WebSystemObject} from "./WebSystemObject.mjs";
 /*
    Clase para controlar el teclado...
    Usage (to attach key press and released):

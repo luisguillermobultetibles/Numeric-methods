@@ -14,12 +14,14 @@ export class Mouse extends WebSystemObject {
     static #mouseDown(e) {
         Mouse.#isMouseDown = true;
         document.title = `Mouse abajo ${e}: estado ${Mouse.#isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
+        document.body.style.cursor = 'grabbing';
         Mouse.#DownEvents.forEach((event) => event(e));
     };
 
     static #mouseUp(e) {
         Mouse.#isMouseDown = false;
         document.title = `Mouse arriba ${e}: estado ${Mouse.#isMouseDown ? 'abajo' : 'arriba'} en (${Mouse.x}, ${Mouse.y}).`;
+        document.body.style.cursor = 'grab';
         Mouse.#UpEvents.forEach((event) => event(e));
     };
 
@@ -44,10 +46,6 @@ export class Mouse extends WebSystemObject {
             window.addEventListener('mouseup', Mouse.#mouseUp, false);
             window.addEventListener('mousemove', Mouse.#mouseMove, false);
             window.addEventListener('wheel', Mouse.#mouseWheel, false);
-            /*
-                      Revisar los eventos: "touchstart" y "touchend".
-
-             */
         }
         this.downEventsPosition = -1;
         this.upEventsPosition = -1;

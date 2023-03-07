@@ -1,4 +1,4 @@
-import {WebSystemObject} from "./system/WebSystemObject.mjs";
+import {WebSystemObject} from "./WebSystemObject.mjs";
 export class Clock extends WebSystemObject {
     // Nota técnica: Utiliza un único manipulador, para mapear el tiempo de procesos vitales, industriales o sensibles que deben ser exactos, deberías utilizar otros métodos,
     // como rutinas a bajo nivel precompiladas por lenguajes de alto nivel.
