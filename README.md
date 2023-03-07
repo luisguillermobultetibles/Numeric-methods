@@ -4,9 +4,11 @@
 .Uno de los primeros objetivos es maximizar la reutilización de código.
 .Pero esto entra en conflicto con la cantidad de dependencias, a veces, puedes resolver tu problema con una simple función.
 .¿Para qué cargar con todo el paquete?
-.Para eso necessitaba un parser y un sgdb que fuera capaz de exportarte la función en limpio, completamente "funcional" como gitmo, con agua.
+.Para eso necesitaba un parser y un sgdb que fuera capaz de exportarte la función en limpio, completamente "funcional" como gitmo, con agua.
 .El dbms se concibe para almacenar objetos (de programación), alguna vez intenté hacerlo en pascal.
 .Todas las otras ventajas se mantienen igual, se trata de incorporar un ambiente de desarrollo y análisis de código "TODO" en fuente.
+.Algunas cosas están sin terminar y se pueden mejorar; pero casi todo funciona, es con lo que trabajo.
+.Enjoy.
 
 Luis (4 de marzo de 2023).
 
