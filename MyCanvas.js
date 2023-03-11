@@ -288,6 +288,23 @@ class MyCanvas extends WebSystemObject {
 
   stop(hand = this.#handle) {
     this.#caf(hand);
+    this.#handle = null;
+  }
+
+  get paused() {
+    return !!this.#handle;
+  }
+
+  set paused(p) {
+    if (this.paused) {
+      this.start();
+    } else {
+      this.stop();
+    }
+  }
+
+  paused() {
+    return !!this.#handle;
   }
 
   // Se opone a la inyección, toma la imagen de un elemento del DOM, no la dibuja
