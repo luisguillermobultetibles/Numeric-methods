@@ -53,7 +53,7 @@ class MyCanvas extends WebSystemObject {
     super();
     // Opciones generales del canvas
 
-    // Si no se pasa o no se encuentra un id en el ducumento, se crea un canvas fuera de pantalla.
+    // Si no se pasa o no se encuentra un id en el documento, se crea un canvas fuera de pantalla.
     if (id) {
       let tmp = document.getElementById(id);
       if (!tmp) {
