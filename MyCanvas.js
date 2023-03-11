@@ -200,7 +200,7 @@ class MyCanvas extends WebSystemObject {
 
   canvas; // store canvas element
   ctx; // store canvas 2d context element
-  invocableDrawEvent; // store user drawing callable program (drawer)
+  invocableDrawEvent; // store user drawing callable program (your drawer)
   frame; // 24 x sec ?
   constructor(id, opciones = MyCanvas.options, invocableDrawEvent = null) {
     super();
@@ -274,12 +274,13 @@ class MyCanvas extends WebSystemObject {
 
   // start or restart
   start() {
-      this.frame = () => {
-        this.#handle = MyCanvas.#raf(this.frame);
-        this.renderCanvas();
-      };
-      this.frame();
+    this.frame = () => {
+      this.#handle = MyCanvas.#raf(this.frame);
+      this.renderCanvas();
+    };
+    this.frame();
   }
+
   static #caf = window.cancelAnimationFrame ||
     window.webkitCancelAnimationFrame ||
     window.mozCancelAnimationFrame ||
@@ -694,7 +695,6 @@ class MyCanvas extends WebSystemObject {
   lineTo(x2, y2) {
     this.ctx.lineTo(Math.round(x2), Math.round(y2));
   }
-
 
   // Función para el cálculo de colores rgba a profundidad 1 byte 0-255 que puede aumentar en un futuro
 
