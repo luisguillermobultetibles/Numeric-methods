@@ -280,7 +280,7 @@ class Transition extends Clock {
       this.obj[this.property] = this.endValue;
       this.free();
     } else {
-      this.effect(this.#t, this.#b, this.#c, this.#d);
+      this.obj[this.property] = this.effect(this.#t, this.#b, this.#c, this.#d);
     }
   }
 
