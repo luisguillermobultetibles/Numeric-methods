@@ -261,7 +261,7 @@ class Transition extends Clock {
   #d;
   #t;
 
-  constructor(obj, property, endValue, startValue = obj[property], method, active = true, elapsingTime = 1000, latency = 30) {
+  constructor(obj, property, endValue, startValue = obj[property], method = 'InElastic', active = true, elapsingTime = 1000, latency = 30) {
     super(Math.round(1000 / (2 * latency)), null, false); // Por ejemplo 1 segundo a 30 cuadros por seg.
     delete Transition.#architect;
 
