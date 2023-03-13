@@ -109,20 +109,20 @@ class Transition extends Clock {
 
     Transition.#effectsList.push({
       nombre: 'InExpo', effect: (t, b, c, d) => {
-        return (t == 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
+        return (t === 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
       }, defaults: [.95, .05, .795, .035],
     });
 
     Transition.#effectsList.push({
       nombre: 'OutExpo', effect: (t, b, c, d) => {
-        return (t == d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
+        return (t === d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
       }, defaults: [.19, 1, .22, 1],
     });
 
     Transition.#effectsList.push({
       nombre: 'InOutExpo', effect: (t, b, c, d) => {
-        if (t == 0) return b;
-        if (t == d) return b + c;
+        if (t === 0) return b;
+        if (t === d) return b + c;
         if ((t /= d / 2) < 1) return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
         return c / 2 * (-Math.pow(2, -10 * --t) + 2) + b;
       }, defaults: [1, 0, 0, 1],
@@ -149,17 +149,18 @@ class Transition extends Clock {
 
     Transition.#effectsList.push({
       nombre: 'InElastic', effect: (t, b, c, d) => {
-        var s = 1.70158;
-        var p = 0;
-        var a = c;
-        if (t == 0) return b;
-        if ((t /= d) == 1) return b + c;
+        let s = 1.70158;
+        let p = 0;
+        let a = c;
+        if (t === 0) return b;
+        t = t / d;
+        if (t === 1) return b + c;
         if (!p) p = d * .3;
         if (a < Math.abs(c)) {
           a = c;
-          var s = p / 4;
+          s = p / 4;
         } else {
-          var s = p / (2 * Math.PI) * Math.asin(c / a);
+          s = p / (2 * Math.PI) * Math.asin(c / a);
         }
         return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
       }, defaults: [.42, 0, 1, 1],
@@ -167,17 +168,18 @@ class Transition extends Clock {
 
     Transition.#effectsList.push({
       nombre: 'OutElastic', effect: (t, b, c, d) => {
-        var s = 1.70158;
-        var p = 0;
-        var a = c;
-        if (t == 0) return b;
-        if ((t /= d) == 1) return b + c;
+        let s = 1.70158;
+        let p = 0;
+        let a = c;
+        if (t === 0) return b;
+        t = t / d;
+        if (t === 1) return b + c;
         if (!p) p = d * .3;
         if (a < Math.abs(c)) {
           a = c;
-          var s = p / 4;
+          s = p / 4;
         } else {
-          var s = p / (2 * Math.PI) * Math.asin(c / a);
+          s = p / (2 * Math.PI) * Math.asin(c / a);
         }
         return a * Math.pow(2, -10 * t) * Math.sin((t * d - s) * (2 * Math.PI) / p) + c + b;
       }, defaults: [0, 0, .58, 1],
@@ -185,17 +187,18 @@ class Transition extends Clock {
 
     Transition.#effectsList.push({
       nombre: 'InOutElastic', effect: (t, b, c, d) => {
-        var s = 1.70158;
-        var p = 0;
-        var a = c;
-        if (t == 0) return b;
-        if ((t /= d / 2) == 2) return b + c;
+        let s = 1.70158;
+        let p = 0;
+        let a = c;
+        if (t === 0) return b;
+        t = t / (d / 2);
+        if (t === 2) return b + c;
         if (!p) p = d * (.3 * 1.5);
         if (a < Math.abs(c)) {
           a = c;
-          var s = p / 4;
+          s = p / 4;
         } else {
-          var s = p / (2 * Math.PI) * Math.asin(c / a);
+          s = p / (2 * Math.PI) * Math.asin(c / a);
         }
         if (t < 1) return -.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
         return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p) * .5 + c + b;
@@ -204,21 +207,21 @@ class Transition extends Clock {
 
     Transition.#effectsList.push({
       nombre: 'InBack', effect: (t, b, c, d, s) => {
-        if (s == undefined) s = 1.70158;
+        if (s === undefined) s = 1.70158;
         return c * (t /= d) * t * ((s + 1) * t - s) + b;
       }, defaults: [.42, 0, 1, 1],
     });
 
     Transition.#effectsList.push({
       nombre: 'OutBack', effect: (t, b, c, d, s) => {
-        if (s == undefined) s = 1.70158;
+        if (s === undefined) s = 1.70158;
         return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
       }, defaults: [0, 0, .58, 1],
     });
 
     Transition.#effectsList.push({
       nombre: 'InOutBack', effect: (t, b, c, d, s) => {
-        if (s == undefined) s = 1.70158;
+        if (s === undefined) s = 1.70158;
         if ((t /= d / 2) < 1) return c / 2 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b;
         return c / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
       }, defaults: [.42, 0, .58, 1],
@@ -250,7 +253,13 @@ class Transition extends Clock {
         return this.easeOutBounce(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
       }, defaults: [.42, 0, .58, 1],
     });
+    return 'done.';
   }('just run before constructor...');
+
+  #b;
+  #c;
+  #d;
+  #t;
 
   constructor(obj, property, endValue, startValue = obj[property], method, active = true, elapsingTime = 1000, latency = 30) {
     super(Math.round(1000 / (2 * latency)), null, false); // Por ejemplo 1 segundo a 30 cuadros por seg.
@@ -264,7 +273,7 @@ class Transition extends Clock {
 
     this.method = method instanceof String ? Transition.#effectsList.findIndex(effect => effect.nombre.lowercase() === method.lowercase()) : method;
     console.log(`We are using the method: ${this.method}`);
-    this.effect = Transition.#effectsList[this.method].effect; 
+    this.effect = Transition.#effectsList[this.method].effect;
 
     this.#b = Number(new Date());
     this.#c = Math.abs(this.endValue - this.startValue);
