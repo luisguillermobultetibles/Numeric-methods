@@ -260,7 +260,7 @@ class Transition extends Clock {
     this.startValue = startValue;
     this.endValue = endValue;
 
-    this.oninterval = this.periodicity;
+    this.oninterval = this.update;
 
     this.method = method instanceof String ? Transition.#effectsList.findIndex(effect => effect.nombre.lowercase() === method.lowercase()) : method;
     console.log(`We are using the method: ${this.method}`);
