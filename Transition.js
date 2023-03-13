@@ -264,7 +264,7 @@ class Transition extends Clock {
 
     this.method = method instanceof String ? Transition.#effectsList.findIndex(effect => effect.nombre.lowercase() === method.lowercase()) : method;
     console.log(`We are using the method: ${this.method}`);
-    this.effect = Transition.#effectsList [this.method]; // optimize
+    this.effect = Transition.#effectsList[this.method].effect; 
 
     this.#b = Number(new Date());
     this.#c = Math.abs(this.endValue - this.startValue);
