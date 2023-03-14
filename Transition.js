@@ -226,30 +226,36 @@ class Transition extends Clock {
       }, defaults: [.42, 0, .58, 1],
     });
 
+    let _OutBounce = (t, b, c, d) => (t, b, c, d) => {
+      if ((t /= d) < (1 / 2.75)) {
+        return c * (7.5625 * t * t) + b;
+      } else if (t < (2 / 2.75)) {
+        return c * (7.5625 * (t -= (1.5 / 2.75)) * t + .75) + b;
+      } else if (t < (2.5 / 2.75)) {
+        return c * (7.5625 * (t -= (2.25 / 2.75)) * t + .9375) + b;
+      } else {
+        return c * (7.5625 * (t -= (2.625 / 2.75)) * t + .984375) + b;
+      }
+    };
+
+    let _InBounce = (t, b, c, d) => (t, b, c, d) => {
+      return c - _OutBounce(d - t, 0, c, d) + b;
+    };
+
     result.push({
       nombre: 'InBounce', effect: (t, b, c, d) => {
-        return c - this.easeOutBounce(d - t, 0, c, d) + b;
+        return c - _OutBounce(d - t, 0, c, d) + b;
       }, defaults: [.42, 0, 1, 1],
     });
 
     result.push({
-      nombre: 'OutBounce', effect: (t, b, c, d) => {
-        if ((t /= d) < (1 / 2.75)) {
-          return c * (7.5625 * t * t) + b;
-        } else if (t < (2 / 2.75)) {
-          return c * (7.5625 * (t -= (1.5 / 2.75)) * t + .75) + b;
-        } else if (t < (2.5 / 2.75)) {
-          return c * (7.5625 * (t -= (2.25 / 2.75)) * t + .9375) + b;
-        } else {
-          return c * (7.5625 * (t -= (2.625 / 2.75)) * t + .984375) + b;
-        }
-      }, defaults: [0, 0, .58, 1],
+      nombre: 'OutBounce', effect: _OutBounce, defaults: [0, 0, .58, 1],
     });
 
     result.push({
       nombre: 'InOutBounce', effect: (t, b, c, d) => {
-        if (t < d / 2) return this.easeInBounce(t * 2, 0, c, d) * .5 + b;
-        return this.easeOutBounce(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
+        if (t < d / 2) return _InBounce(t * 2, 0, c, d) * .5 + b;
+        return _OutBounce(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
       }, defaults: [.42, 0, .58, 1],
     });
     return result;
@@ -260,13 +266,13 @@ class Transition extends Clock {
   #d;
   #t;
 
-  constructor(obj, property, endValue, startValue = obj[property], method = 'InElastic', active = true, cyclic = false, elapsingTime = 1000, latency = 30) {
+  constructor(object, property, endPropertyValue = object[property], startPropertyValue = endPropertyValue, method = 'InElastic', active = true, cyclic = false, delay = 1000, latency = 30) {
     super(Math.round(1000 / (2 * latency)), null, false); // Por ejemplo 1 segundo a 30 cuadros por seg.
 
-    this.obj = obj;
-    this.startValue = startValue;
-    this.endValue = endValue;
-    this.elapsingTime = elapsingTime;
+    this.obj = object;
+    this.startValue = startPropertyValue;
+    this.endValue = endPropertyValue;
+    this.elapsingTime = delay;
 
     this.oninterval = this.update;
 
