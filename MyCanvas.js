@@ -14,7 +14,6 @@ class MyCanvas extends WebSystemObject {
   static needToRepaint = 'needToRepaint';
   static updated = 'updated';
   static updating = 'updating';
-
   static colors = {
     aliceblue: [240, 248, 255],
     antiquewhite: [250, 235, 215],
@@ -416,6 +415,75 @@ class MyCanvas extends WebSystemObject {
   // este otro que se puede usar para los sprites, y la tira completa.
   putImage(imageData, x, y) {
     this.ctx.putImageData(imageData, x, y);
+  }
+
+
+  // Para lograr el efecto...
+
+  putImageDemo() {
+    /*
+        Warning: Due to the lossy nature of converting to and from premultiplied
+        alpha color values, pixels that have just been set using putImageData()
+        might be returned to an equivalent getImageData() as different values.
+
+    */
+    function putImageData(
+      imageData,
+      dx,
+      dy,
+      dirtyX,
+      dirtyY,
+      dirtyWidth,
+      dirtyHeight,
+    ) {
+      const data = imageData.data;
+      const height = imageData.height;
+      const width = imageData.width;
+      dirtyX = dirtyX || 0;
+      dirtyY = dirtyY || 0;
+      dirtyWidth = dirtyWidth !== undefined ? dirtyWidth : width;
+      dirtyHeight = dirtyHeight !== undefined ? dirtyHeight : height;
+      const limitBottom = dirtyY + dirtyHeight;
+      const limitRight = dirtyX + dirtyWidth;
+      for (let y = dirtyY; y < limitBottom; y++) {
+        for (let x = dirtyX; x < limitRight; x++) {
+          const pos = y * width + x;
+          this.ctx.fillStyle = `rgba(${data[pos * 4 + 0]}, ${data[pos * 4 + 1]}, ${
+            data[pos * 4 + 2]
+          }, ${data[pos * 4 + 3] / 255})`;
+          this.ctx.fillRect(x + dx, y + dy, 1, 1);
+        }
+      }
+    }
+
+    // Draw content onto the canvas
+    ctx.fillRect(0, 0, 100, 100);
+    // Create an ImageData object from it
+    const imagedata = ctx.getImageData(0, 0, 100, 100);
+    // use the putImageData function that illustrates how putImageData works
+    putImageData(ctx, imagedata, 150, 0, 50, 50, 25, 25);
+
+  }
+
+  //
+  working() {
+    /*
+    Para el canvas transition de colores rotaciones etc.
+
+    Solamente para idiotas ridículos superdotados
+      1._ Cuando la velocidad del objeto es menor a la frecuencia de actualización, se hace un fade in-out en secuencia en el tiempo establecido,
+          esto es, una suma (mezcla) aditiva, a la distancia de dos píxeles consecutivos a un tiempo = a c/v cada una (la última iguala), a donde c = fps;
+          Las imágenes se superponen a desplazamiento de un píxel, La suma de intensidades de ambas debe ser = a 1, la anterior descendente y la posterior ascendente.
+          A una velocidad igual a c, esto no es necesario, la anterior siempre tiene intensidad cero.
+      2._ Cuando la ... es igual a FPS, se utiliza una actualización con putaImagen normal, remplazando la anterior.
+      3._ Cuando ... es mayor que la frecuencia de muestreo:
+          Se calcula la longitud de la "estela" de la siguiente análoga a la dilatación de tiempo de Lorentz:
+          Sea c = fps
+          Les = 1 / Raíz(1 - v²/c²)
+          donde c, es casualmente igual a la frecuencia de muestreo y v, la velocidad en píxels del objeto.
+          Esta fórmula también se puede simplificar de la siguiente forma Les = (1/2) * (v²/c²).
+
+    */
   }
 
 
@@ -1630,7 +1698,7 @@ class MyCanvas extends WebSystemObject {
     d = typeof (d) != 'undefined' ? d : 10;
     // default to using drawHead to draw the head, but if the style
     // argument is a function, use it instead
-    var toDrawHead = typeof (style) != 'function' ? this.drawHead : style;
+    var toDrawHead = typeof (style) != 'method' ? this.drawHead : style;
 
     // For ends with arrow we actually want to stop before we get to the arrow
     // so that wide lines won't put a flat end on the arrow.
@@ -1880,36 +1948,6 @@ class MyCanvas extends WebSystemObject {
   }
 
 
-  test() {
-
-    // MIRA LA IDEA... (NO ES LO QUE QUIERO)
-
-    this.colorDeFondo('white');
-
-    this.inyectar(200, 20, 'mytable');
-
-    this.linea(5, 5, 100, 100);
-    this.linea(100, 100, 200, 100, 'white', 'blue', 1.5, null, null, [5, 3]);
-    this.linea(200, 100, 300, 300, 'blue', 'cyan', 1.5);
-
-    this.flecha(300, 300, 300, 200, 'white', 'blue', 1.5, null, null, null, 0, this.options.cabezaFlechaInicial);
-    this.flecha(300, 200, 400, 200, 'blue', 'green', 1.5, null, null, [4, 1, 4], 0, this.options.cabezaFlechaFinal);
-    this.flecha(400, 200, 400, 300, 'green', 'red', 1.5, null, null, null, 0, this.options.cabezaFlechaInicialFinal);
-
-    // Esta parte todavía no, es bastante intuitivo ...
-    this.texto(10, 30, 'Texto 1 (Solamente el borde)', null, 'black', 'Courier new');
-    this.texto(10, 80, 'Texto 2 (Solamente el relleno)', 'green', null, null, 12);
-    this.texto(10, 140, 'Texto 3 (Color de borde y de relleno)', 'red', 'blue', 'Tahoma', 48);
-
-    this.rectangulo(280, 320, 380, 450);
-    this.inyectar(350, 350, 'mytable', 'blue');
-    // render_html_to_canvas(document.getElementById("mytable").innerHTML, 350, 350)
-
-    this.estrella(75, 75, 5, 25, 10, 'mediumseagreen', 'gray', 2);
-    this.estrella(150, 200, 8, 25, 10, 'skyblue', 'gray', 3);
-    this.estrella(225, 75, 16, 25, 7, 'coral', 'transparent', 0);
-    this.estrella(300, 200, 16, 25, 5, 'gold', 'gray', 1);
-  }
 
 
 }
