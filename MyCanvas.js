@@ -427,6 +427,16 @@ class MyCanvas extends WebSystemObject {
         might be returned to an equivalent getImageData() as different values.
 
     */
+
+    // function for applying transparency to an extracted imageData
+    function applyTransparency(imageData, transparency) {
+      let length = imageData.length;
+      for (var i = 3; i < length; i += 4) {
+        imageData[i] = (imageData[i] < opacity) ? imageData[i] : 1 - transparency;
+      }
+      return imageData;
+    }
+
     function putImageData(
       imageData,
       dx,
@@ -625,6 +635,8 @@ class MyCanvas extends WebSystemObject {
     this.ctx.putImageData(imageData, 0, 0);
   };
 
+  // Based on the Patrick Wied Version: 1 (2011-04-04) ( http://www.patrick-wied.at )
+  // Copyright (c) 2011 under the terms of the MIT LICENSE
   watermark(opacity, img) {
     if (img) {
       this.ctx.drawImage(img, img.width, img.height);
@@ -1946,8 +1958,6 @@ class MyCanvas extends WebSystemObject {
     var datosElemento = document.getElementById('idtable').getBoundingClientRect();
     return this.render_html_to_canvas(html, ctx, x, y, datosElemento.width, datosElemento.height, colorBorde);
   }
-
-
 
 
 }
