@@ -923,6 +923,28 @@ export class WebSystemObject extends Object {
 
   // Geolocalizar la posición del navegador del usuario (si lo permite) y ubicar su posición en el mapper a determinado zoom.
 
+  // Cálculo de distancia aproximada en metros a partir de coordenadas geográficas, fórmula válida para posiciones geográficas del mundo entero.
+  distancia(latitud1, longitud1, latitud2, longitud2) {
+    return (Math.sqrt(Math.pow(latitud2 - latitud1, 2) + Math.pow(longitud2 - longitud1, 2)) % 180) * 111111;
+  }
+
+  distanceHighestAccuracy(latitud1, longitud1, latitud2, longitud2) {
+    let toRadians = (x) => (x * Math.PI / 180) % (Math.PI * 2);
+    let pythagoras = (x, y) => Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    let arc = (radio, amplitud) => radio * amplitud;
+    let radius = (latitud, radioPolar = 6356751.9, radioEcuatorial = 6378136.66378) => radioEcuatorial - (radioEcuatorial - radioPolar) * Math.sin(latitud);
+
+    let delta_lon = toRadians(Math.abs(longitud2 - longitud1) % 180);
+    let delta_height = Math.abs(radius(toRadians(latitud2)) - radius(toRadians(latitud1)));
+
+    return pythagoras(arc(radius(toRadians(Math.abs(latitud1 + latitud2) / 2)), delta_lon), delta_height);
+  }
+
+  // Radio aproximado del elipsoide en la posición especificada (radianes y metros), con parámetros opcionales.
+  nivelDelMar(latitud, longitud, radioPolar = 6356751.9, radioEcuatorial = 6378136.66378) {
+    return radioEcuatorial - (radioEcuatorial - radioPolar) * Math.sin(latitud);
+  }
+
   // evento privado de geolocalización (this is my location response handler)
   _onLocationFound(pos) {
     // Y aquí se guarda la información de la geolocalización...
@@ -2431,6 +2453,11 @@ export class WebSystemObject extends Object {
   // divisibility of a by b.
   divides(a, b, eps = this.epsilon) {
     return !this.equivalents(b, 0, eps) && this.equivalents(this.module(a, b), 0, eps);
+  }
+
+  // from sketch fixed
+  random(min = 0, max = 1) {
+    return min + Math.random() * (max - min);
   }
 
   Gamma(z) {
