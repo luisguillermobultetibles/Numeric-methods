@@ -437,6 +437,17 @@ class MyCanvas extends WebSystemObject {
       return imageData;
     }
 
+    // Just the idea... (se promedian los niveles rgb y se ponderan por opacidad)
+    function additiveMix(theImageData1, toTheImageData2) {
+      let length = toTheImageData2.length;
+      for (var i = 3; i < length; i += 4) {
+        toTheImageData2[i - 3] = (toTheImageData2[i] * toTheImageData2[i - 3] + theImageData1[i] * theImageData1[i - 3]) / (toTheImageData2[i - 0] + theImageData1[i - 0]);
+        toTheImageData2[i - 2] = (toTheImageData2[i] * toTheImageData2[i - 2] + theImageData1[i] * theImageData1[i - 2]) / (toTheImageData2[i - 0] + theImageData1[i - 0]);
+        toTheImageData2[i - 1] = (toTheImageData2[i] * toTheImageData2[i - 1] + theImageData1[i] * theImageData1[i - 1]) / (toTheImageData2[i - 0] + theImageData1[i - 0]);
+      }
+      return toTheImageData2;
+    }
+
     function putImageData(
       imageData,
       dx,
