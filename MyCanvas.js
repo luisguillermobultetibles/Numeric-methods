@@ -297,9 +297,9 @@ class MyCanvas extends WebSystemObject {
 
   set paused(p) {
     if (this.paused) {
-      this.start();
+      if (p) this.start();
     } else {
-      this.stop();
+      if (!p) this.stop();
     }
   }
 
@@ -438,14 +438,20 @@ class MyCanvas extends WebSystemObject {
     }
 
     // Just the idea... (se promedian los niveles rgb y se ponderan por opacidad)
-    function additiveMix(theImageData1, toTheImageData2) {
+    function additiveMix(theImageData1, toTheImageData2, updateTransparency = false) {
       let length = toTheImageData2.length;
+      if (theImageData1 !== length) throw new Error('Las imágenes a mezclar deben tener el mismo tamaño.');
       for (var i = 3; i < length; i += 4) {
         let ft = (toTheImageData2[i - 0] + theImageData1[i - 0]);
-        ft === 0 ? ft = 2 : ft += 0;
-        toTheImageData2[i - 3] = (toTheImageData2[i] * toTheImageData2[i - 3] + theImageData1[i] * theImageData1[i - 3]) / ft;
-        toTheImageData2[i - 2] = (toTheImageData2[i] * toTheImageData2[i - 2] + theImageData1[i] * theImageData1[i - 2]) / ft;
-        toTheImageData2[i - 1] = (toTheImageData2[i] * toTheImageData2[i - 1] + theImageData1[i] * theImageData1[i - 1]) / ft;
+        if (ft === 0) {
+          return theImageData1;
+        }
+        toTheImageData2[i - 3] = Math.round((toTheImageData2[i] * toTheImageData2[i - 3] + theImageData1[i] * theImageData1[i - 3]) / ft);
+        toTheImageData2[i - 2] = Math.round((toTheImageData2[i] * toTheImageData2[i - 2] + theImageData1[i] * theImageData1[i - 2]) / ft);
+        toTheImageData2[i - 1] = Math.round((toTheImageData2[i] * toTheImageData2[i - 1] + theImageData1[i] * theImageData1[i - 1]) / ft);
+        if (updateTransparency) {
+          toTheImageData2[i - 0] = Math.round((toTheImageData2[i] * toTheImageData2[i - 0] + theImageData1[i] * theImageData1[i - 0]) / ft);
+        }
       }
       return toTheImageData2;
     }
