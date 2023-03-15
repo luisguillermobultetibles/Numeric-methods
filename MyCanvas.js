@@ -14,156 +14,1179 @@ class MyCanvas extends WebSystemObject {
   static needToRepaint = 'needToRepaint';
   static updated = 'updated';
   static updating = 'updating';
-  static colors = {
-    aliceblue: [240, 248, 255],
-    antiquewhite: [250, 235, 215],
-    aqua: [0, 255, 255],
-    aquamarine: [127, 255, 212],
-    azure: [240, 255, 255],
-    beige: [245, 245, 220],
-    bisque: [255, 228, 196],
-    black: [0, 0, 0],
-    blanchedalmond: [255, 235, 205],
-    blue: [0, 0, 255],
-    blueviolet: [138, 43, 226],
-    brown: [165, 42, 42],
-    burlywood: [222, 184, 135],
-    cadetblue: [95, 158, 160],
-    chartreuse: [127, 255, 0],
-    chocolate: [210, 105, 30],
-    coral: [255, 127, 80],
-    cornflowerblue: [100, 149, 237],
-    cornsilk: [255, 248, 220],
-    crimson: [220, 20, 60],
-    cyan: [0, 255, 255],
-    darkblue: [0, 0, 139],
-    darkcyan: [0, 139, 139],
-    darkgoldenrod: [184, 134, 11],
-    darkgray: [169, 169, 169],
-    darkgreen: [0, 100, 0],
-    darkgrey: [169, 169, 169],
-    darkkhaki: [189, 183, 107],
-    darkmagenta: [139, 0, 139],
-    darkolivegreen: [85, 107, 47],
-    darkorange: [255, 140, 0],
-    darkorchid: [153, 50, 204],
-    darkred: [139, 0, 0],
-    darksalmon: [233, 150, 122],
-    darkseagreen: [143, 188, 143],
-    darkslateblue: [72, 61, 139],
-    darkslategray: [47, 79, 79],
-    darkslategrey: [47, 79, 79],
-    darkturquoise: [0, 206, 209],
-    darkviolet: [148, 0, 211],
-    deeppink: [255, 20, 147],
-    deepskyblue: [0, 191, 255],
-    dimgray: [105, 105, 105],
-    dimgrey: [105, 105, 105],
-    dodgerblue: [30, 144, 255],
-    firebrick: [178, 34, 34],
-    floralwhite: [255, 250, 240],
-    forestgreen: [34, 139, 34],
-    fuchsia: [255, 0, 255],
-    gainsboro: [220, 220, 220],
-    ghostwhite: [248, 248, 255],
-    gold: [255, 215, 0],
-    goldenrod: [218, 165, 32],
-    gray: [128, 128, 128],
-    green: [0, 128, 0],
-    greenyellow: [173, 255, 47],
-    grey: [128, 128, 128],
-    honeydew: [240, 255, 240],
-    hotpink: [255, 105, 180],
-    indianred: [205, 92, 92],
-    indigo: [75, 0, 130],
-    ivory: [255, 255, 240],
-    khaki: [240, 230, 140],
-    lavender: [230, 230, 250],
-    lavenderblush: [255, 240, 245],
-    lawngreen: [124, 252, 0],
-    lemonchiffon: [255, 250, 205],
-    lightblue: [173, 216, 230],
-    lightcoral: [240, 128, 128],
-    lightcyan: [224, 255, 255],
-    lightgoldenrodyellow: [250, 250, 210],
-    lightgray: [211, 211, 211],
-    lightgreen: [144, 238, 144],
-    lightgrey: [211, 211, 211],
-    lightpink: [255, 182, 193],
-    lightsalmon: [255, 160, 122],
-    lightseagreen: [32, 178, 170],
-    lightskyblue: [135, 206, 250],
-    lightslategray: [119, 136, 153],
-    lightslategrey: [119, 136, 153],
-    lightsteelblue: [176, 196, 222],
-    lightyellow: [255, 255, 224],
-    lime: [0, 255, 0],
-    limegreen: [50, 205, 50],
-    linen: [250, 240, 230],
-    magenta: [255, 0, 255],
-    maroon: [128, 0, 0],
-    mediumaquamarine: [102, 205, 170],
-    mediumblue: [0, 0, 205],
-    mediumorchid: [186, 85, 211],
-    mediumpurple: [147, 112, 219],
-    mediumseagreen: [60, 179, 113],
-    mediumslateblue: [123, 104, 238],
-    mediumspringgreen: [0, 250, 154],
-    mediumturquoise: [72, 209, 204],
-    mediumvioletred: [199, 21, 133],
-    midnightblue: [25, 25, 112],
-    mintcream: [245, 255, 250],
-    mistyrose: [255, 228, 225],
-    moccasin: [255, 228, 181],
-    navajowhite: [255, 222, 173],
-    navy: [0, 0, 128],
-    oldlace: [253, 245, 230],
-    olive: [128, 128, 0],
-    olivedrab: [107, 142, 35],
-    orange: [255, 165, 0],
-    orangered: [255, 69, 0],
-    orchid: [218, 112, 214],
-    palegoldenrod: [238, 232, 170],
-    palegreen: [152, 251, 152],
-    paleturquoise: [175, 238, 238],
-    palevioletred: [219, 112, 147],
-    papayawhip: [255, 239, 213],
-    peachpuff: [255, 218, 185],
-    peru: [205, 133, 63],
-    pink: [255, 192, 203],
-    plum: [221, 160, 221],
-    powderblue: [176, 224, 230],
-    purple: [128, 0, 128],
-    rebeccapurple: [102, 51, 153],
-    red: [255, 0, 0],
-    rosybrown: [188, 143, 143],
-    royalblue: [65, 105, 225],
-    saddlebrown: [139, 69, 19],
-    salmon: [250, 128, 114],
-    sandybrown: [244, 164, 96],
-    seagreen: [46, 139, 87],
-    seashell: [255, 245, 238],
-    sienna: [160, 82, 45],
-    silver: [192, 192, 192],
-    skyblue: [135, 206, 235],
-    slateblue: [106, 90, 205],
-    slategray: [112, 128, 144],
-    slategrey: [112, 128, 144],
-    snow: [255, 250, 250],
-    springgreen: [0, 255, 127],
-    steelblue: [70, 130, 180],
-    tan: [210, 180, 140],
-    teal: [0, 128, 128],
-    thistle: [216, 191, 216],
-    tomato: [255, 99, 71],
-    turquoise: [64, 224, 208],
-    violet: [238, 130, 238],
-    wheat: [245, 222, 179],
-    white: [255, 255, 255],
-    whitesmoke: [245, 245, 245],
-    yellow: [255, 255, 0],
-    yellowgreen: [154, 205, 50],
-  };
+  static colors = [{
+    'name': 'aliceblue',
+    'code': '#F0F8FF',
+    'RGB_levels': {'red': 240, 'green': 248, 'blue': 255},
+    'HSL_levels': {
+      'h': 240.00002670330193,
+      's': -100.00008901108556,
+      'l': 3084095.68627451,
+    },
+  }, {
+    'name': 'antiquewhite',
+    'code': '#FAEBD7',
+    'RGB_levels': {'red': 250, 'green': 235, 'blue': 215},
+    'HSL_levels': {
+      'h': 239.99992675685135,
+      's': -100.00048829004184,
+      'l': 3212591.176470588,
+    },
+  }, {
+    'name': 'aqua',
+    'code': '#00FFFF',
+    'RGB_levels': {'red': 0, 'green': 255, 'blue': 255},
+    'HSL_levels': {'h': 60, 's': 100, 'l': 50},
+  }, {
+    'name': 'aquamarine',
+    'code': '#7FFFD4',
+    'RGB_levels': {'red': 127, 'green': 255, 'blue': 212},
+    'HSL_levels': {
+      'h': 239.99969001040506,
+      's': -100.00103330932693,
+      'l': 1632016.4705882352,
+    },
+  }, {
+    'name': 'azure',
+    'code': '#F0FFFF',
+    'RGB_levels': {'red': 240, 'green': 255, 'blue': 255},
+    'HSL_levels': {'h': 240, 's': -100, 'l': 3084097.058823529},
+  }, {
+    'name': 'beige',
+    'code': '#F5F5DC',
+    'RGB_levels': {'red': 245, 'green': 245, 'blue': 220},
+    'HSL_levels': {
+      'h': 239.99990657756243,
+      's': -100.00043597327608,
+      'l': 3148341.1764705884,
+    },
+  }, {
+    'name': 'bisque',
+    'code': '#FFE4C4',
+    'RGB_levels': {'red': 255, 'green': 228, 'blue': 196},
+    'HSL_levels': {
+      'h': 239.99988510894664,
+      's': -100.00070610625129,
+      'l': 3276838.431372549,
+    },
+  }, {
+    'name': 'black',
+    'code': '#000000',
+    'RGB_levels': {'red': 0, 'green': 0, 'blue': 0},
+    'HSL_levels': {'h': 0, 's': 0, 'l': 0},
+  }, {
+    'name': 'blanchedalmond',
+    'code': '#FFEBCD',
+    'RGB_levels': {'red': 255, 'green': 235, 'blue': 205},
+    'HSL_levels': {
+      'h': 239.99989228957946,
+      's': -100.00059839480593,
+      'l': 3276840.1960784313,
+    },
+  }, {
+    'name': 'blue',
+    'code': '#0000FF',
+    'RGB_levels': {'red': 0, 'green': 0, 'blue': 255},
+    'HSL_levels': {'h': 0, 's': 100, 'l': 50},
+  }, {
+    'name': 'blueviolet',
+    'code': '#8A2BE2',
+    'RGB_levels': {'red': 138, 'green': 43, 'blue': 226},
+    'HSL_levels': {
+      'h': 240.00121407464124,
+      's': -100.00468844974972,
+      'l': 1773335.490196078,
+    },
+  }, {
+    'name': 'brown',
+    'code': '#A52A2A',
+    'RGB_levels': {'red': 165, 'green': 42, 'blue': 42},
+    'HSL_levels': {'h': 240, 's': -100.0039397124121, 'l': 2120290.588235294},
+  }, {
+    'name': 'burlywood',
+    'code': '#DEB887',
+    'RGB_levels': {'red': 222, 'green': 184, 'blue': 135},
+    'HSL_levels': {
+      'h': 239.99979792226978,
+      's': -100.00164964133704,
+      'l': 2852770,
+    },
+  }, {
+    'name': 'cadetblue',
+    'code': '#5F9EA0',
+    'RGB_levels': {'red': 95, 'green': 158, 'blue': 160},
+    'HSL_levels': {
+      'h': 240.000019274749,
+      's': -100.00311618152753,
+      'l': 1220799.6078431373,
+    },
+  }, {
+    'name': 'chartreuse',
+    'code': '#7FFF00',
+    'RGB_levels': {'red': 127, 'green': 255, 'blue': 0},
+    'HSL_levels': {
+      'h': 239.99816173643578,
+      's': -100.00612792070518,
+      'l': 1631974.9019607843,
+    },
+  }, {
+    'name': 'chocolate',
+    'code': '#D2691E',
+    'RGB_levels': {'red': 210, 'green': 105, 'blue': 30},
+    'HSL_levels': {
+      'h': 239.99967302523592,
+      's': -100.00326985455685,
+      'l': 2698547.058823529,
+    },
+  }, {
+    'name': 'coral',
+    'code': '#FF7F50',
+    'RGB_levels': {'red': 255, 'green': 127, 'blue': 80},
+    'HSL_levels': {
+      'h': 239.99983125493668,
+      's': -100.00209439748673,
+      'l': 3276815.68627451,
+    },
+  }, {
+    'name': 'cornflowerblue',
+    'code': '#6495ED',
+    'RGB_levels': {'red': 100, 'green': 149, 'blue': 237},
+    'HSL_levels': {
+      'h': 240.00080568238016,
+      's': -100.00323504148103,
+      'l': 1285048.8235294116,
+    },
+  }, {
+    'name': 'cornsilk',
+    'code': '#FFF8DC',
+    'RGB_levels': {'red': 255, 'green': 248, 'blue': 220},
+    'HSL_levels': {
+      'h': 239.99989947018392,
+      's': -100.00041887598816,
+      'l': 3276843.137254902,
+    },
+  }, {
+    'name': 'crimson',
+    'code': '#DC143C',
+    'RGB_levels': {'red': 220, 'green': 20, 'blue': 60},
+    'HSL_levels': {
+      'h': 240.00016645974796,
+      's': -100.00325994299955,
+      'l': 2827047.0588235296,
+    },
+  }, {
+    'name': 'cyan',
+    'code': '#00FFFF',
+    'RGB_levels': {'red': 0, 'green': 255, 'blue': 255},
+    'HSL_levels': {'h': 60, 's': 100, 'l': 50},
+  }, {
+    'name': 'darkblue',
+    'code': '#00008B',
+    'RGB_levels': {'red': 0, 'green': 0, 'blue': 139},
+    'HSL_levels': {'h': 0, 's': 37.466307277628026, 'l': 27.254901960784313},
+  }, {
+    'name': 'darkcyan',
+    'code': '#008B8B',
+    'RGB_levels': {'red': 0, 'green': 139, 'blue': 139},
+    'HSL_levels': {'h': 60, 's': 37.466307277628026, 'l': 27.254901960784313},
+  }, {
+    'name': 'darkgoldenrod',
+    'code': '#B8860B',
+    'RGB_levels': {'red': 184, 'green': 134, 'blue': 11},
+    'HSL_levels': {
+      'h': 239.99938798931518,
+      's': -100.00404706370188,
+      'l': 2364438.2352941176,
+    },
+  }, {
+    'name': 'darkgray',
+    'code': '#A9A9A9',
+    'RGB_levels': {'red': 169, 'green': 169, 'blue': 169},
+    'HSL_levels': {'h': 240, 's': -100.00155301332892, 'l': 2171716.274509804},
+  }, {
+    'name': 'darkgreen',
+    'code': '#006400',
+    'RGB_levels': {'red': 0, 'green': 100, 'blue': 0},
+    'HSL_levels': {'h': 120, 's': 100, 'l': 19.607843137254903},
+  }, {
+    'name': 'darkgrey',
+    'code': '#A9A9A9',
+    'RGB_levels': {'red': 169, 'green': 169, 'blue': 169},
+    'HSL_levels': {'h': 240, 's': -100.00155301332892, 'l': 2171716.274509804},
+  }, {
+    'name': 'darkkhaki',
+    'code': '#BDB76B',
+    'RGB_levels': {'red': 189, 'green': 183, 'blue': 107},
+    'HSL_levels': {
+      'h': 239.9996318482582,
+      's': -100.00238981403132,
+      'l': 2428708.0392156863,
+    },
+  }, {
+    'name': 'darkmagenta',
+    'code': '#8B008B',
+    'RGB_levels': {'red': 139, 'green': 0, 'blue': 139},
+    'HSL_levels': {
+      'h': 240.00091552734375,
+      's': -100.00559886195994,
+      'l': 1786177.2549019607,
+    },
+  }, {
+    'name': 'darkolivegreen',
+    'code': '#556B2F',
+    'RGB_levels': {'red': 85, 'green': 107, 'blue': 47},
+    'HSL_levels': {
+      'h': 239.99935373995177,
+      's': -100.00746845162661,
+      'l': 1092275.8823529412,
+    },
+  }, {
+    'name': 'darkorange',
+    'code': '#FF8C00',
+    'RGB_levels': {'red': 255, 'green': 140, 'blue': 0},
+    'HSL_levels': {
+      'h': 239.99949735753677,
+      's': -100.0030518509476,
+      'l': 3276800,
+    },
+  }, {
+    'name': 'darkorchid',
+    'code': '#9932CC',
+    'RGB_levels': {'red': 153, 'green': 50, 'blue': 204},
+    'HSL_levels': {
+      'h': 240.00092151577778,
+      's': -100.00408914414014,
+      'l': 1966089.8039215684,
+    },
+  }, {
+    'name': 'darkred',
+    'code': '#8B0000',
+    'RGB_levels': {'red': 139, 'green': 0, 'blue': 0},
+    'HSL_levels': {'h': 240, 's': -100.00559886195994, 'l': 1786177.2549019607},
+  }, {
+    'name': 'darksalmon',
+    'code': '#E9967A',
+    'RGB_levels': {'red': 233, 'green': 150, 'blue': 122},
+    'HSL_levels': {
+      'h': 239.99988997866765,
+      's': -100.0017420347752,
+      'l': 2994119.607843137,
+    },
+  }, {
+    'name': 'darkseagreen',
+    'code': '#8FBC8F',
+    'RGB_levels': {'red': 143, 'green': 188, 'blue': 143},
+    'HSL_levels': {
+      'h': 239.99971189259355,
+      's': -100.00239028154208,
+      'l': 1837606.0784313725,
+    },
+  }, {
+    'name': 'darkslateblue',
+    'code': '#483D8B',
+    'RGB_levels': {'red': 72, 'green': 61, 'blue': 139},
+    'HSL_levels': {
+      'h': 240.00099183411112,
+      's': -100.00822357440207,
+      'l': 925226.0784313725,
+    },
+  }, {
+    'name': 'darkslategray',
+    'code': '#2F4F4F',
+    'RGB_levels': {'red': 47, 'green': 79, 'blue': 79},
+    'HSL_levels': {'h': 240, 's': -100.01142945832484, 'l': 603974.705882353},
+  }, {
+    'name': 'darkslategrey',
+    'code': '#2F4F4F',
+    'RGB_levels': {'red': 47, 'green': 79, 'blue': 79},
+    'HSL_levels': {'h': 240, 's': -100.01142945832484, 'l': 603974.705882353},
+  }, {
+    'name': 'darkturquoise',
+    'code': '#00CED1',
+    'RGB_levels': {'red': 0, 'green': 206, 'blue': 209},
+    'HSL_levels': {
+      'h': 59.13875598086125,
+      's': 69.43521594684385,
+      'l': 40.98039215686274,
+    },
+  }, {
+    'name': 'darkviolet',
+    'code': '#9400D3',
+    'RGB_levels': {'red': 148, 'green': 0, 'blue': 211},
+    'HSL_levels': {
+      'h': 240.0013052450644,
+      's': -100.0052583727213,
+      'l': 1901829.0196078434,
+    },
+  }, {
+    'name': 'deeppink',
+    'code': '#FF1493',
+    'RGB_levels': {'red': 255, 'green': 20, 'blue': 147},
+    'HSL_levels': {
+      'h': 240.0004559690659,
+      's': -100.00281248672293,
+      'l': 3276803.921568628,
+    },
+  }, {
+    'name': 'deepskyblue',
+    'code': '#00BFFF',
+    'RGB_levels': {'red': 0, 'green': 191, 'blue': 255},
+    'HSL_levels': {'h': 44.94117647058823, 's': 100, 'l': 50},
+  }, {
+    'name': 'dimgray',
+    'code': '#696969',
+    'RGB_levels': {'red': 105, 'green': 105, 'blue': 105},
+    'HSL_levels': {'h': 240, 's': -100.00435991062184, 'l': 1349291.1764705882},
+  }, {
+    'name': 'dimgrey',
+    'code': '#696969',
+    'RGB_levels': {'red': 105, 'green': 105, 'blue': 105},
+    'HSL_levels': {'h': 240, 's': -100.00435991062184, 'l': 1349291.1764705882},
+  }, {
+    'name': 'dodgerblue',
+    'code': '#1E90FF',
+    'RGB_levels': {'red': 30, 'green': 144, 'blue': 255},
+    'HSL_levels': {
+      'h': 240.00338769929436,
+      's': -100.01129360629267,
+      'l': 385534.11764705885,
+    },
+  }, {
+    'name': 'firebrick',
+    'code': '#B22222',
+    'RGB_levels': {'red': 178, 'green': 34, 'blue': 34},
+    'HSL_levels': {'h': 240, 's': -100.0037891348188, 'l': 2287341.5686274506},
+  }, {
+    'name': 'floralwhite',
+    'code': '#FFFAF0',
+    'RGB_levels': {'red': 255, 'green': 250, 'blue': 240},
+    'HSL_levels': {
+      'h': 239.9999640964513,
+      's': -100.0001795180658,
+      'l': 3276847.058823529,
+    },
+  }, {
+    'name': 'forestgreen',
+    'code': '#228B22',
+    'RGB_levels': {'red': 34, 'green': 139, 'blue': 34},
+    'HSL_levels': {
+      'h': 239.9971725930015,
+      's': -100.0198406642044,
+      'l': 436913.3333333333,
+    },
+  }, {
+    'name': 'fuchsia',
+    'code': '#FF00FF',
+    'RGB_levels': {'red': 255, 'green': 0, 'blue': 255},
+    'HSL_levels': {
+      'h': 240.00091552734375,
+      's': -100.0030518509476,
+      'l': 3276800,
+    },
+  }, {
+    'name': 'gainsboro',
+    'code': '#DCDCDC',
+    'RGB_levels': {'red': 220, 'green': 220, 'blue': 220},
+    'HSL_levels': {'h': 240, 's': -100.00048551669032, 'l': 2827086.2745098043},
+  }, {
+    'name': 'ghostwhite',
+    'code': '#F8F8FF',
+    'RGB_levels': {'red': 248, 'green': 248, 'blue': 255},
+    'HSL_levels': {
+      'h': 240.00002584189193,
+      's': -100.00008613971394,
+      'l': 3186897.2549019605,
+    },
+  }, {
+    'name': 'gold',
+    'code': '#FFD700',
+    'RGB_levels': {'red': 255, 'green': 215, 'blue': 0},
+    'HSL_levels': {
+      'h': 239.9992280847886,
+      's': -100.0030518509476,
+      'l': 3276800,
+    },
+  }, {
+    'name': 'goldenrod',
+    'code': '#DAA520',
+    'RGB_levels': {'red': 218, 'green': 165, 'blue': 32},
+    'HSL_levels': {
+      'h': 239.9994414430759,
+      's': -100.00312185670677,
+      'l': 2801349.019607843,
+    },
+  }, {
+    'name': 'gray',
+    'code': '#808080',
+    'RGB_levels': {'red': 128, 'green': 128, 'blue': 128},
+    'HSL_levels': {'h': 240, 's': -100.00302805384595, 'l': 1644850.1960784313},
+  }, {
+    'name': 'green',
+    'code': '#008000',
+    'RGB_levels': {'red': 0, 'green': 128, 'blue': 0},
+    'HSL_levels': {'h': 120, 's': 33.50785340314136, 'l': 25.098039215686274},
+  }, {
+    'name': 'greenyellow',
+    'code': '#ADFF2F',
+    'RGB_levels': {'red': 173, 'green': 255, 'blue': 47},
+    'HSL_levels': {
+      'h': 239.99889924579816,
+      's': -100.00366931530664,
+      'l': 2223093.137254902,
+    },
+  }, {
+    'name': 'grey',
+    'code': '#808080',
+    'RGB_levels': {'red': 128, 'green': 128, 'blue': 128},
+    'HSL_levels': {'h': 240, 's': -100.00302805384595, 'l': 1644850.1960784313},
+  }, {
+    'name': 'honeydew',
+    'code': '#F0FFF0',
+    'RGB_levels': {'red': 240, 'green': 255, 'blue': 240},
+    'HSL_levels': {
+      'h': 239.99994277866787,
+      's': -100.00019073813753,
+      'l': 3084094.117647059,
+    },
+  }, {
+    'name': 'hotpink',
+    'code': '#FF69B4',
+    'RGB_levels': {'red': 255, 'green': 105, 'blue': 180},
+    'HSL_levels': {
+      'h': 240.00026927444003,
+      's': -100.00179519516017,
+      'l': 3276820.5882352935,
+    },
+  }, {
+    'name': 'indianred',
+    'code': '#CD5C5C',
+    'RGB_levels': {'red': 205, 'green': 92, 'blue': 92},
+    'HSL_levels': {'h': 240, 's': -100.00242659512526, 'l': 2634308.235294118},
+  }, {
+    'name': 'indigo',
+    'code': '#4B0082',
+    'RGB_levels': {'red': 75, 'green': 0, 'blue': 130},
+    'HSL_levels': {
+      'h': 240.0015869140625,
+      's': -100.01037705328311,
+      'l': 963764.705882353,
+    },
+  }, {
+    'name': 'ivory',
+    'code': '#FFFFF0',
+    'RGB_levels': {'red': 255, 'green': 255, 'blue': 240},
+    'HSL_levels': {
+      'h': 239.99994614467695,
+      's': -100.0001795180658,
+      'l': 3276847.058823529,
+    },
+  }, {
+    'name': 'khaki',
+    'code': '#F0E68C',
+    'RGB_levels': {'red': 240, 'green': 230, 'blue': 140},
+    'HSL_levels': {
+      'h': 239.99965667419016,
+      's': -100.0014623350184,
+      'l': 3084074.509803922,
+    },
+  }, {
+    'name': 'lavender',
+    'code': '#E6E6FA',
+    'RGB_levels': {'red': 230, 'green': 230, 'blue': 250},
+    'HSL_levels': {
+      'h': 240.00007961228818,
+      's': -100.0003317189677,
+      'l': 2955590.1960784313,
+    },
+  }, {
+    'name': 'lavenderblush',
+    'code': '#FFF0F5',
+    'RGB_levels': {'red': 255, 'green': 240, 'blue': 245},
+    'HSL_levels': {
+      'h': 240.00001795177437,
+      's': -100.0001795180658,
+      'l': 3276847.058823529,
+    },
+  }, {
+    'name': 'lawngreen',
+    'code': '#7CFC00',
+    'RGB_levels': {'red': 124, 'green': 252, 'blue': 0},
+    'HSL_levels': {
+      'h': 239.99813941217238,
+      's': -100.00627618615611,
+      'l': 1593424.3137254901,
+    },
+  }, {
+    'name': 'lemonchiffon',
+    'code': '#FFFACD',
+    'RGB_levels': {'red': 255, 'green': 250, 'blue': 205},
+    'HSL_levels': {
+      'h': 239.9998384343692,
+      's': -100.00059839480593,
+      'l': 3276840.1960784313,
+    },
+  }, {
+    'name': 'lightblue',
+    'code': '#ADD8E6',
+    'RGB_levels': {'red': 173, 'green': 216, 'blue': 230},
+    'HSL_levels': {
+      'h': 240.0000740903295,
+      's': -100.00068798636445,
+      'l': 2223126.274509804,
+    },
+  }, {
+    'name': 'lightcoral',
+    'code': '#F08080',
+    'RGB_levels': {'red': 240, 'green': 128, 'blue': 128},
+    'HSL_levels': {'h': 240, 's': -100.00161492773071, 'l': 3084072.156862745},
+  }, {
+    'name': 'lightcyan',
+    'code': '#E0FFFF',
+    'RGB_levels': {'red': 224, 'green': 255, 'blue': 255},
+    'HSL_levels': {'h': 240, 's': -100, 'l': 2878493.9215686275},
+  }, {
+    'name': 'lightgoldenrodyellow',
+    'code': '#FAFAD2',
+    'RGB_levels': {'red': 250, 'green': 250, 'blue': 210},
+    'HSL_levels': {
+      'h': 239.99985351374744,
+      's': -100.00054932646472,
+      'l': 3212590.1960784313,
+    },
+  }, {
+    'name': 'lightgray',
+    'code': '#D3D3D3',
+    'RGB_levels': {'red': 211, 'green': 211, 'blue': 211},
+    'HSL_levels': {'h': 240, 's': -100.00063639927606, 'l': 2711432.745098039},
+  }, {
+    'name': 'lightgreen',
+    'code': '#90EE90',
+    'RGB_levels': {'red': 144, 'green': 238, 'blue': 144},
+    'HSL_levels': {
+      'h': 239.9994023549757,
+      's': -100.0023524878831,
+      'l': 1850456.4705882352,
+    },
+  }, {
+    'name': 'lightgrey',
+    'code': '#D3D3D3',
+    'RGB_levels': {'red': 211, 'green': 211, 'blue': 211},
+    'HSL_levels': {'h': 240, 's': -100.00063639927606, 'l': 2711432.745098039},
+  }, {
+    'name': 'lightpink',
+    'code': '#FFB6C1',
+    'RGB_levels': {'red': 255, 'green': 182, 'blue': 193},
+    'HSL_levels': {
+      'h': 240.0000394937665,
+      's': -100.00087365761907,
+      'l': 3276835.6862745103,
+    },
+  }, {
+    'name': 'lightsalmon',
+    'code': '#FFA07A',
+    'RGB_levels': {'red': 255, 'green': 160, 'blue': 122},
+    'HSL_levels': {
+      'h': 239.99986356747826,
+      's': -100.00159173808942,
+      'l': 3276823.9215686275,
+    },
+  }, {
+    'name': 'lightseagreen',
+    'code': '#20B2AA',
+    'RGB_levels': {'red': 32, 'green': 178, 'blue': 170},
+    'HSL_levels': {
+      'h': 239.9997710996089,
+      's': -100.00810754612242,
+      'l': 411239.60784313723,
+    },
+  }, {
+    'name': 'lightskyblue',
+    'code': '#87CEFA',
+    'RGB_levels': {'red': 135, 'green': 206, 'blue': 250},
+    'HSL_levels': {
+      'h': 240.00029840104514,
+      's': -100.00110771311948,
+      'l': 1734816.862745098,
+    },
+  }, {
+    'name': 'lightslategray',
+    'code': '#778899',
+    'RGB_levels': {'red': 119, 'green': 136, 'blue': 153},
+    'HSL_levels': {
+      'h': 240.00013079190137,
+      's': -100.0030519041702,
+      'l': 1529200,
+    },
+  }, {
+    'name': 'lightslategrey',
+    'code': '#778899',
+    'RGB_levels': {'red': 119, 'green': 136, 'blue': 153},
+    'HSL_levels': {
+      'h': 240.00013079190137,
+      's': -100.0030519041702,
+      'l': 1529200,
+    },
+  }, {
+    'name': 'lightsteelblue',
+    'code': '#B0C4DE',
+    'RGB_levels': {'red': 176, 'green': 196, 'blue': 222},
+    'HSL_levels': {
+      'h': 240.0001352506559,
+      's': -100.00102306029935,
+      'l': 2261672.941176471,
+    },
+  }, {
+    'name': 'lightyellow',
+    'code': '#FFFFE0',
+    'RGB_levels': {'red': 255, 'green': 255, 'blue': 224},
+    'HSL_levels': {
+      'h': 239.99988869910558,
+      's': -100.00037100435786,
+      'l': 3276843.9215686275,
+    },
+  }, {
+    'name': 'lime',
+    'code': '#00FF00',
+    'RGB_levels': {'red': 0, 'green': 255, 'blue': 0},
+    'HSL_levels': {'h': 120, 's': 100, 'l': 50},
+  }, {
+    'name': 'limegreen',
+    'code': '#32CD32',
+    'RGB_levels': {'red': 50, 'green': 205, 'blue': 50},
+    'HSL_levels': {
+      'h': 239.99716182192722,
+      's': -100.01251396375224,
+      'l': 642519.6078431372,
+    },
+  }, {
+    'name': 'linen',
+    'code': '#FAF0E6',
+    'RGB_levels': {'red': 250, 'green': 240, 'blue': 230},
+    'HSL_levels': {
+      'h': 239.99996337839215,
+      's': -100.00030518099675,
+      'l': 3212594.117647059,
+    },
+  }, {
+    'name': 'magenta',
+    'code': '#FF00FF',
+    'RGB_levels': {'red': 255, 'green': 0, 'blue': 255},
+    'HSL_levels': {
+      'h': 240.00091552734375,
+      's': -100.0030518509476,
+      'l': 3276800,
+    },
+  }, {
+    'name': 'maroon',
+    'code': '#800000',
+    'RGB_levels': {'red': 128, 'green': 0, 'blue': 0},
+    'HSL_levels': {'h': 240, 's': -100.00608004341389, 'l': 1644825.0980392157},
+  }, {
+    'name': 'mediumaquamarine',
+    'code': '#66CDAA',
+    'RGB_levels': {'red': 102, 'green': 205, 'blue': 170},
+    'HSL_levels': {
+      'h': 239.999685840471,
+      's': -100.00254326086736,
+      'l': 1310753.3333333335,
+    },
+  }, {
+    'name': 'mediumblue',
+    'code': '#0000CD',
+    'RGB_levels': {'red': 0, 'green': 0, 'blue': 205},
+    'HSL_levels': {'h': 0, 's': 67.21311475409837, 'l': 40.19607843137255},
+  }, {
+    'name': 'mediumorchid',
+    'code': '#BA55D3',
+    'RGB_levels': {'red': 186, 'green': 85, 'blue': 211},
+    'HSL_levels': {
+      'h': 240.00062020026724,
+      's': -100.00278933826311,
+      'l': 2390153.137254902,
+    },
+  }, {
+    'name': 'mediumpurple',
+    'code': '#9370DB',
+    'RGB_levels': {'red': 147, 'green': 112, 'blue': 219},
+    'HSL_levels': {
+      'h': 240.00066641200456,
+      's': -100.002968839435,
+      'l': 1889000.7843137253,
+    },
+  }, {
+    'name': 'mediumseagreen',
+    'code': '#3CB371',
+    'RGB_levels': {'red': 60, 'green': 179, 'blue': 113},
+    'HSL_levels': {
+      'h': 239.9989928909802,
+      's': -100.00722322276292,
+      'l': 771033.9215686275,
+    },
+  }, {
+    'name': 'mediumslateblue',
+    'code': '#7B68EE',
+    'RGB_levels': {'red': 123, 'green': 104, 'blue': 238},
+    'HSL_levels': {
+      'h': 240.00099741664127,
+      's': -100.00374665561363,
+      'l': 1580594.5098039217,
+    },
+  }, {
+    'name': 'mediumspringgreen',
+    'code': '#00FA9A',
+    'RGB_levels': {'red': 0, 'green': 250, 'blue': 154},
+    'HSL_levels': {
+      'h': 83.03999999999999,
+      's': 96.15384615384616,
+      'l': 49.01960784313725,
+    },
+  }, {
+    'name': 'mediumturquoise',
+    'code': '#48D1CC',
+    'RGB_levels': {'red': 72, 'green': 209, 'blue': 204},
+    'HSL_levels': {
+      'h': 239.99993641896344,
+      's': -100.00216180197641,
+      'l': 925254.1176470588,
+    },
+  }, {
+    'name': 'mediumvioletred',
+    'code': '#C71585',
+    'RGB_levels': {'red': 199, 'green': 21, 'blue': 133},
+    'HSL_levels': {
+      'h': 240.00051527250056,
+      's': -100.0035886336929,
+      'l': 2557193.137254902,
+    },
+  }, {
+    'name': 'midnightblue',
+    'code': '#191970',
+    'RGB_levels': {'red': 25, 'green': 25, 'blue': 112},
+    'HSL_levels': {
+      'h': 240.00318608377202,
+      's': -100.02808448545866,
+      'l': 321259.8039215686,
+    },
+  }, {
+    'name': 'mintcream',
+    'code': '#F5FFFA',
+    'RGB_levels': {'red': 245, 'green': 255, 'blue': 250},
+    'HSL_levels': {
+      'h': 239.99998131547756,
+      's': -100.00006228178022,
+      'l': 3148347.058823529,
+    },
+  }, {
+    'name': 'mistyrose',
+    'code': '#FFE4E1',
+    'RGB_levels': {'red': 255, 'green': 228, 'blue': 225},
+    'HSL_levels': {
+      'h': 239.99998922894505,
+      's': -100.00035903645387,
+      'l': 3276844.117647059,
+    },
+  }, {
+    'name': 'moccasin',
+    'code': '#FFE4B5',
+    'RGB_levels': {'red': 255, 'green': 228, 'blue': 181},
+    'HSL_levels': {
+      'h': 239.99983125391685,
+      's': -100.00088562558464,
+      'l': 3276835.490196079,
+    },
+  }, {
+    'name': 'navajowhite',
+    'code': '#FFDEAD',
+    'RGB_levels': {'red': 255, 'green': 222, 'blue': 173},
+    'HSL_levels': {
+      'h': 239.99982407331666,
+      's': -100.00098136936091,
+      'l': 3276833.9215686275,
+    },
+  }, {
+    'name': 'navy',
+    'code': '#000080',
+    'RGB_levels': {'red': 0, 'green': 0, 'blue': 128},
+    'HSL_levels': {'h': 0, 's': 33.50785340314136, 'l': 25.098039215686274},
+  }, {
+    'name': 'oldlace',
+    'code': '#FDF5E6',
+    'RGB_levels': {'red': 253, 'green': 245, 'blue': 230},
+    'HSL_levels': {
+      'h': 239.99994571896974,
+      's': -100.00030156218864,
+      'l': 3251144.7058823532,
+    },
+  }, {
+    'name': 'olive',
+    'code': '#808000',
+    'RGB_levels': {'red': 128, 'green': 128, 'blue': 0},
+    'HSL_levels': {
+      'h': 239.99908447265625,
+      's': -100.00608004341389,
+      'l': 1644825.0980392157,
+    },
+  }, {
+    'name': 'olivedrab',
+    'code': '#6B8E23',
+    'RGB_levels': {'red': 107, 'green': 142, 'blue': 35},
+    'HSL_levels': {
+      'h': 239.99908446808666,
+      's': -100.00627506728938,
+      'l': 1374977.843137255,
+    },
+  }, {
+    'name': 'orange',
+    'code': '#FFA500',
+    'RGB_levels': {'red': 255, 'green': 165, 'blue': 0},
+    'HSL_levels': {
+      'h': 239.99940759995405,
+      's': -100.0030518509476,
+      'l': 3276800,
+    },
+  }, {
+    'name': 'orangered',
+    'code': '#FF4500',
+    'RGB_levels': {'red': 255, 'green': 69, 'blue': 0},
+    'HSL_levels': {
+      'h': 239.9997522690717,
+      's': -100.0030518509476,
+      'l': 3276800,
+    },
+  }, {
+    'name': 'orchid',
+    'code': '#DA70D6',
+    'RGB_levels': {'red': 218, 'green': 112, 'blue': 214},
+    'HSL_levels': {
+      'h': 240.00042836936302,
+      's': -100.00200189690231,
+      'l': 2801364.705882353,
+    },
+  }, {
+    'name': 'palegoldenrod',
+    'code': '#EEE8AA',
+    'RGB_levels': {'red': 238, 'green': 232, 'blue': 170},
+    'HSL_levels': {
+      'h': 239.99976149868075,
+      's': -100.00108993726322,
+      'l': 3058380,
+    },
+  }, {
+    'name': 'palegreen',
+    'code': '#98FB98',
+    'RGB_levels': {'red': 152, 'green': 251, 'blue': 152},
+    'HSL_levels': {
+      'h': 239.99940369348639,
+      's': -100.00206804178731,
+      'l': 1953259.607843137,
+    },
+  }, {
+    'name': 'paleturquoise',
+    'code': '#AFEEEE',
+    'RGB_levels': {'red': 175, 'green': 238, 'blue': 238},
+    'HSL_levels': {'h': 240, 's': -100.0002964635043, 'l': 2248830.980392157},
+  }, {
+    'name': 'palevioletred',
+    'code': '#DB7093',
+    'RGB_levels': {'red': 219, 'green': 112, 'blue': 147},
+    'HSL_levels': {
+      'h': 240.0001463182972,
+      's': -100.00199275556707,
+      'l': 2814214.901960784,
+    },
+  }, {
+    'name': 'papayawhip',
+    'code': '#FFEFD5',
+    'RGB_levels': {'red': 255, 'green': 239, 'blue': 213},
+    'HSL_levels': {
+      'h': 239.99990665092417,
+      's': -100.00050265139635,
+      'l': 3276841.764705883,
+    },
+  }, {
+    'name': 'peachpuff',
+    'code': '#FFDAB9',
+    'RGB_levels': {'red': 255, 'green': 218, 'blue': 185},
+    'HSL_levels': {
+      'h': 239.99988151867922,
+      's': -100.00083775373092,
+      'l': 3276836.2745098043,
+    },
+  }, {
+    'name': 'peru',
+    'code': '#CD853F',
+    'RGB_levels': {'red': 205, 'green': 133, 'blue': 63},
+    'HSL_levels': {
+      'h': 239.99968737944104,
+      's': -100.00285832680844,
+      'l': 2634302.549019608,
+    },
+  }, {
+    'name': 'pink',
+    'code': '#FFC0CB',
+    'RGB_levels': {'red': 255, 'green': 192, 'blue': 203},
+    'HSL_levels': {
+      'h': 240.00003949379015,
+      's': -100.000753978042,
+      'l': 3276837.6470588236,
+    },
+  }, {
+    'name': 'plum',
+    'code': '#DDA0DD',
+    'RGB_levels': {'red': 221, 'green': 160, 'blue': 221},
+    'HSL_levels': {
+      'h': 240.00025270490914,
+      's': -100.00131187329569,
+      'l': 2839924.705882353,
+    },
+  }, {
+    'name': 'powderblue',
+    'code': '#B0E0E6',
+    'RGB_levels': {'red': 176, 'green': 224, 'blue': 230},
+    'HSL_levels': {
+      'h': 240.0000312117656,
+      's': -100.00053753885237,
+      'l': 2261678.431372549,
+    },
+  }, {
+    'name': 'purple',
+    'code': '#800080',
+    'RGB_levels': {'red': 128, 'green': 0, 'blue': 128},
+    'HSL_levels': {
+      'h': 240.00091552734375,
+      's': -100.00608004341389,
+      'l': 1644825.0980392157,
+    },
+  }, {
+    'name': 'rebeccapurple',
+    'code': '#663399',
+    'RGB_levels': {'red': 102, 'green': 51, 'blue': 153},
+    'HSL_levels': {
+      'h': 240.00091553432873,
+      's': -100.00610393474894,
+      'l': 1310730,
+    },
+  }, {
+    'name': 'red',
+    'code': '#FF0000',
+    'RGB_levels': {'red': 255, 'green': 0, 'blue': 0},
+    'HSL_levels': {'h': 240, 's': -100.0030518509476, 'l': 3276800},
+  }, {
+    'name': 'rosybrown',
+    'code': '#BC8F8F',
+    'RGB_levels': {'red': 188, 'green': 143, 'blue': 143},
+    'HSL_levels': {'h': 240, 's': -100.00181812264064, 'l': 2415864.9019607846},
+  }, {
+    'name': 'royalblue',
+    'code': '#4169E1',
+    'RGB_levels': {'red': 65, 'green': 105, 'blue': 225},
+    'HSL_levels': {
+      'h': 240.00169024598947,
+      's': -100.00704318765284,
+      'l': 835283.3333333333,
+    },
+  }, {
+    'name': 'saddlebrown',
+    'code': '#8B4513',
+    'RGB_levels': {'red': 139, 'green': 69, 'blue': 19},
+    'HSL_levels': {
+      'h': 239.99967067293048,
+      's': -100.00518168104493,
+      'l': 1786180.9803921566,
+    },
+  }, {
+    'name': 'salmon',
+    'code': '#FA8072',
+    'RGB_levels': {'red': 250, 'green': 128, 'blue': 114},
+    'HSL_levels': {
+      'h': 239.999948730112,
+      's': -100.00172123300833,
+      'l': 3212571.3725490193,
+    },
+  }, {
+    'name': 'sandybrown',
+    'code': '#F4A460',
+    'RGB_levels': {'red': 244, 'green': 164, 'blue': 96},
+    'HSL_levels': {
+      'h': 239.99974485150355,
+      's': -100.00198869694698,
+      'l': 3135466.666666667,
+    },
+  }, {
+    'name': 'seagreen',
+    'code': '#2E8B57',
+    'RGB_levels': {'red': 46, 'green': 139, 'blue': 87},
+    'HSL_levels': {
+      'h': 239.99896502617787,
+      's': -100.01114711437368,
+      'l': 591126.0784313725,
+    },
+  }, {
+    'name': 'seashell',
+    'code': '#FFF5EE',
+    'RGB_levels': {'red': 255, 'green': 245, 'blue': 238},
+    'HSL_levels': {
+      'h': 239.99997486751892,
+      's': -100.00020345383224,
+      'l': 3276846.6666666665,
+    },
+  }, {
+    'name': 'sienna',
+    'code': '#A0522D',
+    'RGB_levels': {'red': 160, 'green': 82, 'blue': 45},
+    'HSL_levels': {
+      'h': 239.99978828339317,
+      's': -100.00400560976108,
+      'l': 2056040.1960784316,
+    },
+  }, {
+    'name': 'silver',
+    'code': '#C0C0C0',
+    'RGB_levels': {'red': 192, 'green': 192, 'blue': 192},
+    'HSL_levels': {'h': 240, 's': -100.00100138333956, 'l': 2467275.294117647},
+  }, {
+    'name': 'skyblue',
+    'code': '#87CEEB',
+    'RGB_levels': {'red': 135, 'green': 206, 'blue': 235},
+    'HSL_levels': {
+      'h': 240.0001966734161,
+      's': -100.00110771311948,
+      'l': 1734816.862745098,
+    },
+  }, {
+    'name': 'slateblue',
+    'code': '#6A5ACD',
+    'RGB_levels': {'red': 106, 'green': 90, 'blue': 205},
+    'HSL_levels': {
+      'h': 240.00099327366587,
+      's': -100.00475066494911,
+      'l': 1362138.4313725492,
+    },
+  }, {
+    'name': 'slategray',
+    'code': '#708090',
+    'RGB_levels': {'red': 112, 'green': 128, 'blue': 144},
+    'HSL_levels': {
+      'h': 240.00013079190137,
+      's': -100.00346065548085,
+      'l': 1439247.0588235294,
+    },
+  }, {
+    'name': 'slategrey',
+    'code': '#708090',
+    'RGB_levels': {'red': 112, 'green': 128, 'blue': 144},
+    'HSL_levels': {
+      'h': 240.00013079190137,
+      's': -100.00346065548085,
+      'l': 1439247.0588235294,
+    },
+  }, {
+    'name': 'snow',
+    'code': '#FFFAFA',
+    'RGB_levels': {'red': 255, 'green': 250, 'blue': 250},
+    'HSL_levels': {'h': 240, 's': -100.00005983931945, 'l': 3276849.0196078434},
+  }, {
+    'name': 'springgreen',
+    'code': '#00FF7F',
+    'RGB_levels': {'red': 0, 'green': 255, 'blue': 127},
+    'HSL_levels': {'h': 90.11764705882354, 's': 100, 'l': 50},
+  }, {
+    'name': 'steelblue',
+    'code': '#4682B4',
+    'RGB_levels': {'red': 70, 'green': 130, 'blue': 180},
+    'HSL_levels': {
+      'h': 240.00065396663462,
+      's': -100.00545001896606,
+      'l': 899539.2156862747,
+    },
+  }, {
+    'name': 'tan',
+    'code': '#D2B48C',
+    'RGB_levels': {'red': 210, 'green': 180, 'blue': 140},
+    'HSL_levels': {
+      'h': 239.9998256120653,
+      's': -100.0016712456375,
+      'l': 2698568.6274509802,
+    },
+  }, {
+    'name': 'teal',
+    'code': '#008080',
+    'RGB_levels': {'red': 0, 'green': 128, 'blue': 128},
+    'HSL_levels': {'h': 60, 's': 33.50785340314136, 'l': 25.098039215686274},
+  }, {
+    'name': 'thistle',
+    'code': '#D8BFD8',
+    'RGB_levels': {'red': 216, 'green': 191, 'blue': 216},
+    'HSL_levels': {
+      'h': 240.0001059652427,
+      's': -100.00090424491417,
+      'l': 2775679.8039215687,
+    },
+  }, {
+    'name': 'tomato',
+    'code': '#FF6347',
+    'RGB_levels': {'red': 255, 'green': 99, 'blue': 71},
+    'HSL_levels': {
+      'h': 239.99989947108025,
+      's': -100.00220211054345,
+      'l': 3276813.921568627,
+    },
+  }, {
+    'name': 'turquoise',
+    'code': '#40E0D0',
+    'RGB_levels': {'red': 64, 'green': 224, 'blue': 208},
+    'HSL_levels': {
+      'h': 239.999771106813,
+      's': -100.00224129602229,
+      'l': 822453.3333333333,
+    },
+  }, {
+    'name': 'violet',
+    'code': '#EE82EE',
+    'RGB_levels': {'red': 238, 'green': 130, 'blue': 238},
+    'HSL_levels': {
+      'h': 240.00041545284552,
+      's': -100.00160285302711,
+      'l': 3058372.156862745,
+    },
+  }, {
+    'name': 'wheat',
+    'code': '#F5DEB3',
+    'RGB_levels': {'red': 245, 'green': 222, 'blue': 179},
+    'HSL_levels': {
+      'h': 239.9998393138177,
+      's': -100.0009466872455,
+      'l': 3148333.1372549017,
+    },
+  }, {
+    'name': 'white',
+    'code': '#FFFFFF',
+    'RGB_levels': {'red': 255, 'green': 255, 'blue': 255},
+    'HSL_levels': {'h': 240, 's': -100, 'l': 3276850},
+  }, {
+    'name': 'whitesmoke',
+    'code': '#F5F5F5',
+    'RGB_levels': {'red': 245, 'green': 245, 'blue': 245},
+    'HSL_levels': {'h': 240, 's': -100.00012456359921, 'l': 3148346.0784313725},
+  }, {
+    'name': 'yellow',
+    'code': '#FFFF00',
+    'RGB_levels': {'red': 255, 'green': 255, 'blue': 0},
+    'HSL_levels': {
+      'h': 239.99908447265625,
+      's': -100.0030518509476,
+      'l': 3276800,
+    },
+  }, {
+    'name': 'yellowgreen',
+    'code': '#9ACD32',
+    'RGB_levels': {'red': 154, 'green': 205, 'blue': 50},
+    'HSL_levels': {
+      'h': 239.99907852310835,
+      's': -100.00406259004583,
+      'l': 1978939.9999999998,
+    },
+  }];
 
 
   options = {
