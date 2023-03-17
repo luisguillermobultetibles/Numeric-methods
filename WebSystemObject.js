@@ -441,10 +441,137 @@ export class WebSystemObject extends Object {
     return `<img src="data:image/${type};base64,${base}"${inWidth} ${inHeight} ${inAlt} alt="Cannot render image">`;
   }
 
+  style(el, style) {
+
+    var value = el.style[style];
+
+    if (!value && el.currentStyle) {
+      value = el.currentStyle[style];
+    }
+
+    if ((!value || value === 'auto') && document.defaultView) {
+      var css = document.defaultView.getComputedStyle(el, null);
+      value = css ? css[style] : null;
+    }
+
+    return value === 'auto' ? null : value;
+  }
+
+  getViewportOffset(element) {
+
+    var top = 0,
+      left = 0,
+      el = element,
+      docBody = document.body,
+      docEl = document.documentElement,
+      pos;
+
+    do {
+      top += el.offsetTop || 0;
+      left += el.offsetLeft || 0;
+
+      //add borders
+      top += parseInt(this.style(el, 'borderTopWidth'), 10) || 0;
+      left += parseInt(this.style(el, 'borderLeftWidth'), 10) || 0;
+
+      pos = this.style(el, 'position');
+
+      if (el.offsetParent === docBody && pos === 'absolute') {
+        break;
+      }
+
+      if (pos === 'fixed') {
+        top += docBody.scrollTop || docEl.scrollTop || 0;
+        left += docBody.scrollLeft || docEl.scrollLeft || 0;
+        break;
+      }
+
+      if (pos === 'relative' && !el.offsetLeft) {
+        var width = this.style(el, 'width'),
+          maxWidth = this.style(el, 'max-width'),
+          r = el.getBoundingClientRect();
+
+        if (width !== 'none' || maxWidth !== 'none') {
+          left += r.left + el.clientLeft;
+        }
+
+        //calculate full y offset since we're breaking out of the loop
+        top += r.top + (docBody.scrollTop || docEl.scrollTop || 0);
+
+        break;
+      }
+
+      el = el.offsetParent;
+
+    } while (el);
+
+    el = element;
+
+    do {
+      if (el === docBody) {
+        break;
+      }
+
+      top -= el.scrollTop || 0;
+      left -= el.scrollLeft || 0;
+
+      el = el.parentNode;
+    } while (el);
+
+    return {left, top};
+  }
 
   isTagged(s, pattern = '<>') {
     let tmp = String(s).trim();
     return s.length >= 2 && s[0] === pattern[0] && s[s.length - 1] === pattern[1];
+  }
+
+  create(tagName, className, container) {
+    var el = document.createElement(tagName);
+    el.className = className;
+    if (container) {
+      container.appendChild(el);
+    }
+    return el;
+  }
+
+  setOpacity(el, value) {
+
+    if ('opacity' in el.style) {
+      el.style.opacity = value;
+    } else if ('filter' in el.style) {
+      var filter = false,
+        filterName = 'DXImageTransform.Microsoft.Alpha';
+      // filters collection throws an error if we try to retrieve a filter that doesn't exist
+      try {
+        filter = el.filters.item(filterName);
+      } catch (e) {
+        // don't set opacity to 1 if we haven't already set an opacity,
+        // it isn't needed and breaks transparent pngs.
+        if (value === 1) {
+          return;
+        }
+      }
+
+      value = Math.round(value * 100);
+
+      if (filter) {
+        filter.Enabled = (value !== 100);
+        filter.Opacity = value;
+      } else {
+        el.style.filter += ' progid:' + filterName + '(opacity=' + value + ')';
+      }
+    }
+  }
+
+  testProp(props) {
+    var style = document.documentElement.style;
+    for (var i = 0; i < props.length; i++) {
+      if (props[i] in style) {
+        return props[i];
+      }
+    }
+    return false;
   }
 
   // No funciona arreglar
@@ -524,7 +651,6 @@ export class WebSystemObject extends Object {
     }
   }
 
-
   // > - ###### For vibration pattern
   // > We can also provide multiple values to the array such that starting with 0, even indices are the time for vibration and odd index are for interval between vibration.
   // > ```js
@@ -579,7 +705,7 @@ export class WebSystemObject extends Object {
       // is an event
       this._updateBatteryStatus = function(event) {
         this.BatteryLevel = this.battery.level;
-        this.LineOverlap = this.battery.lineOverlap; // ¿Indica situación de corte en las lineas, o cortocircuito?
+        this.LineOverlap = this.battery.lineOverlap; // ¿Indica situación de corte en las líneas, o cortocircuito?
 
         console.log('El estado de la batería es de ' + this.BatteryLevel * 100 + ' %');
 
@@ -928,21 +1054,41 @@ export class WebSystemObject extends Object {
     return (Math.sqrt(Math.pow(latitud2 - latitud1, 2) + Math.pow(longitud2 - longitud1, 2)) % 180) * 111111;
   }
 
-  distanceHighestAccuracy(latitud1, longitud1, latitud2, longitud2) {
-    let toRadians = (x) => (x * Math.PI / 180) % (Math.PI * 2);
-    let pythagoras = (x, y) => Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-    let arc = (radio, amplitud) => radio * amplitud;
-    let radius = (latitud, radioPolar = 6356751.9, radioEcuatorial = 6378136.66378) => radioEcuatorial - (radioEcuatorial - radioPolar) * Math.sin(latitud);
+  // Distancia de transporte,
+  // Copyright 2023 ®Lic. Luis Bultet Ibles... All rights reserved under GPL 2.0 (You are free to use under your responsiblitity).
 
-    let delta_lon = toRadians(Math.abs(longitud2 - longitud1) % 180);
-    let delta_height = Math.abs(radius(toRadians(latitud2)) - radius(toRadians(latitud1)));
+  distanciaTransporte(latitud1, longitud1, latitud2, longitud2, radioEcuatorial = 6378136.66378, radioPolar = 6356751.9) {
+    let toRadians = (x) => x * Math.PI / 180;
+    let pythagoras = (x, y) => Math.sqrt(x * x + y * y);
+    let arc = (radio, amplitud) => radio * Math.abs(amplitud);
+    let radius = (lattitude) => radioPolar - (radioPolar - radioEcuatorial) * Math.cos(lattitude);
 
-    return pythagoras(arc(radius(toRadians(Math.abs(latitud1 + latitud2) / 2)), delta_lon), delta_height);
+    let delta_lon = Math.abs(toRadians(longitud2) - toRadians(longitud1));
+    let delta_lat = Math.abs(toRadians(latitud2) - toRadians(latitud1));
+
+    let delta_height = Math.abs(radius(toRadians(latitud1)) - radius(toRadians(latitud2)));
+    let mid_length = arc(radius(toRadians(latitud1 + latitud2) / 2), pythagoras(delta_lat, delta_lon));
+
+    return pythagoras(delta_height, mid_length);
   }
 
-  // Radio aproximado del elipsoide en la posición especificada (radianes y metros), con parámetros opcionales.
-  nivelDelMar(latitud, longitud, radioPolar = 6356751.9, radioEcuatorial = 6378136.66378) {
-    return radioEcuatorial - (radioEcuatorial - radioPolar) * Math.sin(latitud);
+  nivelMedioDelMar(lattitude) {
+    return radioPolar - (radioPolar - radioEcuatorial) * Math.cos(lattitude);
+  };
+
+  // Leaflet Map Distance,
+  // using Haversine distance formula, see http://en.wikipedia.org/wiki/Haversine_formula
+  distanciaLeaflet(latitud1, longitud1, latitud2, longitud2, earthRadius = 6378137 /* earth radius in meters */) {
+    let R = earthRadius,
+      d2r = Math.PI / 180,
+      dLat = (latitud2 - latitud1) * d2r,
+      dLon = (longitud2 - longitud1) * d2r,
+      lat1 = latitud1 * d2r,
+      lat2 = latitud2 * d2r,
+      sin1 = Math.sin(dLat / 2),
+      sin2 = Math.sin(dLon / 2);
+    let a = sin1 * sin1 + sin2 * sin2 * Math.cos(lat1) * Math.cos(lat2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
   // evento privado de geolocalización (this is my location response handler)
@@ -1650,6 +1796,37 @@ export class WebSystemObject extends Object {
     }
     console.timeEnd(processName);
   }
+
+  RGBToHSL(r, g, b) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const l = Math.max(r, g, b);
+    const s = l - Math.min(r, g, b);
+    const h = s
+      ? l === r
+        ? (g - b) / s
+        : l === g
+          ? 2 + (b - r) / s
+          : 4 + (r - g) / s
+      : 0;
+    return [
+      60 * h < 0 ? 60 * h + 360 : 60 * h,
+      100 * (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0),
+      (100 * (2 * l - s)) / 2,
+    ];
+  };
+
+  // See class MyCanvas
+  HSLToRGB(h, s, l) {
+    s /= 100;
+    l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n =>
+      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return [255 * f(0), 255 * f(8), 255 * f(4)];
+  };
 
   consoleError(x) {
     if (this.quiet) return;
@@ -2453,6 +2630,91 @@ export class WebSystemObject extends Object {
   // divisibility of a by b.
   divides(a, b, eps = this.epsilon) {
     return !this.equivalents(b, 0, eps) && this.equivalents(this.module(a, b), 0, eps);
+  }
+
+  reverseString(str) {
+    var newString = '';
+    for (var i = 0; i < str.length; i++) {
+      newString += str[str.length - i - 1];
+    }
+    return newString;
+  }
+
+  toHexa(x, digits = 0, prefix = '#') {
+    let result = this.reverseString(Number(x).toString(16));
+    return this.reverseString(result + (digits > result.length ? '0'.repeat(digits - result.length) : '') + prefix);
+  }
+
+  toBinary(x, digits = 0, prefix = 'x') {
+    let result = this.reverseString(Number(x).toString(2));
+    return this.reverseString(result + (digits > result.length ? '0'.repeat(digits - result.length) : '') + prefix);
+  }
+
+  toDec(x, base = 16) {
+    return parseInt(Number(x), base);
+  }
+
+  convertBase(str, fromBase, toBase, DIGITS = String('0123456789abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ+/*,." `#$%^&:;-(áéíóúü)' + '{<=>}[\'~¡!?¿]').split('')) {
+
+    const add = (x, y, base) => {
+      let z = [];
+      const n = Math.max(x.length, y.length);
+      let carry = 0;
+      let i = 0;
+      while (i < n || carry) {
+        const xi = i < x.length ? x[i] : 0;
+        const yi = i < y.length ? y[i] : 0;
+        const zi = carry + xi + yi;
+        z.push(zi % base);
+        carry = Math.floor(zi / base);
+        i++;
+      }
+      return z;
+    };
+
+    const multiplyByNumber = (num, x, base) => {
+      if (num < 0) return null;
+      if (num == 0) return [];
+
+      let result = [];
+      let power = x;
+      while (true) {
+        num & 1 && (result = add(result, power, base));
+        num = num >> 1;
+        if (num === 0) break;
+        power = add(power, power, base);
+      }
+
+      return result;
+    };
+
+    const parseToDigitsArray = (str, base) => {
+      const digits = str.split('');
+      let arr = [];
+      for (let i = digits.length - 1; i >= 0; i--) {
+        const n = DIGITS.indexOf(digits[i]);
+        if (n == -1) return null;
+        arr.push(n);
+      }
+      return arr;
+    };
+
+    const digits = parseToDigitsArray(str, fromBase);
+    if (digits === null) return null;
+
+    let outArray = [];
+    let power = [1];
+    for (let i = 0; i < digits.length; i++) {
+      digits[i] && (outArray = add(outArray, multiplyByNumber(digits[i], power, toBase), toBase));
+      power = multiplyByNumber(fromBase, power, toBase);
+    }
+
+    let out = '';
+    for (let i = outArray.length - 1; i >= 0; i--) {
+      out += DIGITS[outArray[i]];
+    }
+
+    return out;
   }
 
   // from sketch fixed
