@@ -6,7 +6,7 @@ import {WebSystemObject} from './WebSystemObject.js';
     de actualización de imágenes según el standard, o bien puedes dibujar de la
     misma forma accediendo directamente al contexto.
 
-    Se reconocen todos los derechos de autor, se agradece a sky-cons-master.
+    Se reconocen todos los derechos de autor, se agradece a sky-cons-master., etc.
 
 */
 
@@ -1620,7 +1620,6 @@ class MyCanvas extends WebSystemObject {
   }
 
   ///////////////////////////////////////////////////
-
 
   // must be in this way... pueden utilizanse con rgb y rgba
 
