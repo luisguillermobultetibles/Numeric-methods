@@ -1637,7 +1637,7 @@ class MyCanvas extends WebSystemObject {
   distanciaSubjetivaEntrePixeles(ancho, alto, x, y, r1, g1, b1, r2, g2, b2, a1, a2) {
     let argumentos = [].concat(...args);
     [ancho, alto, x, y] = [argumentos.shift(), argumentos.shift(), argumentos.shift(), argumentos.shift()];
-    return Math.sqrt(Math.pow(x / ancho, 2) + Math.pow(y / alto, 2) + Math.pow(this.distanciaEntreColores(argumentos), 2));
+    return Math.sqrt(Math.pow(x / ancho, 2) + Math.pow(y / alto, 2) + Math.pow(this.distanciaEntreColores(...argumentos), 2));
   }
 
   // sobre un fondo rf, gf, bf
@@ -1655,20 +1655,17 @@ class MyCanvas extends WebSystemObject {
   // Y mantienen todas sus otras propiedaes... se rellenan o no,
 
   // según el método activo en this.options.pathMethod
-  dot(x, y) {
+  dot(x, y, shape = this.options.dotShape, radius = this.ctx.lineWidth) {
     this.beginPath();
     this.ctx.lineWidth = this.options['stroke-width'];
-    this.ctx.strokeStyle = this.options.stroke;
-    this.ctx.lineJoin = this.options.lineJoin;
-    this.ctx.lineCap = this.options.lineCap;
-    switch (this.options.dotShape) {
+    switch (shape) {
       case 'box': {
-        this.ctx.moveTo(Math.round(x) - 2 * this.options['stroke-width'], Math.round(y) - 2 * this.options['stroke-width']);
-        this.ctx.lineTo(Math.round(x) + 2 * this.options['stroke-width'], Math.round(y) + 2 * this.options['stroke-width']);
+        this.ctx.moveTo(Math.round(x) - 2 * radius, Math.round(y) - 2 * radius);
+        this.ctx.lineTo(Math.round(x) + 2 * radius, Math.round(y) + 2 * radius);
         break;
       }
       case 'circle': {
-        this.arc(x, y, 2 * this.options['stroke-width'], 0, 2 * Math.PI, true);
+        this.arc(x, y, 2 * radius, 0, 2 * Math.PI, true);
         break;
       }
     }
@@ -1676,20 +1673,8 @@ class MyCanvas extends WebSystemObject {
   }
 
   // PARE DIBUJAR LINEAS CON O SIN GRADACIONES
-  line(x1, y1, x2, y2, startColor, endColor, lineWidth, lineJoin, lineCap, dash) {
+  line(x1, y1, x2, y2, startColor = this.options.stroke, endColor = this.options.stroke, lineWidthlineWidth = this.options['stroke-width'], lineJoin = this.options.lineJoin, lineCaplineCap = this.options.lineCap, dash = []) {
     this.beginPath();
-    if (!startColor) {
-      startColor = 'white';
-    }
-    if (!this.isNumber(lineWidth)) {
-      lineWidth = 1;
-    }
-    if (!lineJoin) {
-      lineJoin = 'round';
-    }
-    if (!lineCap) {
-      lineCap = 'round';
-    }
     this.ctx.lineWidth = lineWidth;
     if (endColor && (startColor !== endColor)) {
       var gradacion = this.ctx.createLinearGradient(x1, y1, x2, y2); // Desde un punto a otro, en realidad hace un rectángulo.
@@ -1708,7 +1693,21 @@ class MyCanvas extends WebSystemObject {
 
     if (dash) {
       this.ctx.setLineDash(dash); // /* dashes are 5px and spaces are 3px */
-    } else {
+      /*
+
+      Please test and consider to use the following architectural and enginering dashes, from:
+      https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
+
+      drawDashedLine([]);
+      drawDashedLine([1, 1]);
+      drawDashedLine([10, 10]);
+      drawDashedLine([20, 5]);
+      drawDashedLine([15, 3, 3, 3]);
+      drawDashedLine([20, 3, 3, 3, 3, 3, 3, 3]);
+      drawDashedLine([12, 3, 3]); // Equals [12, 3, 3, 12, 3, 3]
+
+      */
+    } else { // N o - o n e
       this.ctx.setLineDash([]);
     }
 
@@ -2009,7 +2008,6 @@ class MyCanvas extends WebSystemObject {
       class: yccClassifier,
     };
   }
-  ;
 
   toYcc(r, g, b) {
     r /= 255, g /= 255, b /= 255;
