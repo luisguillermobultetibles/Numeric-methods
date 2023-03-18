@@ -2632,6 +2632,48 @@ export class WebSystemObject extends Object {
     return !this.equivalents(b, 0, eps) && this.equivalents(this.module(a, b), 0, eps);
   }
 
+  // Permutaciones
+
+  // Algoritmo de Heap para encontrar las permutaciones...
+  permute(permutation) {
+    var length = permutation.length,
+      result = [permutation.slice()],
+      c = new Array(length).fill(0),
+      i = 1, k, p;
+
+    while (i < length) {
+      if (c[i] < i) {
+        k = i % 2 && c[i];
+        p = permutation[i];
+        permutation[i] = permutation[k];
+        permutation[k] = p;
+        ++c[i];
+        i = 1;
+        result.push(permutation.slice());
+      } else {
+        c[i] = 0;
+        ++i;
+      }
+    }
+    return result;
+  }
+
+  // Permutaciones de elementos en n espacios
+  permuteSpaces(set, spaces) {
+    return this.permute(set).filter((a) => a.length === spaces);
+  }
+
+  // Obtener el conjunto potencia (genera datos enormes).
+  obtenerConjuntoPotencia(datos) {
+    return datos.reduce((a, v) => a.concat(a.map(d => [v].concat(d))), [[]]);
+  }
+
+  // Restringe lo anterior y obtiene las combinaciones sin repeticiones...
+  gruposDeHasta(conjunto, longitud, longitudMinima = 1) {
+    let inicial = this.obtenerConjuntoPotencia(conjunto);
+    return inicial.filter((a) => a.length >= longitudMinima && a.length <= longitud);
+  }
+
   reverseString(str) {
     var newString = '';
     for (var i = 0; i < str.length; i++) {

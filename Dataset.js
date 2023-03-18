@@ -857,6 +857,8 @@ function restoreState() {
    }
 }
 
+// ok after
+
 function saveToStorage(key, val) {
     localStorage.setItem(key, JSON.stringify(val))
 }
@@ -869,6 +871,8 @@ function loadFromStorage(key) {
 function removeFromStorage(key) {
     localStorage.removeItem(key)
 }
+
+// ok before
 
 
  // Limpiar el localstorage
@@ -990,12 +994,6 @@ function guardar_claves_local() {
       localStorage.setItem("pagina", pagina);
    }
 }
-
-
-
-
-
-
 
 
 

@@ -17,931 +17,595 @@ class MyCanvas extends WebSystemObject {
   static colors = [{
     'name': 'aliceblue',
     'code': '#F0F8FF',
-    'RGB_levels': {'red': 240, 'green': 248, 'blue': 255},
-    'HSL_levels': {'h': 31.999999999999993, 's': 100, 'l': 97.05882352941177},
+    'rbg': {'red': 240, 'green': 248, 'blue': 255},
   }, {
     'name': 'antiquewhite',
     'code': '#FAEBD7',
-    'RGB_levels': {'red': 250, 'green': 235, 'blue': 215},
-    'HSL_levels': {
-      'h': 205.71428571428572,
-      's': 77.77777777777773,
-      'l': 91.17647058823529,
-    },
+    'rbg': {'red': 250, 'green': 235, 'blue': 215},
   }, {
     'name': 'aqua',
     'code': '#00FFFF',
-    'RGB_levels': {'red': 0, 'green': 255, 'blue': 255},
-    'HSL_levels': {'h': 60, 's': 100, 'l': 50},
+    'rbg': {'red': 0, 'green': 255, 'blue': 255},
   }, {
     'name': 'aquamarine',
     'code': '#7FFFD4',
-    'RGB_levels': {'red': 127, 'green': 255, 'blue': 212},
-    'HSL_levels': {'h': 80.15625, 's': 100, 'l': 74.90196078431373},
+    'rbg': {'red': 127, 'green': 255, 'blue': 212},
   }, {
     'name': 'azure',
     'code': '#F0FFFF',
-    'RGB_levels': {'red': 240, 'green': 255, 'blue': 255},
-    'HSL_levels': {'h': 60, 's': 100, 'l': 97.05882352941177},
+    'rbg': {'red': 240, 'green': 255, 'blue': 255},
   }, {
     'name': 'beige',
     'code': '#F5F5DC',
-    'RGB_levels': {'red': 245, 'green': 245, 'blue': 220},
-    'HSL_levels': {'h': 180, 's': 55.5555555555556, 'l': 91.1764705882353},
+    'rbg': {'red': 245, 'green': 245, 'blue': 220},
   }, {
     'name': 'bisque',
     'code': '#FFE4C4',
-    'RGB_levels': {'red': 255, 'green': 228, 'blue': 196},
-    'HSL_levels': {
-      'h': 207.45762711864404,
-      's': 99.99999999999996,
-      'l': 88.4313725490196,
-    },
+    'rbg': {'red': 255, 'green': 228, 'blue': 196},
   }, {
     'name': 'black',
     'code': '#000000',
-    'RGB_levels': {'red': 0, 'green': 0, 'blue': 0},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 0},
+    'rbg': {'red': 0, 'green': 0, 'blue': 0},
   }, {
     'name': 'blanchedalmond',
     'code': '#FFEBCD',
-    'RGB_levels': {'red': 255, 'green': 235, 'blue': 205},
-    'HSL_levels': {'h': 204.00000000000003, 's': 100, 'l': 90.19607843137256},
+    'rbg': {'red': 255, 'green': 235, 'blue': 205},
   }, {
     'name': 'blue',
     'code': '#0000FF',
-    'RGB_levels': {'red': 0, 'green': 0, 'blue': 255},
-    'HSL_levels': {'h': 0, 's': 100, 'l': 50},
+    'rbg': {'red': 0, 'green': 0, 'blue': 255},
   }, {
     'name': 'blueviolet',
     'code': '#8A2BE2',
-    'RGB_levels': {'red': 138, 'green': 43, 'blue': 226},
-    'HSL_levels': {
-      'h': 328.8524590163934,
-      's': 75.93360995850621,
-      'l': 52.74509803921569,
-    },
+    'rbg': {'red': 138, 'green': 43, 'blue': 226},
   }, {
     'name': 'brown',
     'code': '#A52A2A',
-    'RGB_levels': {'red': 165, 'green': 42, 'blue': 42},
-    'HSL_levels': {'h': 240, 's': 40.5940594059406, 'l': 40.588235294117645},
+    'rbg': {'red': 165, 'green': 42, 'blue': 42},
   }, {
     'name': 'burlywood',
     'code': '#DEB887',
-    'RGB_levels': {'red': 222, 'green': 184, 'blue': 135},
-    'HSL_levels': {'h': 206.20689655172416, 's': 56.86274509803921, 'l': 70},
+    'rbg': {'red': 222, 'green': 184, 'blue': 135},
   }, {
     'name': 'cadetblue',
     'code': '#5F9EA0',
-    'RGB_levels': {'red': 95, 'green': 158, 'blue': 160},
-    'HSL_levels': {'h': 58.15384615384616, 's': 25.49019607843137, 'l': 50},
+    'rbg': {'red': 95, 'green': 158, 'blue': 160},
   }, {
     'name': 'chartreuse',
     'code': '#7FFF00',
-    'RGB_levels': {'red': 127, 'green': 255, 'blue': 0},
-    'HSL_levels': {'h': 149.88235294117646, 's': 100, 'l': 50},
+    'rbg': {'red': 127, 'green': 255, 'blue': 0},
   }, {
     'name': 'chocolate',
     'code': '#D2691E',
-    'RGB_levels': {'red': 210, 'green': 105, 'blue': 30},
-    'HSL_levels': {'h': 215, 's': 66.66666666666666, 'l': 47.05882352941176},
+    'rbg': {'red': 210, 'green': 105, 'blue': 30},
   }, {
     'name': 'coral',
     'code': '#FF7F50',
-    'RGB_levels': {'red': 255, 'green': 127, 'blue': 80},
-    'HSL_levels': {'h': 223.88571428571427, 's': 100, 'l': 65.68627450980392},
+    'rbg': {'red': 255, 'green': 127, 'blue': 80},
   }, {
     'name': 'cornflowerblue',
     'code': '#6495ED',
-    'RGB_levels': {'red': 100, 'green': 149, 'blue': 237},
-    'HSL_levels': {
-      'h': 21.45985401459854,
-      's': 79.19075144508672,
-      'l': 66.07843137254902,
-    },
+    'rbg': {'red': 100, 'green': 149, 'blue': 237},
   }, {
     'name': 'cornsilk',
     'code': '#FFF8DC',
-    'RGB_levels': {'red': 255, 'green': 248, 'blue': 220},
-    'HSL_levels': {'h': 192, 's': 100, 'l': 93.13725490196079},
+    'rbg': {'red': 255, 'green': 248, 'blue': 220},
   }, {
     'name': 'crimson',
     'code': '#DC143C',
-    'RGB_levels': {'red': 220, 'green': 20, 'blue': 60},
-    'HSL_levels': {'h': 252, 's': 74.07407407407408, 'l': 47.05882352941176},
+    'rbg': {'red': 220, 'green': 20, 'blue': 60},
   }, {
     'name': 'cyan',
     'code': '#00FFFF',
-    'RGB_levels': {'red': 0, 'green': 255, 'blue': 255},
-    'HSL_levels': {'h': 60, 's': 100, 'l': 50},
+    'rbg': {'red': 0, 'green': 255, 'blue': 255},
   }, {
     'name': 'darkblue',
     'code': '#00008B',
-    'RGB_levels': {'red': 0, 'green': 0, 'blue': 139},
-    'HSL_levels': {'h': 0, 's': 37.466307277628026, 'l': 27.254901960784313},
+    'rbg': {'red': 0, 'green': 0, 'blue': 139},
   }, {
     'name': 'darkcyan',
     'code': '#008B8B',
-    'RGB_levels': {'red': 0, 'green': 139, 'blue': 139},
-    'HSL_levels': {'h': 60, 's': 37.466307277628026, 'l': 27.254901960784313},
+    'rbg': {'red': 0, 'green': 139, 'blue': 139},
   }, {
     'name': 'darkgoldenrod',
     'code': '#B8860B',
-    'RGB_levels': {'red': 184, 'green': 134, 'blue': 11},
-    'HSL_levels': {
-      'h': 197.34104046242774,
-      's': 54.920634920634924,
-      'l': 38.23529411764706,
-    },
+    'rbg': {'red': 184, 'green': 134, 'blue': 11},
   }, {
     'name': 'darkgray',
     'code': '#A9A9A9',
-    'RGB_levels': {'red': 169, 'green': 169, 'blue': 169},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 66.27450980392156},
+    'rbg': {'red': 169, 'green': 169, 'blue': 169},
   }, {
     'name': 'darkgreen',
     'code': '#006400',
-    'RGB_levels': {'red': 0, 'green': 100, 'blue': 0},
-    'HSL_levels': {'h': 120, 's': 100, 'l': 19.607843137254903},
+    'rbg': {'red': 0, 'green': 100, 'blue': 0},
   }, {
     'name': 'darkgrey',
     'code': '#A9A9A9',
-    'RGB_levels': {'red': 169, 'green': 169, 'blue': 169},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 66.27450980392156},
+    'rbg': {'red': 169, 'green': 169, 'blue': 169},
   }, {
     'name': 'darkkhaki',
     'code': '#BDB76B',
-    'RGB_levels': {'red': 189, 'green': 183, 'blue': 107},
-    'HSL_levels': {
-      'h': 184.39024390243904,
-      's': 38.317757009345804,
-      'l': 58.03921568627452,
-    },
+    'rbg': {'red': 189, 'green': 183, 'blue': 107},
   }, {
     'name': 'darkmagenta',
     'code': '#8B008B',
-    'RGB_levels': {'red': 139, 'green': 0, 'blue': 139},
-    'HSL_levels': {'h': 300, 's': 37.466307277628026, 'l': 27.254901960784313},
+    'rbg': {'red': 139, 'green': 0, 'blue': 139},
   }, {
     'name': 'darkolivegreen',
     'code': '#556B2F',
-    'RGB_levels': {'red': 85, 'green': 107, 'blue': 47},
-    'HSL_levels': {'h': 158, 's': 38.96103896103896, 'l': 30.196078431372552},
+    'rbg': {'red': 85, 'green': 107, 'blue': 47},
   }, {
     'name': 'darkorange',
     'code': '#FF8C00',
-    'RGB_levels': {'red': 255, 'green': 140, 'blue': 0},
-    'HSL_levels': {'h': 207.05882352941177, 's': 100, 'l': 50},
+    'rbg': {'red': 255, 'green': 140, 'blue': 0},
   }, {
     'name': 'darkorchid',
     'code': '#9932CC',
-    'RGB_levels': {'red': 153, 'green': 50, 'blue': 204},
-    'HSL_levels': {
-      'h': 319.87012987012986,
-      's': 60.156250000000014,
-      'l': 49.80392156862745,
-    },
+    'rbg': {'red': 153, 'green': 50, 'blue': 204},
   }, {
     'name': 'darkred',
     'code': '#8B0000',
-    'RGB_levels': {'red': 139, 'green': 0, 'blue': 0},
-    'HSL_levels': {'h': 240, 's': 37.466307277628026, 'l': 27.254901960784313},
+    'rbg': {'red': 139, 'green': 0, 'blue': 0},
   }, {
     'name': 'darksalmon',
     'code': '#E9967A',
-    'RGB_levels': {'red': 233, 'green': 150, 'blue': 122},
-    'HSL_levels': {
-      'h': 224.86486486486487,
-      's': 71.61290322580643,
-      'l': 69.6078431372549,
-    },
+    'rbg': {'red': 233, 'green': 150, 'blue': 122},
   }, {
     'name': 'darkseagreen',
     'code': '#8FBC8F',
-    'RGB_levels': {'red': 143, 'green': 188, 'blue': 143},
-    'HSL_levels': {'h': 120, 's': 25.13966480446928, 'l': 64.90196078431373},
+    'rbg': {'red': 143, 'green': 188, 'blue': 143},
   }, {
     'name': 'darkslateblue',
     'code': '#483D8B',
-    'RGB_levels': {'red': 72, 'green': 61, 'blue': 139},
-    'HSL_levels': {
-      'h': 351.53846153846155,
-      's': 25.161290322580637,
-      'l': 39.21568627450981,
-    },
+    'rbg': {'red': 72, 'green': 61, 'blue': 139},
   }, {
     'name': 'darkslategray',
     'code': '#2F4F4F',
-    'RGB_levels': {'red': 47, 'green': 79, 'blue': 79},
-    'HSL_levels': {'h': 60, 's': 25.396825396825395, 'l': 24.705882352941178},
+    'rbg': {'red': 47, 'green': 79, 'blue': 79},
   }, {
     'name': 'darkslategrey',
     'code': '#2F4F4F',
-    'RGB_levels': {'red': 47, 'green': 79, 'blue': 79},
-    'HSL_levels': {'h': 60, 's': 25.396825396825395, 'l': 24.705882352941178},
+    'rbg': {'red': 47, 'green': 79, 'blue': 79},
   }, {
     'name': 'darkturquoise',
     'code': '#00CED1',
-    'RGB_levels': {'red': 0, 'green': 206, 'blue': 209},
-    'HSL_levels': {
-      'h': 59.13875598086125,
-      's': 69.43521594684385,
-      'l': 40.98039215686274,
-    },
+    'rbg': {'red': 0, 'green': 206, 'blue': 209},
   }, {
     'name': 'darkviolet',
     'code': '#9400D3',
-    'RGB_levels': {'red': 148, 'green': 0, 'blue': 211},
-    'HSL_levels': {
-      'h': 317.91469194312793,
-      's': 70.5685618729097,
-      'l': 41.37254901960784,
-    },
+    'rbg': {'red': 148, 'green': 0, 'blue': 211},
   }, {
     'name': 'deeppink',
     'code': '#FF1493',
-    'RGB_levels': {'red': 255, 'green': 20, 'blue': 147},
-    'HSL_levels': {'h': 272.4255319148936, 's': 100, 'l': 53.92156862745098},
+    'rbg': {'red': 255, 'green': 20, 'blue': 147},
   }, {
     'name': 'deepskyblue',
     'code': '#00BFFF',
-    'RGB_levels': {'red': 0, 'green': 191, 'blue': 255},
-    'HSL_levels': {'h': 44.94117647058823, 's': 100, 'l': 50},
+    'rbg': {'red': 0, 'green': 191, 'blue': 255},
   }, {
     'name': 'dimgray',
     'code': '#696969',
-    'RGB_levels': {'red': 105, 'green': 105, 'blue': 105},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 41.17647058823529},
+    'rbg': {'red': 105, 'green': 105, 'blue': 105},
   }, {
     'name': 'dimgrey',
     'code': '#696969',
-    'RGB_levels': {'red': 105, 'green': 105, 'blue': 105},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 41.17647058823529},
+    'rbg': {'red': 105, 'green': 105, 'blue': 105},
   }, {
     'name': 'dodgerblue',
     'code': '#1E90FF',
-    'RGB_levels': {'red': 30, 'green': 144, 'blue': 255},
-    'HSL_levels': {'h': 30.399999999999995, 's': 100, 'l': 55.88235294117647},
+    'rbg': {'red': 30, 'green': 144, 'blue': 255},
   }, {
     'name': 'firebrick',
     'code': '#B22222',
-    'RGB_levels': {'red': 178, 'green': 34, 'blue': 34},
-    'HSL_levels': {'h': 240, 's': 48.32214765100671, 'l': 41.56862745098039},
+    'rbg': {'red': 178, 'green': 34, 'blue': 34},
   }, {
     'name': 'floralwhite',
     'code': '#FFFAF0',
-    'RGB_levels': {'red': 255, 'green': 250, 'blue': 240},
-    'HSL_levels': {'h': 200.00000000000003, 's': 100, 'l': 97.05882352941177},
+    'rbg': {'red': 255, 'green': 250, 'blue': 240},
   }, {
     'name': 'forestgreen',
     'code': '#228B22',
-    'RGB_levels': {'red': 34, 'green': 139, 'blue': 34},
-    'HSL_levels': {'h': 120, 's': 31.157270029673583, 'l': 33.921568627450974},
+    'rbg': {'red': 34, 'green': 139, 'blue': 34},
   }, {
     'name': 'fuchsia',
     'code': '#FF00FF',
-    'RGB_levels': {'red': 255, 'green': 0, 'blue': 255},
-    'HSL_levels': {'h': 300, 's': 100, 'l': 50},
+    'rbg': {'red': 255, 'green': 0, 'blue': 255},
   }, {
     'name': 'gainsboro',
     'code': '#DCDCDC',
-    'RGB_levels': {'red': 220, 'green': 220, 'blue': 220},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 86.27450980392157},
+    'rbg': {'red': 220, 'green': 220, 'blue': 220},
   }, {
     'name': 'ghostwhite',
     'code': '#F8F8FF',
-    'RGB_levels': {'red': 248, 'green': 248, 'blue': 255},
-    'HSL_levels': {'h': 0, 's': 100.0000000000004, 'l': 98.62745098039215},
+    'rbg': {'red': 248, 'green': 248, 'blue': 255},
   }, {
     'name': 'gold',
     'code': '#FFD700',
-    'RGB_levels': {'red': 255, 'green': 215, 'blue': 0},
-    'HSL_levels': {'h': 189.41176470588235, 's': 100, 'l': 50},
+    'rbg': {'red': 255, 'green': 215, 'blue': 0},
   }, {
     'name': 'goldenrod',
     'code': '#DAA520',
-    'RGB_levels': {'red': 218, 'green': 165, 'blue': 32},
-    'HSL_levels': {
-      'h': 197.0967741935484,
-      's': 71.53846153846153,
-      'l': 49.01960784313725,
-    },
+    'rbg': {'red': 218, 'green': 165, 'blue': 32},
   }, {
     'name': 'gray',
     'code': '#808080',
-    'RGB_levels': {'red': 128, 'green': 128, 'blue': 128},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 50.19607843137255},
+    'rbg': {'red': 128, 'green': 128, 'blue': 128},
   }, {
     'name': 'green',
     'code': '#008000',
-    'RGB_levels': {'red': 0, 'green': 128, 'blue': 0},
-    'HSL_levels': {'h': 120, 's': 33.50785340314136, 'l': 25.098039215686274},
+    'rbg': {'red': 0, 'green': 128, 'blue': 0},
   }, {
     'name': 'greenyellow',
     'code': '#ADFF2F',
-    'RGB_levels': {'red': 173, 'green': 255, 'blue': 47},
-    'HSL_levels': {'h': 156.34615384615384, 's': 100, 'l': 59.21568627450981},
+    'rbg': {'red': 173, 'green': 255, 'blue': 47},
   }, {
     'name': 'grey',
     'code': '#808080',
-    'RGB_levels': {'red': 128, 'green': 128, 'blue': 128},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 50.19607843137255},
+    'rbg': {'red': 128, 'green': 128, 'blue': 128},
   }, {
     'name': 'honeydew',
     'code': '#F0FFF0',
-    'RGB_levels': {'red': 240, 'green': 255, 'blue': 240},
-    'HSL_levels': {'h': 120, 's': 100, 'l': 97.05882352941177},
+    'rbg': {'red': 240, 'green': 255, 'blue': 240},
   }, {
     'name': 'hotpink',
     'code': '#FF69B4',
-    'RGB_levels': {'red': 255, 'green': 105, 'blue': 180},
-    'HSL_levels': {'h': 270, 's': 99.99999999999997, 'l': 70.58823529411764},
+    'rbg': {'red': 255, 'green': 105, 'blue': 180},
   }, {
     'name': 'indianred',
     'code': '#CD5C5C',
-    'RGB_levels': {'red': 205, 'green': 92, 'blue': 92},
-    'HSL_levels': {'h': 240, 's': 53.05164319248827, 'l': 58.235294117647065},
+    'rbg': {'red': 205, 'green': 92, 'blue': 92},
   }, {
     'name': 'indigo',
     'code': '#4B0082',
-    'RGB_levels': {'red': 75, 'green': 0, 'blue': 130},
-    'HSL_levels': {
-      'h': 325.38461538461536,
-      's': 34.210526315789465,
-      'l': 25.49019607843137,
-    },
+    'rbg': {'red': 75, 'green': 0, 'blue': 130},
   }, {
     'name': 'ivory',
     'code': '#FFFFF0',
-    'RGB_levels': {'red': 255, 'green': 255, 'blue': 240},
-    'HSL_levels': {'h': 180, 's': 100, 'l': 97.05882352941177},
+    'rbg': {'red': 255, 'green': 255, 'blue': 240},
   }, {
     'name': 'khaki',
     'code': '#F0E68C',
-    'RGB_levels': {'red': 240, 'green': 230, 'blue': 140},
-    'HSL_levels': {'h': 186, 's': 76.92307692307692, 'l': 74.50980392156863},
+    'rbg': {'red': 240, 'green': 230, 'blue': 140},
   }, {
     'name': 'lavender',
     'code': '#E6E6FA',
-    'RGB_levels': {'red': 230, 'green': 230, 'blue': 250},
-    'HSL_levels': {'h': 0, 's': 66.6666666666666, 'l': 94.11764705882352},
+    'rbg': {'red': 230, 'green': 230, 'blue': 250},
   }, {
     'name': 'lavenderblush',
     'code': '#FFF0F5',
-    'RGB_levels': {'red': 255, 'green': 240, 'blue': 245},
-    'HSL_levels': {'h': 260.00000000000006, 's': 100, 'l': 97.05882352941177},
+    'rbg': {'red': 255, 'green': 240, 'blue': 245},
   }, {
     'name': 'lawngreen',
     'code': '#7CFC00',
-    'RGB_levels': {'red': 124, 'green': 252, 'blue': 0},
-    'HSL_levels': {
-      'h': 149.52380952380952,
-      's': 97.67441860465117,
-      'l': 49.411764705882355,
-    },
+    'rbg': {'red': 124, 'green': 252, 'blue': 0},
   }, {
     'name': 'lemonchiffon',
     'code': '#FFFACD',
-    'RGB_levels': {'red': 255, 'green': 250, 'blue': 205},
-    'HSL_levels': {'h': 186, 's': 100, 'l': 90.19607843137256},
+    'rbg': {'red': 255, 'green': 250, 'blue': 205},
   }, {
     'name': 'lightblue',
     'code': '#ADD8E6',
-    'RGB_levels': {'red': 173, 'green': 216, 'blue': 230},
-    'HSL_levels': {
-      'h': 45.263157894736835,
-      's': 53.271028037383196,
-      'l': 79.01960784313727,
-    },
+    'rbg': {'red': 173, 'green': 216, 'blue': 230},
   }, {
     'name': 'lightcoral',
     'code': '#F08080',
-    'RGB_levels': {'red': 240, 'green': 128, 'blue': 128},
-    'HSL_levels': {'h': 240, 's': 78.87323943661971, 'l': 72.15686274509804},
+    'rbg': {'red': 240, 'green': 128, 'blue': 128},
   }, {
     'name': 'lightcyan',
     'code': '#E0FFFF',
-    'RGB_levels': {'red': 224, 'green': 255, 'blue': 255},
-    'HSL_levels': {'h': 60, 's': 100, 'l': 93.92156862745098},
+    'rbg': {'red': 224, 'green': 255, 'blue': 255},
   }, {
     'name': 'lightgoldenrodyellow',
     'code': '#FAFAD2',
-    'RGB_levels': {'red': 250, 'green': 250, 'blue': 210},
-    'HSL_levels': {'h': 180, 's': 79.99999999999991, 'l': 90.19607843137254},
+    'rbg': {'red': 250, 'green': 250, 'blue': 210},
   }, {
     'name': 'lightgray',
     'code': '#D3D3D3',
-    'RGB_levels': {'red': 211, 'green': 211, 'blue': 211},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 82.74509803921568},
+    'rbg': {'red': 211, 'green': 211, 'blue': 211},
   }, {
     'name': 'lightgreen',
     'code': '#90EE90',
-    'RGB_levels': {'red': 144, 'green': 238, 'blue': 144},
-    'HSL_levels': {'h': 120, 's': 73.4375, 'l': 74.90196078431373},
+    'rbg': {'red': 144, 'green': 238, 'blue': 144},
   }, {
     'name': 'lightgrey',
     'code': '#D3D3D3',
-    'RGB_levels': {'red': 211, 'green': 211, 'blue': 211},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 82.74509803921568},
+    'rbg': {'red': 211, 'green': 211, 'blue': 211},
   }, {
     'name': 'lightpink',
     'code': '#FFB6C1',
-    'RGB_levels': {'red': 255, 'green': 182, 'blue': 193},
-    'HSL_levels': {
-      'h': 249.04109589041096,
-      's': 100.00000000000004,
-      'l': 85.68627450980392,
-    },
+    'rbg': {'red': 255, 'green': 182, 'blue': 193},
   }, {
     'name': 'lightsalmon',
     'code': '#FFA07A',
-    'RGB_levels': {'red': 255, 'green': 160, 'blue': 122},
-    'HSL_levels': {'h': 222.85714285714286, 's': 100, 'l': 73.92156862745098},
+    'rbg': {'red': 255, 'green': 160, 'blue': 122},
   }, {
     'name': 'lightseagreen',
     'code': '#20B2AA',
-    'RGB_levels': {'red': 32, 'green': 178, 'blue': 170},
-    'HSL_levels': {
-      'h': 63.28767123287671,
-      's': 48.666666666666664,
-      'l': 41.17647058823529,
-    },
+    'rbg': {'red': 32, 'green': 178, 'blue': 170},
   }, {
     'name': 'lightskyblue',
     'code': '#87CEFA',
-    'RGB_levels': {'red': 135, 'green': 206, 'blue': 250},
-    'HSL_levels': {
-      'h': 37.04347826086957,
-      's': 91.99999999999999,
-      'l': 75.49019607843137,
-    },
+    'rbg': {'red': 135, 'green': 206, 'blue': 250},
   }, {
     'name': 'lightslategray',
     'code': '#778899',
-    'RGB_levels': {'red': 119, 'green': 136, 'blue': 153},
-    'HSL_levels': {'h': 30, 's': 14.285714285714283, 'l': 53.333333333333336},
+    'rbg': {'red': 119, 'green': 136, 'blue': 153},
   }, {
     'name': 'lightslategrey',
     'code': '#778899',
-    'RGB_levels': {'red': 119, 'green': 136, 'blue': 153},
-    'HSL_levels': {'h': 30, 's': 14.285714285714283, 'l': 53.333333333333336},
+    'rbg': {'red': 119, 'green': 136, 'blue': 153},
   }, {
     'name': 'lightsteelblue',
     'code': '#B0C4DE',
-    'RGB_levels': {'red': 176, 'green': 196, 'blue': 222},
-    'HSL_levels': {
-      'h': 26.086956521739147,
-      's': 41.07142857142858,
-      'l': 78.03921568627452,
-    },
+    'rbg': {'red': 176, 'green': 196, 'blue': 222},
   }, {
     'name': 'lightyellow',
     'code': '#FFFFE0',
-    'RGB_levels': {'red': 255, 'green': 255, 'blue': 224},
-    'HSL_levels': {'h': 180, 's': 100, 'l': 93.92156862745098},
+    'rbg': {'red': 255, 'green': 255, 'blue': 224},
   }, {
     'name': 'lime',
     'code': '#00FF00',
-    'RGB_levels': {'red': 0, 'green': 255, 'blue': 0},
-    'HSL_levels': {'h': 120, 's': 100, 'l': 50},
+    'rbg': {'red': 0, 'green': 255, 'blue': 0},
   }, {
     'name': 'limegreen',
     'code': '#32CD32',
-    'RGB_levels': {'red': 50, 'green': 205, 'blue': 50},
-    'HSL_levels': {'h': 120, 's': 60.7843137254902, 'l': 50},
+    'rbg': {'red': 50, 'green': 205, 'blue': 50},
   }, {
     'name': 'linen',
     'code': '#FAF0E6',
-    'RGB_levels': {'red': 250, 'green': 240, 'blue': 230},
-    'HSL_levels': {'h': 210, 's': 66.6666666666666, 'l': 94.11764705882352},
+    'rbg': {'red': 250, 'green': 240, 'blue': 230},
   }, {
     'name': 'magenta',
     'code': '#FF00FF',
-    'RGB_levels': {'red': 255, 'green': 0, 'blue': 255},
-    'HSL_levels': {'h': 300, 's': 100, 'l': 50},
+    'rbg': {'red': 255, 'green': 0, 'blue': 255},
   }, {
     'name': 'maroon',
     'code': '#800000',
-    'RGB_levels': {'red': 128, 'green': 0, 'blue': 0},
-    'HSL_levels': {'h': 240, 's': 33.50785340314136, 'l': 25.098039215686274},
+    'rbg': {'red': 128, 'green': 0, 'blue': 0},
   }, {
     'name': 'mediumaquamarine',
     'code': '#66CDAA',
-    'RGB_levels': {'red': 102, 'green': 205, 'blue': 170},
-    'HSL_levels': {
-      'h': 80.38834951456312,
-      's': 50.73891625615765,
-      'l': 60.196078431372555,
-    },
+    'rbg': {'red': 102, 'green': 205, 'blue': 170},
   }, {
     'name': 'mediumblue',
     'code': '#0000CD',
-    'RGB_levels': {'red': 0, 'green': 0, 'blue': 205},
-    'HSL_levels': {'h': 0, 's': 67.21311475409837, 'l': 40.19607843137255},
+    'rbg': {'red': 0, 'green': 0, 'blue': 205},
   }, {
     'name': 'mediumorchid',
     'code': '#BA55D3',
-    'RGB_levels': {'red': 186, 'green': 85, 'blue': 211},
-    'HSL_levels': {
-      'h': 311.9047619047619,
-      's': 58.87850467289718,
-      'l': 58.0392156862745,
-    },
+    'rbg': {'red': 186, 'green': 85, 'blue': 211},
   }, {
     'name': 'mediumpurple',
     'code': '#9370DB',
-    'RGB_levels': {'red': 147, 'green': 112, 'blue': 219},
-    'HSL_levels': {
-      'h': 340.3738317757009,
-      's': 59.77653631284914,
-      'l': 64.90196078431372,
-    },
+    'rbg': {'red': 147, 'green': 112, 'blue': 219},
   }, {
     'name': 'mediumseagreen',
     'code': '#3CB371',
-    'RGB_levels': {'red': 60, 'green': 179, 'blue': 113},
-    'HSL_levels': {
-      'h': 93.27731092436974,
-      's': 43.911439114391136,
-      'l': 46.86274509803921,
-    },
+    'rbg': {'red': 60, 'green': 179, 'blue': 113},
   }, {
     'name': 'mediumslateblue',
     'code': '#7B68EE',
-    'RGB_levels': {'red': 123, 'green': 104, 'blue': 238},
-    'HSL_levels': {
-      'h': 351.4925373134328,
-      's': 79.76190476190477,
-      'l': 67.05882352941177,
-    },
+    'rbg': {'red': 123, 'green': 104, 'blue': 238},
   }, {
     'name': 'mediumspringgreen',
     'code': '#00FA9A',
-    'RGB_levels': {'red': 0, 'green': 250, 'blue': 154},
-    'HSL_levels': {
-      'h': 83.03999999999999,
-      's': 96.15384615384616,
-      'l': 49.01960784313725,
-    },
+    'rbg': {'red': 0, 'green': 250, 'blue': 154},
   }, {
     'name': 'mediumturquoise',
     'code': '#48D1CC',
-    'RGB_levels': {'red': 72, 'green': 209, 'blue': 204},
-    'HSL_levels': {
-      'h': 62.1897810218978,
-      's': 59.825327510917035,
-      'l': 55.09803921568628,
-    },
+    'rbg': {'red': 72, 'green': 209, 'blue': 204},
   }, {
     'name': 'mediumvioletred',
     'code': '#C71585',
-    'RGB_levels': {'red': 199, 'green': 21, 'blue': 133},
-    'HSL_levels': {
-      'h': 277.75280898876406,
-      's': 61.37931034482759,
-      'l': 43.13725490196079,
-    },
+    'rbg': {'red': 199, 'green': 21, 'blue': 133},
   }, {
     'name': 'midnightblue',
     'code': '#191970',
-    'RGB_levels': {'red': 25, 'green': 25, 'blue': 112},
-    'HSL_levels': {'h': 0, 's': 63.503649635036496, 'l': 26.862745098039216},
+    'rbg': {'red': 25, 'green': 25, 'blue': 112},
   }, {
     'name': 'mintcream',
     'code': '#F5FFFA',
-    'RGB_levels': {'red': 245, 'green': 255, 'blue': 250},
-    'HSL_levels': {
-      'h': 90.00000000000009,
-      's': 100.00000000000028,
-      'l': 98.03921568627452,
-    },
+    'rbg': {'red': 245, 'green': 255, 'blue': 250},
   }, {
     'name': 'mistyrose',
     'code': '#FFE4E1',
-    'RGB_levels': {'red': 255, 'green': 228, 'blue': 225},
-    'HSL_levels': {'h': 233.99999999999997, 's': 100, 'l': 94.11764705882352},
+    'rbg': {'red': 255, 'green': 228, 'blue': 225},
   }, {
     'name': 'moccasin',
     'code': '#FFE4B5',
-    'RGB_levels': {'red': 255, 'green': 228, 'blue': 181},
-    'HSL_levels': {
-      'h': 201.8918918918919,
-      's': 100.00000000000004,
-      'l': 85.49019607843138,
-    },
+    'rbg': {'red': 255, 'green': 228, 'blue': 181},
   }, {
     'name': 'navajowhite',
     'code': '#FFDEAD',
-    'RGB_levels': {'red': 255, 'green': 222, 'blue': 173},
-    'HSL_levels': {'h': 204.14634146341461, 's': 100, 'l': 83.92156862745098},
+    'rbg': {'red': 255, 'green': 222, 'blue': 173},
   }, {
     'name': 'navy',
     'code': '#000080',
-    'RGB_levels': {'red': 0, 'green': 0, 'blue': 128},
-    'HSL_levels': {'h': 0, 's': 33.50785340314136, 'l': 25.098039215686274},
+    'rbg': {'red': 0, 'green': 0, 'blue': 128},
   }, {
     'name': 'oldlace',
     'code': '#FDF5E6',
-    'RGB_levels': {'red': 253, 'green': 245, 'blue': 230},
-    'HSL_levels': {
-      'h': 200.86956521739128,
-      's': 85.18518518518515,
-      'l': 94.70588235294117,
-    },
+    'rbg': {'red': 253, 'green': 245, 'blue': 230},
   }, {
     'name': 'olive',
     'code': '#808000',
-    'RGB_levels': {'red': 128, 'green': 128, 'blue': 0},
-    'HSL_levels': {'h': 180, 's': 33.50785340314136, 'l': 25.098039215686274},
+    'rbg': {'red': 128, 'green': 128, 'blue': 0},
   }, {
     'name': 'olivedrab',
     'code': '#6B8E23',
-    'RGB_levels': {'red': 107, 'green': 142, 'blue': 35},
-    'HSL_levels': {
-      'h': 160.37383177570095,
-      's': 32.13213213213213,
-      'l': 34.705882352941174,
-    },
+    'rbg': {'red': 107, 'green': 142, 'blue': 35},
   }, {
     'name': 'orange',
     'code': '#FFA500',
-    'RGB_levels': {'red': 255, 'green': 165, 'blue': 0},
-    'HSL_levels': {'h': 201.1764705882353, 's': 100, 'l': 50},
+    'rbg': {'red': 255, 'green': 165, 'blue': 0},
   }, {
     'name': 'orangered',
     'code': '#FF4500',
-    'RGB_levels': {'red': 255, 'green': 69, 'blue': 0},
-    'HSL_levels': {'h': 223.76470588235296, 's': 100, 'l': 50},
+    'rbg': {'red': 255, 'green': 69, 'blue': 0},
   }, {
     'name': 'orchid',
     'code': '#DA70D6',
-    'RGB_levels': {'red': 218, 'green': 112, 'blue': 214},
-    'HSL_levels': {
-      'h': 297.7358490566038,
-      's': 58.88888888888887,
-      'l': 64.70588235294117,
-    },
+    'rbg': {'red': 218, 'green': 112, 'blue': 214},
   }, {
     'name': 'palegoldenrod',
     'code': '#EEE8AA',
-    'RGB_levels': {'red': 238, 'green': 232, 'blue': 170},
-    'HSL_levels': {'h': 185.29411764705884, 's': 66.6666666666667, 'l': 80},
+    'rbg': {'red': 238, 'green': 232, 'blue': 170},
   }, {
     'name': 'palegreen',
     'code': '#98FB98',
-    'RGB_levels': {'red': 152, 'green': 251, 'blue': 152},
-    'HSL_levels': {'h': 120, 's': 92.52336448598129, 'l': 79.01960784313725},
+    'rbg': {'red': 152, 'green': 251, 'blue': 152},
   }, {
     'name': 'paleturquoise',
     'code': '#AFEEEE',
-    'RGB_levels': {'red': 175, 'green': 238, 'blue': 238},
-    'HSL_levels': {'h': 60, 's': 64.94845360824742, 'l': 80.98039215686275},
+    'rbg': {'red': 175, 'green': 238, 'blue': 238},
   }, {
     'name': 'palevioletred',
     'code': '#DB7093',
-    'RGB_levels': {'red': 219, 'green': 112, 'blue': 147},
-    'HSL_levels': {
-      'h': 259.6261682242991,
-      's': 59.77653631284914,
-      'l': 64.90196078431372,
-    },
+    'rbg': {'red': 219, 'green': 112, 'blue': 147},
   }, {
     'name': 'papayawhip',
     'code': '#FFEFD5',
-    'RGB_levels': {'red': 255, 'green': 239, 'blue': 213},
-    'HSL_levels': {
-      'h': 202.85714285714286,
-      's': 100.00000000000007,
-      'l': 91.76470588235294,
-    },
+    'rbg': {'red': 255, 'green': 239, 'blue': 213},
   }, {
     'name': 'peachpuff',
     'code': '#FFDAB9',
-    'RGB_levels': {'red': 255, 'green': 218, 'blue': 185},
-    'HSL_levels': {
-      'h': 211.71428571428572,
-      's': 100.00000000000004,
-      'l': 86.27450980392157,
-    },
+    'rbg': {'red': 255, 'green': 218, 'blue': 185},
   }, {
     'name': 'peru',
     'code': '#CD853F',
-    'RGB_levels': {'red': 205, 'green': 133, 'blue': 63},
-    'HSL_levels': {
-      'h': 210.42253521126761,
-      's': 58.67768595041323,
-      'l': 52.54901960784314,
-    },
+    'rbg': {'red': 205, 'green': 133, 'blue': 63},
   }, {
     'name': 'pink',
     'code': '#FFC0CB',
-    'RGB_levels': {'red': 255, 'green': 192, 'blue': 203},
-    'HSL_levels': {'h': 250.47619047619042, 's': 100, 'l': 87.6470588235294},
+    'rbg': {'red': 255, 'green': 192, 'blue': 203},
   }, {
     'name': 'plum',
     'code': '#DDA0DD',
-    'RGB_levels': {'red': 221, 'green': 160, 'blue': 221},
-    'HSL_levels': {'h': 300, 's': 47.28682170542637, 'l': 74.70588235294117},
+    'rbg': {'red': 221, 'green': 160, 'blue': 221},
   }, {
     'name': 'powderblue',
     'code': '#B0E0E6',
-    'RGB_levels': {'red': 176, 'green': 224, 'blue': 230},
-    'HSL_levels': {
-      'h': 53.33333333333332,
-      's': 51.92307692307695,
-      'l': 79.6078431372549,
-    },
+    'rbg': {'red': 176, 'green': 224, 'blue': 230},
   }, {
     'name': 'purple',
     'code': '#800080',
-    'RGB_levels': {'red': 128, 'green': 0, 'blue': 128},
-    'HSL_levels': {'h': 300, 's': 33.50785340314136, 'l': 25.098039215686274},
+    'rbg': {'red': 128, 'green': 0, 'blue': 128},
   }, {
     'name': 'rebeccapurple',
     'code': '#663399',
-    'RGB_levels': {'red': 102, 'green': 51, 'blue': 153},
-    'HSL_levels': {'h': 330, 's': 33.33333333333333, 'l': 40},
+    'rbg': {'red': 102, 'green': 51, 'blue': 153},
   }, {
     'name': 'red',
     'code': '#FF0000',
-    'RGB_levels': {'red': 255, 'green': 0, 'blue': 0},
-    'HSL_levels': {'h': 240, 's': 100, 'l': 50},
+    'rbg': {'red': 255, 'green': 0, 'blue': 0},
   }, {
     'name': 'rosybrown',
     'code': '#BC8F8F',
-    'RGB_levels': {'red': 188, 'green': 143, 'blue': 143},
-    'HSL_levels': {'h': 240, 's': 25.13966480446928, 'l': 64.90196078431373},
+    'rbg': {'red': 188, 'green': 143, 'blue': 143},
   }, {
     'name': 'royalblue',
     'code': '#4169E1',
-    'RGB_levels': {'red': 65, 'green': 105, 'blue': 225},
-    'HSL_levels': {'h': 15, 's': 72.72727272727272, 'l': 56.86274509803921},
+    'rbg': {'red': 65, 'green': 105, 'blue': 225},
   }, {
     'name': 'saddlebrown',
     'code': '#8B4513',
-    'RGB_levels': {'red': 139, 'green': 69, 'blue': 19},
-    'HSL_levels': {'h': 215, 's': 34.090909090909086, 'l': 30.980392156862745},
+    'rbg': {'red': 139, 'green': 69, 'blue': 19},
   }, {
     'name': 'salmon',
     'code': '#FA8072',
-    'RGB_levels': {'red': 250, 'green': 128, 'blue': 114},
-    'HSL_levels': {
-      'h': 233.8235294117647,
-      's': 93.15068493150683,
-      'l': 71.37254901960785,
-    },
+    'rbg': {'red': 250, 'green': 128, 'blue': 114},
   }, {
     'name': 'sandybrown',
     'code': '#F4A460',
-    'RGB_levels': {'red': 244, 'green': 164, 'blue': 96},
-    'HSL_levels': {
-      'h': 212.43243243243242,
-      's': 87.05882352941178,
-      'l': 66.66666666666667,
-    },
+    'rbg': {'red': 244, 'green': 164, 'blue': 96},
   }, {
     'name': 'seagreen',
     'code': '#2E8B57',
-    'RGB_levels': {'red': 46, 'green': 139, 'blue': 87},
-    'HSL_levels': {
-      'h': 93.54838709677419,
-      's': 28.61538461538461,
-      'l': 36.27450980392157,
-    },
+    'rbg': {'red': 46, 'green': 139, 'blue': 87},
   }, {
     'name': 'seashell',
     'code': '#FFF5EE',
-    'RGB_levels': {'red': 255, 'green': 245, 'blue': 238},
-    'HSL_levels': {'h': 215.2941176470588, 's': 100, 'l': 96.66666666666667},
+    'rbg': {'red': 255, 'green': 245, 'blue': 238},
   }, {
     'name': 'sienna',
     'code': '#A0522D',
-    'RGB_levels': {'red': 160, 'green': 82, 'blue': 45},
-    'HSL_levels': {
-      'h': 220.69565217391306,
-      's': 37.704918032786885,
-      'l': 40.19607843137255,
-    },
+    'rbg': {'red': 160, 'green': 82, 'blue': 45},
   }, {
     'name': 'silver',
     'code': '#C0C0C0',
-    'RGB_levels': {'red': 192, 'green': 192, 'blue': 192},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 75.29411764705883},
+    'rbg': {'red': 192, 'green': 192, 'blue': 192},
   }, {
     'name': 'skyblue',
     'code': '#87CEEB',
-    'RGB_levels': {'red': 135, 'green': 206, 'blue': 235},
-    'HSL_levels': {
-      'h': 42.60000000000001,
-      's': 71.4285714285714,
-      'l': 72.54901960784314,
-    },
+    'rbg': {'red': 135, 'green': 206, 'blue': 235},
   }, {
     'name': 'slateblue',
     'code': '#6A5ACD',
-    'RGB_levels': {'red': 106, 'green': 90, 'blue': 205},
-    'HSL_levels': {
-      'h': 351.6521739130435,
-      's': 53.48837209302326,
-      'l': 57.84313725490197,
-    },
+    'rbg': {'red': 106, 'green': 90, 'blue': 205},
   }, {
     'name': 'slategray',
     'code': '#708090',
-    'RGB_levels': {'red': 112, 'green': 128, 'blue': 144},
-    'HSL_levels': {'h': 30, 's': 12.598425196850393, 'l': 50.19607843137255},
+    'rbg': {'red': 112, 'green': 128, 'blue': 144},
   }, {
     'name': 'slategrey',
     'code': '#708090',
-    'RGB_levels': {'red': 112, 'green': 128, 'blue': 144},
-    'HSL_levels': {'h': 30, 's': 12.598425196850393, 'l': 50.19607843137255},
+    'rbg': {'red': 112, 'green': 128, 'blue': 144},
   }, {
     'name': 'snow',
     'code': '#FFFAFA',
-    'RGB_levels': {'red': 255, 'green': 250, 'blue': 250},
-    'HSL_levels': {'h': 240, 's': 100.00000000000058, 'l': 99.01960784313727},
+    'rbg': {'red': 255, 'green': 250, 'blue': 250},
   }, {
     'name': 'springgreen',
     'code': '#00FF7F',
-    'RGB_levels': {'red': 0, 'green': 255, 'blue': 127},
-    'HSL_levels': {'h': 90.11764705882354, 's': 100, 'l': 50},
+    'rbg': {'red': 0, 'green': 255, 'blue': 127},
   }, {
     'name': 'steelblue',
     'code': '#4682B4',
-    'RGB_levels': {'red': 70, 'green': 130, 'blue': 180},
-    'HSL_levels': {
-      'h': 32.72727272727272,
-      's': 42.307692307692314,
-      'l': 49.01960784313726,
-    },
+    'rbg': {'red': 70, 'green': 130, 'blue': 180},
   }, {
     'name': 'tan',
     'code': '#D2B48C',
-    'RGB_levels': {'red': 210, 'green': 180, 'blue': 140},
-    'HSL_levels': {
-      'h': 205.7142857142857,
-      's': 43.749999999999986,
-      'l': 68.62745098039215,
-    },
+    'rbg': {'red': 210, 'green': 180, 'blue': 140},
   }, {
     'name': 'teal',
     'code': '#008080',
-    'RGB_levels': {'red': 0, 'green': 128, 'blue': 128},
-    'HSL_levels': {'h': 60, 's': 33.50785340314136, 'l': 25.098039215686274},
+    'rbg': {'red': 0, 'green': 128, 'blue': 128},
   }, {
     'name': 'thistle',
     'code': '#D8BFD8',
-    'RGB_levels': {'red': 216, 'green': 191, 'blue': 216},
-    'HSL_levels': {'h': 300, 's': 24.271844660194176, 'l': 79.80392156862746},
+    'rbg': {'red': 216, 'green': 191, 'blue': 216},
   }, {
     'name': 'tomato',
     'code': '#FF6347',
-    'RGB_levels': {'red': 255, 'green': 99, 'blue': 71},
-    'HSL_levels': {
-      'h': 230.86956521739128,
-      's': 99.99999999999999,
-      'l': 63.921568627450974,
-    },
+    'rbg': {'red': 255, 'green': 99, 'blue': 71},
   }, {
     'name': 'turquoise',
     'code': '#40E0D0',
-    'RGB_levels': {'red': 64, 'green': 224, 'blue': 208},
-    'HSL_levels': {'h': 66, 's': 72.07207207207207, 'l': 56.470588235294116},
+    'rbg': {'red': 64, 'green': 224, 'blue': 208},
   }, {
     'name': 'violet',
     'code': '#EE82EE',
-    'RGB_levels': {'red': 238, 'green': 130, 'blue': 238},
-    'HSL_levels': {'h': 300, 's': 76.05633802816902, 'l': 72.15686274509804},
+    'rbg': {'red': 238, 'green': 130, 'blue': 238},
   }, {
     'name': 'wheat',
     'code': '#F5DEB3',
-    'RGB_levels': {'red': 245, 'green': 222, 'blue': 179},
-    'HSL_levels': {
-      'h': 200.9090909090909,
-      's': 76.74418604651162,
-      'l': 83.13725490196077,
-    },
+    'rbg': {'red': 245, 'green': 222, 'blue': 179},
   }, {
     'name': 'white',
     'code': '#FFFFFF',
-    'RGB_levels': {'red': 255, 'green': 255, 'blue': 255},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 100},
+    'rbg': {'red': 255, 'green': 255, 'blue': 255},
   }, {
     'name': 'whitesmoke',
     'code': '#F5F5F5',
-    'RGB_levels': {'red': 245, 'green': 245, 'blue': 245},
-    'HSL_levels': {'h': 0, 's': 0, 'l': 96.07843137254902},
+    'rbg': {'red': 245, 'green': 245, 'blue': 245},
   }, {
     'name': 'yellow',
     'code': '#FFFF00',
-    'RGB_levels': {'red': 255, 'green': 255, 'blue': 0},
-    'HSL_levels': {'h': 180, 's': 100, 'l': 50},
+    'rbg': {'red': 255, 'green': 255, 'blue': 0},
   }, {
     'name': 'yellowgreen',
     'code': '#9ACD32',
-    'RGB_levels': {'red': 154, 'green': 205, 'blue': 50},
-    'HSL_levels': {'h': 160.25806451612902, 's': 60.7843137254902, 'l': 50},
+    'rbg': {'red': 154, 'green': 205, 'blue': 50},
   }];
 
 
@@ -1583,7 +1247,7 @@ class MyCanvas extends WebSystemObject {
 
   // por ejemplo: 'rgba(0,200,0,1)'; // verde 200
   color(r, g, b, a) {
-    if (args.length < 4) {
+    if (arguments.length < 4) {
       return `rgb(${r}, ${g}, ${b})`;
     } else {
       return `rgba(${r}, ${g}, ${b}, ${a})`;
@@ -1625,7 +1289,7 @@ class MyCanvas extends WebSystemObject {
 
   // lo que devuelve un valor entre 0 y 1 que significa la distancia entre los colores
   distanciaEntreColores(r1, g1, b1, r2, g2, b2, a1, a2) {
-    if (args.length > 6) {
+    if (arguments.length > 6) {
       return Math.sqrt((r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2) + (a1 - a2) * (a1 - a2)) / 510;
     } else {
       return Math.sqrt((r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2)) / 441.6729559300637;
@@ -1634,7 +1298,7 @@ class MyCanvas extends WebSystemObject {
 
   // distancia subjetiva entre píxeles de un cuadro, valores entre 0 y 1.
   distanciaSubjetivaEntrePixeles(ancho, alto, x, y, r1, g1, b1, r2, g2, b2, a1, a2) {
-    let argumentos = [].concat(...args);
+    let argumentos = [].concat(...arguments);
     [ancho, alto, x, y] = [argumentos.shift(), argumentos.shift(), argumentos.shift(), argumentos.shift()];
     return Math.sqrt(Math.pow(x / ancho, 2) + Math.pow(y / alto, 2) + Math.pow(this.distanciaEntreColores(...argumentos), 2));
   }
@@ -1805,9 +1469,9 @@ class MyCanvas extends WebSystemObject {
   // un drawImaga a partir de una dirección fuente: ej. "vale.jpg"
 
   insertImage(image, x, y, w, h, sw, sh) { // please this order (inserta en un rango, recorta en el origen)
-    if (args.length < 3) { // 2 param
+    if (arguments.length < 3) { // 2 param
       this.ctx.drawImage(image, x, y);
-    } else if (args.length < 5) { // 4 param
+    } else if (arguments.length < 5) { // 4 param
       this.ctx.drawImage(image, x, y, w, h); // in destiny
     } else { // 4 param
       this.ctx.drawImage(image, sw, sh, x, y, w, h); // same order as above !== to original func.
@@ -2654,6 +2318,350 @@ class MyCanvas extends WebSystemObject {
     var datosElemento = document.getElementById('idtable').getBoundingClientRect();
     return this.render_html_to_canvas(html, ctx, x, y, datosElemento.width, datosElemento.height, colorBorde);
   }
+
+  //The ColorCode() will give the code every time.
+  generateRandomColore() {
+    return '#'+Math.floor(Math.random()*16777215).toString(16);
+  }
+
+  /**
+   * Converts an HSL color value to RGB. Conversion formula
+   * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+   * Assumes h, s, and l are contained in the set [0, 1] and
+   * returns r, g, and b in the set [0, 255].
+   *
+   * @param   {number}  h       The hue
+   * @param   {number}  s       The saturation
+   * @param   {number}  l       The lightness
+   * @return  {Array}           The RGB representation
+   */
+  hslToRgb(h, s, l){
+    var r, g, b;
+
+    if(s == 0){
+      r = g = b = l; // achromatic
+    }else{
+      var hue2rgb = function hue2rgb(p, q, t){
+        if(t < 0) t += 1;
+        if(t > 1) t -= 1;
+        if(t < 1/6) return p + (q - p) * 6 * t;
+        if(t < 1/2) return q;
+        if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      }
+
+      var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      var p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+  }
+
+  /**
+   * Converts an RGB color value to HSL. Conversion formula
+   * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+   * Assumes r, g, and b are contained in the set [0, 255] and
+   * returns h, s, and l in the set [0, 1].
+   *
+   * @param   {number}  r       The red color value
+   * @param   {number}  g       The green color value
+   * @param   {number}  b       The blue color value
+   * @return  {Array}           The HSL representation
+   */
+  rgbToHsl(r, g, b){
+    r /= 255, g /= 255, b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h, s, l = (max + min) / 2;
+
+    if(max == min){
+      h = s = 0; // achromatic
+    }else{
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch(max){
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+
+    return [h, s, l];
+  }
+
+  // setColorCode(color = this.generateRandomColor()) {
+  //   this.canvas.css("background-color", color);
+  // }
+
+  get Diameter() {
+      return Math.sqrt(Math.pow(this.width, 2) + Math.pow(this.height, 2));
+  }
+
+  // Ya otro
+  static projections = {
+    /**
+     * Webmercator projection (from lagoLast).
+     * Since D === MAP_SIZE this function already returns pixel coordinates in the canvas.
+     */
+    Webmercator: ([lon, lat]) => {
+      const sinlat = Math.sin(lat * Math.PI / 180.0);
+      const x = this.Diameter * lon / 360.0;
+      const y = R / 2 * Math.log((1 + sinlat) / (1 - sinlat));
+      return {x: (this.Diameter / 2 + x), y: (this.Diameter - (this.Diameter / 2 + y))};
+    },
+
+    /**
+     * Spherical mercator projection (from Leaflet).
+     * Since D === MAP_SIZE this function already returns pixel coordinates in the canvas.
+     */
+    SphericalMercator: ([lon, lat]) => {
+      const MAX_LATITUDE = 85.0511287798;
+      const d = Math.PI / 180.0;
+      const max = MAX_LATITUDE;
+      const nlat = Math.max(Math.min(max, lat), -max);
+      const x = lng * d;
+      const y = Math.log(Math.tan((Math.PI / 4) + (nlat * d / 2)));
+      return {x, y};
+    },
+
+    LonLat: ([lon, lat]) => {
+      return {x: lon, y: lat};
+    },
+  };
+
+  // @Nota: Esta es la forma de recorrer todos los elementos de un GeoJSON, independientemente de su tipo básico, en este caso, se utiliza para dibujar en un Canvas, pero puede adaptarse a cualquier visor que utilice.
+  // proyecciones geográficas...
+  // @Parámetro: obj, el objeto GeoJSON.
+  // @Retorna: Un procesamiento el objeto, en su totalidad, con todas sus colecciones; "Successfully" si fue satisfactorio, o error.
+  // @Author: Luis Guillermo Bultet Ibles. 2022
+  //
+  // ESTA FUNCIÓN SE INCLUYE SOLAMENTE CON FINES DE DOCUMENTACIÓN
+  procesarGeoJSON(obj, project = MyCanvas.projections.Webmercator) {
+    /*
+        Type definitions for geojson 7946.0
+        Project: https://geojson.org/
+        Definitions by: Jacob Bruun <https://github.com/cobster>
+        Arne Schubert <https://github.com/atd-schubert>
+        Jeff Jacobson <https://github.com/JeffJacobson>
+        Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+        TypeScript Version: 2.3
+
+    */
+
+    // From d3 geo projection
+    function clockwise(ring) {
+      if ((n = ring.length) < 4) return false;
+      var i = 0,
+        n,
+        area = ring[n - 1][1] * ring[0][0] - ring[n - 1][0] * ring[0][1];
+      while (++i < n) area += ring[i - 1][1] * ring[i][0] - ring[i - 1][0] * ring[i][1];
+      return area <= 0;
+    }
+
+    // From d3 geo projection
+    function contains(ring, point) {
+      var x = point[0],
+        y = point[1],
+        contains = false;
+      for (var i = 0, n = ring.length, j = n - 1; i < n; j = i++) {
+        var pi = ring[i], xi = pi[0], yi = pi[1],
+          pj = ring[j], xj = pj[0], yj = pj[1];
+        if (((yi > y) ^ (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) contains = !contains;
+      }
+      return contains;
+    }
+
+    switch (obj.type) {
+      // Lo que está comentado es lo que hay en obj.coordinates en orden lat, lon igual que geojson
+      case 'Point': {   // [100, 0] a Point or position
+        console.warn(`Tratará de procesar Point `, obj);
+        try {
+          let punto = project(obj.coordinates[i][1], obj.coordinates[i][0]);
+          return {
+            tipo: 'punto',
+            coordenadas: punto,
+          };
+        } catch (e) {
+          throw new Error('Error tratando de dibujar el objeto ' + JSON.stringify(obj));
+        }
+      }
+      case 'LineString': {   // [[-24, 63], [-23, 60], [-25, 65], [-20, 69]] un arreglo de puntos [lat, log] (an array of Positions)
+        console.warn(`Tratará de procesar LineString `, obj);
+        try {
+          let punto1, punto2, lineas = [];
+          for (let index = 0; index < obj.coordinates.length - 1; index++) {
+            let p1 = project(obj.coordinates[index][1], obj.coordinates[index][0]);
+            let p2 = project(obj.coordinates[index + 1][1], obj.coordinates[index + 1][0]);
+            lineas.push({puntoInicial: p1, puntoFinal: p2});
+          }
+          return {
+            tipo: 'líneas',
+            lineas: lineas,
+          };
+        } catch (e) {
+          throw new Error('Error tratando de dibujar el objeto ' + JSON.stringify(obj));
+        }
+      }
+      case 'Polygon': {   // [[[-5, 52], [-4, 56], [-2, 51], [-7, 54], [-5, 52]]] an array of LinearRings
+        console.warn(`Tratará de procesar Polygon `, obj);
+        try {
+          let polygonCoords = [];
+          for (let j = 0; j < obj.coordinates.length; j++) {
+            polygonCoords = []; // reinit it
+            let punto;
+            for (let k = 0; k < obj.coordinates[j].length; k++) {
+              punto = project(obj.coordinates[j][k][1], obj.coordinates[j][k][0]);
+              polygonCoords.push(punto);
+            }
+            return {
+              tipo: 'polígono',
+              puntos: polygonCoords,
+            };
+          }
+        } catch (e) {
+          throw new Error('Error tratando de dibujar el objeto ' + JSON.stringify(obj));
+        }
+        /* Fixme
+         * En los casos que sea necesario dibujar polígonos con huecos, tienes que luego que dibujes
+         * el de afuera con el color de dibujo, dibujar los de adentro con el color de fondo... o no sé
+         * si la función del canvas resuelve esto, eso es por si se nos da un caso en un futuro...
+         * los huecos van en contra de las manecillas del reloj o lo normal a favor o vs.
+         *
+         * */
+      }
+      case 'MultiPoint': { // [[0, 0], [10, 10]] an array of Points
+        console.warn(`Tratará de procesar MultiPoint `, obj);
+        try {
+          let puntos = [], punto;
+          for (let i = 0; i < obj.coordinates; i++) {
+            punto = project(obj.coordinates[i][1], obj.coordinates[i][0]);
+            puntos.push(punto);
+          }
+          return {
+            tipo: 'puntos',
+            puntos: puntos,
+          };
+        } catch (e) {
+          throw new Error('Error tratando de dibujar el objeto ' + JSON.stringify(obj));
+        }
+        return success;
+      }
+      case 'MultiLineString': { // [[[0, 0], [10, 10]], [[5, 5],[15, 15]]] an array of LineStrings
+        console.warn(`Tratará de procesar MultiLineString `, obj);
+        try {
+          let lineas = [];
+          obj.coordinates.forEach((lineString) => lineas.push(procesarGeoJSON({
+            type: 'LineString',
+            coordinates: lineString,
+          }, projection)));
+          lineas = lineas.map((elemento) => elemento.lineas);
+          return {
+            tipo: 'lineas',
+            lineas: lineas,
+          };
+        } catch (e) {
+          throw new Error('Error tratando de dibujar el objeto ' + JSON.stringify(obj));
+        }
+        return success;
+      }
+      case 'MultiPolygon': { // [[[[0,0],[0,10],[10,10],[10,0],[0,0]]]] an array of Polygons
+        console.warn(`Tratará de procesar MultiPolygon `, obj);
+        try {
+          let poligonos = [];
+          obj.coordinates.forEach((pol) => poligonos.push(procesarGeoJSON({
+            type: 'Polygon',
+            coordinates: pol,
+          })), projection);
+          poligonos = poligonos.map((elemento) => elemento.puntos);
+          return {
+            tipo: 'polígonos',
+            poligonos: poligonos,
+          };
+        } catch (e) {
+          throw new Error('Error tratando de dibujar el objeto ' + JSON.stringify(obj));
+        }
+      }
+      case 'GeometryCollection': {
+        // Es cual es una agregación de objetos básicos...
+        // geometries:    "[] un arreglo de objetos geojson completos"
+        console.warn(`Tratará de procesar GeometryCollection `, obj);
+        try {
+          let coleccion = [];
+          obj.geometries.forEach((i, d) => coleccion.push(procesarGeoJSON(d, projection)));
+          return {
+            tipo: 'coleccion',
+            objetos: coleccion,
+          };
+        } catch (e) {
+          throw new Error('Error tratando de dibujar el objeto ' + JSON.stringify(obj));
+        }
+        return success;
+      }
+      case 'Topology': {
+        console.warn(`Tratará de procesar Topology `, obj);
+        /* este no contiene coordenadas directamente sino los campos:
+            type:       "Topology";
+            investigar
+
+             */
+        // Esta función, es útil en topojson...
+        // The following JavaScript reference implementation transforms a single position from the given quantized topology to absolute coordinates:
+        function transformPoint(topology, position) {
+          position = position.slice();
+          position[0] = position[0] * topology.transform.scale[0] + topology.transform.translate[0];
+          position[1] = position[1] * topology.transform.scale[1] + topology.transform.translate[1];
+          return position;
+        }
+
+        // haz lo que vayas a hacer acá...
+
+        return success;
+      }
+      case 'Feature': {
+        console.warn(`Tratará de procesar Feature `, obj);
+        /* ES EL OBJETO COMO TAL... IGNORA LAS PROPIEDADES PUES YA DEBEN ESTAR REGISTRADAS EN LA CAPA Y DIBUJA LA GEOMETRÍA RECURSIVAMENTE...
+
+           Es un feature, tienen un property y una geometría, que sí puede ser un objeto geojson...
+           Este objeto contiene, el campo obj.type == "Feature",
+
+           CONTIENE EL CAMPO properties
+
+           obj.properties con las propiedades, algo así: obj.properties == { "Tipo": "Línea de costa" }
+           ie, las propiedades no geométricas del objetos (aquí se puede guardar el color, grosor, el line dashing, etc..), por ejemplo obj.properties == {"ID": ""},
+
+           YA AQUÍ APARECEN LAS COORDENADAS, QUE PUEDEN SER DE LOS MAS VARIOPINTOS TIPOS...
+
+           pues contiene una geometría en el campo obj.geometry == {"type": "MultiPolygon", "coordinates": [[[[-74.132379747787112,... etc ...}
+           o algo asao: "geometry": { "type": "LineString", "coordinates": [ [ -83.664278678722823, 22.07776689790829 ], [ -83.662424591873233, 22.07842344971332 ] ] }
+           */
+        return procesarGeoJSON(obj.geometry);
+      }
+      case 'FeatureCollection': { // Es una capa, debe agregarse, recorrerse todos sus elementos a la lista de objetos...
+        console.warn(`Tratará de procesar FeatureCollection `, obj);
+        let objetos = [];
+        obj.features.forEach((objeto) => {
+          console.warn(`Se detecta `, objeto);
+          objetos.push(procesarGeoJSON(objeto, projection));
+        });
+        if (objetos.length === 1) {
+          objetos = objetos[0];
+        }
+        return {
+          capa: obj.name ? obj.name : 'no~name',
+          crs: obj.crs ? obj.crs : 'no~projection',
+          objetos: objetos,
+        };
+      }
+      default: {
+        throw new Error(`El tipo de geometría: ${obj.type} que se pretende procesar, es inválido.`);
+      }
+    }
+  }
+
+
 
 
 }
