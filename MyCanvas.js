@@ -14,601 +14,6 @@ class MyCanvas extends WebSystemObject {
   static needToRepaint = 'needToRepaint';
   static updated = 'updated';
   static updating = 'updating';
-  static colors = [{
-    'name': 'aliceblue',
-    'code': '#F0F8FF',
-    'rbg': {'red': 240, 'green': 248, 'blue': 255},
-  }, {
-    'name': 'antiquewhite',
-    'code': '#FAEBD7',
-    'rbg': {'red': 250, 'green': 235, 'blue': 215},
-  }, {
-    'name': 'aqua',
-    'code': '#00FFFF',
-    'rbg': {'red': 0, 'green': 255, 'blue': 255},
-  }, {
-    'name': 'aquamarine',
-    'code': '#7FFFD4',
-    'rbg': {'red': 127, 'green': 255, 'blue': 212},
-  }, {
-    'name': 'azure',
-    'code': '#F0FFFF',
-    'rbg': {'red': 240, 'green': 255, 'blue': 255},
-  }, {
-    'name': 'beige',
-    'code': '#F5F5DC',
-    'rbg': {'red': 245, 'green': 245, 'blue': 220},
-  }, {
-    'name': 'bisque',
-    'code': '#FFE4C4',
-    'rbg': {'red': 255, 'green': 228, 'blue': 196},
-  }, {
-    'name': 'black',
-    'code': '#000000',
-    'rbg': {'red': 0, 'green': 0, 'blue': 0},
-  }, {
-    'name': 'blanchedalmond',
-    'code': '#FFEBCD',
-    'rbg': {'red': 255, 'green': 235, 'blue': 205},
-  }, {
-    'name': 'blue',
-    'code': '#0000FF',
-    'rbg': {'red': 0, 'green': 0, 'blue': 255},
-  }, {
-    'name': 'blueviolet',
-    'code': '#8A2BE2',
-    'rbg': {'red': 138, 'green': 43, 'blue': 226},
-  }, {
-    'name': 'brown',
-    'code': '#A52A2A',
-    'rbg': {'red': 165, 'green': 42, 'blue': 42},
-  }, {
-    'name': 'burlywood',
-    'code': '#DEB887',
-    'rbg': {'red': 222, 'green': 184, 'blue': 135},
-  }, {
-    'name': 'cadetblue',
-    'code': '#5F9EA0',
-    'rbg': {'red': 95, 'green': 158, 'blue': 160},
-  }, {
-    'name': 'chartreuse',
-    'code': '#7FFF00',
-    'rbg': {'red': 127, 'green': 255, 'blue': 0},
-  }, {
-    'name': 'chocolate',
-    'code': '#D2691E',
-    'rbg': {'red': 210, 'green': 105, 'blue': 30},
-  }, {
-    'name': 'coral',
-    'code': '#FF7F50',
-    'rbg': {'red': 255, 'green': 127, 'blue': 80},
-  }, {
-    'name': 'cornflowerblue',
-    'code': '#6495ED',
-    'rbg': {'red': 100, 'green': 149, 'blue': 237},
-  }, {
-    'name': 'cornsilk',
-    'code': '#FFF8DC',
-    'rbg': {'red': 255, 'green': 248, 'blue': 220},
-  }, {
-    'name': 'crimson',
-    'code': '#DC143C',
-    'rbg': {'red': 220, 'green': 20, 'blue': 60},
-  }, {
-    'name': 'cyan',
-    'code': '#00FFFF',
-    'rbg': {'red': 0, 'green': 255, 'blue': 255},
-  }, {
-    'name': 'darkblue',
-    'code': '#00008B',
-    'rbg': {'red': 0, 'green': 0, 'blue': 139},
-  }, {
-    'name': 'darkcyan',
-    'code': '#008B8B',
-    'rbg': {'red': 0, 'green': 139, 'blue': 139},
-  }, {
-    'name': 'darkgoldenrod',
-    'code': '#B8860B',
-    'rbg': {'red': 184, 'green': 134, 'blue': 11},
-  }, {
-    'name': 'darkgray',
-    'code': '#A9A9A9',
-    'rbg': {'red': 169, 'green': 169, 'blue': 169},
-  }, {
-    'name': 'darkgreen',
-    'code': '#006400',
-    'rbg': {'red': 0, 'green': 100, 'blue': 0},
-  }, {
-    'name': 'darkgrey',
-    'code': '#A9A9A9',
-    'rbg': {'red': 169, 'green': 169, 'blue': 169},
-  }, {
-    'name': 'darkkhaki',
-    'code': '#BDB76B',
-    'rbg': {'red': 189, 'green': 183, 'blue': 107},
-  }, {
-    'name': 'darkmagenta',
-    'code': '#8B008B',
-    'rbg': {'red': 139, 'green': 0, 'blue': 139},
-  }, {
-    'name': 'darkolivegreen',
-    'code': '#556B2F',
-    'rbg': {'red': 85, 'green': 107, 'blue': 47},
-  }, {
-    'name': 'darkorange',
-    'code': '#FF8C00',
-    'rbg': {'red': 255, 'green': 140, 'blue': 0},
-  }, {
-    'name': 'darkorchid',
-    'code': '#9932CC',
-    'rbg': {'red': 153, 'green': 50, 'blue': 204},
-  }, {
-    'name': 'darkred',
-    'code': '#8B0000',
-    'rbg': {'red': 139, 'green': 0, 'blue': 0},
-  }, {
-    'name': 'darksalmon',
-    'code': '#E9967A',
-    'rbg': {'red': 233, 'green': 150, 'blue': 122},
-  }, {
-    'name': 'darkseagreen',
-    'code': '#8FBC8F',
-    'rbg': {'red': 143, 'green': 188, 'blue': 143},
-  }, {
-    'name': 'darkslateblue',
-    'code': '#483D8B',
-    'rbg': {'red': 72, 'green': 61, 'blue': 139},
-  }, {
-    'name': 'darkslategray',
-    'code': '#2F4F4F',
-    'rbg': {'red': 47, 'green': 79, 'blue': 79},
-  }, {
-    'name': 'darkslategrey',
-    'code': '#2F4F4F',
-    'rbg': {'red': 47, 'green': 79, 'blue': 79},
-  }, {
-    'name': 'darkturquoise',
-    'code': '#00CED1',
-    'rbg': {'red': 0, 'green': 206, 'blue': 209},
-  }, {
-    'name': 'darkviolet',
-    'code': '#9400D3',
-    'rbg': {'red': 148, 'green': 0, 'blue': 211},
-  }, {
-    'name': 'deeppink',
-    'code': '#FF1493',
-    'rbg': {'red': 255, 'green': 20, 'blue': 147},
-  }, {
-    'name': 'deepskyblue',
-    'code': '#00BFFF',
-    'rbg': {'red': 0, 'green': 191, 'blue': 255},
-  }, {
-    'name': 'dimgray',
-    'code': '#696969',
-    'rbg': {'red': 105, 'green': 105, 'blue': 105},
-  }, {
-    'name': 'dimgrey',
-    'code': '#696969',
-    'rbg': {'red': 105, 'green': 105, 'blue': 105},
-  }, {
-    'name': 'dodgerblue',
-    'code': '#1E90FF',
-    'rbg': {'red': 30, 'green': 144, 'blue': 255},
-  }, {
-    'name': 'firebrick',
-    'code': '#B22222',
-    'rbg': {'red': 178, 'green': 34, 'blue': 34},
-  }, {
-    'name': 'floralwhite',
-    'code': '#FFFAF0',
-    'rbg': {'red': 255, 'green': 250, 'blue': 240},
-  }, {
-    'name': 'forestgreen',
-    'code': '#228B22',
-    'rbg': {'red': 34, 'green': 139, 'blue': 34},
-  }, {
-    'name': 'fuchsia',
-    'code': '#FF00FF',
-    'rbg': {'red': 255, 'green': 0, 'blue': 255},
-  }, {
-    'name': 'gainsboro',
-    'code': '#DCDCDC',
-    'rbg': {'red': 220, 'green': 220, 'blue': 220},
-  }, {
-    'name': 'ghostwhite',
-    'code': '#F8F8FF',
-    'rbg': {'red': 248, 'green': 248, 'blue': 255},
-  }, {
-    'name': 'gold',
-    'code': '#FFD700',
-    'rbg': {'red': 255, 'green': 215, 'blue': 0},
-  }, {
-    'name': 'goldenrod',
-    'code': '#DAA520',
-    'rbg': {'red': 218, 'green': 165, 'blue': 32},
-  }, {
-    'name': 'gray',
-    'code': '#808080',
-    'rbg': {'red': 128, 'green': 128, 'blue': 128},
-  }, {
-    'name': 'green',
-    'code': '#008000',
-    'rbg': {'red': 0, 'green': 128, 'blue': 0},
-  }, {
-    'name': 'greenyellow',
-    'code': '#ADFF2F',
-    'rbg': {'red': 173, 'green': 255, 'blue': 47},
-  }, {
-    'name': 'grey',
-    'code': '#808080',
-    'rbg': {'red': 128, 'green': 128, 'blue': 128},
-  }, {
-    'name': 'honeydew',
-    'code': '#F0FFF0',
-    'rbg': {'red': 240, 'green': 255, 'blue': 240},
-  }, {
-    'name': 'hotpink',
-    'code': '#FF69B4',
-    'rbg': {'red': 255, 'green': 105, 'blue': 180},
-  }, {
-    'name': 'indianred',
-    'code': '#CD5C5C',
-    'rbg': {'red': 205, 'green': 92, 'blue': 92},
-  }, {
-    'name': 'indigo',
-    'code': '#4B0082',
-    'rbg': {'red': 75, 'green': 0, 'blue': 130},
-  }, {
-    'name': 'ivory',
-    'code': '#FFFFF0',
-    'rbg': {'red': 255, 'green': 255, 'blue': 240},
-  }, {
-    'name': 'khaki',
-    'code': '#F0E68C',
-    'rbg': {'red': 240, 'green': 230, 'blue': 140},
-  }, {
-    'name': 'lavender',
-    'code': '#E6E6FA',
-    'rbg': {'red': 230, 'green': 230, 'blue': 250},
-  }, {
-    'name': 'lavenderblush',
-    'code': '#FFF0F5',
-    'rbg': {'red': 255, 'green': 240, 'blue': 245},
-  }, {
-    'name': 'lawngreen',
-    'code': '#7CFC00',
-    'rbg': {'red': 124, 'green': 252, 'blue': 0},
-  }, {
-    'name': 'lemonchiffon',
-    'code': '#FFFACD',
-    'rbg': {'red': 255, 'green': 250, 'blue': 205},
-  }, {
-    'name': 'lightblue',
-    'code': '#ADD8E6',
-    'rbg': {'red': 173, 'green': 216, 'blue': 230},
-  }, {
-    'name': 'lightcoral',
-    'code': '#F08080',
-    'rbg': {'red': 240, 'green': 128, 'blue': 128},
-  }, {
-    'name': 'lightcyan',
-    'code': '#E0FFFF',
-    'rbg': {'red': 224, 'green': 255, 'blue': 255},
-  }, {
-    'name': 'lightgoldenrodyellow',
-    'code': '#FAFAD2',
-    'rbg': {'red': 250, 'green': 250, 'blue': 210},
-  }, {
-    'name': 'lightgray',
-    'code': '#D3D3D3',
-    'rbg': {'red': 211, 'green': 211, 'blue': 211},
-  }, {
-    'name': 'lightgreen',
-    'code': '#90EE90',
-    'rbg': {'red': 144, 'green': 238, 'blue': 144},
-  }, {
-    'name': 'lightgrey',
-    'code': '#D3D3D3',
-    'rbg': {'red': 211, 'green': 211, 'blue': 211},
-  }, {
-    'name': 'lightpink',
-    'code': '#FFB6C1',
-    'rbg': {'red': 255, 'green': 182, 'blue': 193},
-  }, {
-    'name': 'lightsalmon',
-    'code': '#FFA07A',
-    'rbg': {'red': 255, 'green': 160, 'blue': 122},
-  }, {
-    'name': 'lightseagreen',
-    'code': '#20B2AA',
-    'rbg': {'red': 32, 'green': 178, 'blue': 170},
-  }, {
-    'name': 'lightskyblue',
-    'code': '#87CEFA',
-    'rbg': {'red': 135, 'green': 206, 'blue': 250},
-  }, {
-    'name': 'lightslategray',
-    'code': '#778899',
-    'rbg': {'red': 119, 'green': 136, 'blue': 153},
-  }, {
-    'name': 'lightslategrey',
-    'code': '#778899',
-    'rbg': {'red': 119, 'green': 136, 'blue': 153},
-  }, {
-    'name': 'lightsteelblue',
-    'code': '#B0C4DE',
-    'rbg': {'red': 176, 'green': 196, 'blue': 222},
-  }, {
-    'name': 'lightyellow',
-    'code': '#FFFFE0',
-    'rbg': {'red': 255, 'green': 255, 'blue': 224},
-  }, {
-    'name': 'lime',
-    'code': '#00FF00',
-    'rbg': {'red': 0, 'green': 255, 'blue': 0},
-  }, {
-    'name': 'limegreen',
-    'code': '#32CD32',
-    'rbg': {'red': 50, 'green': 205, 'blue': 50},
-  }, {
-    'name': 'linen',
-    'code': '#FAF0E6',
-    'rbg': {'red': 250, 'green': 240, 'blue': 230},
-  }, {
-    'name': 'magenta',
-    'code': '#FF00FF',
-    'rbg': {'red': 255, 'green': 0, 'blue': 255},
-  }, {
-    'name': 'maroon',
-    'code': '#800000',
-    'rbg': {'red': 128, 'green': 0, 'blue': 0},
-  }, {
-    'name': 'mediumaquamarine',
-    'code': '#66CDAA',
-    'rbg': {'red': 102, 'green': 205, 'blue': 170},
-  }, {
-    'name': 'mediumblue',
-    'code': '#0000CD',
-    'rbg': {'red': 0, 'green': 0, 'blue': 205},
-  }, {
-    'name': 'mediumorchid',
-    'code': '#BA55D3',
-    'rbg': {'red': 186, 'green': 85, 'blue': 211},
-  }, {
-    'name': 'mediumpurple',
-    'code': '#9370DB',
-    'rbg': {'red': 147, 'green': 112, 'blue': 219},
-  }, {
-    'name': 'mediumseagreen',
-    'code': '#3CB371',
-    'rbg': {'red': 60, 'green': 179, 'blue': 113},
-  }, {
-    'name': 'mediumslateblue',
-    'code': '#7B68EE',
-    'rbg': {'red': 123, 'green': 104, 'blue': 238},
-  }, {
-    'name': 'mediumspringgreen',
-    'code': '#00FA9A',
-    'rbg': {'red': 0, 'green': 250, 'blue': 154},
-  }, {
-    'name': 'mediumturquoise',
-    'code': '#48D1CC',
-    'rbg': {'red': 72, 'green': 209, 'blue': 204},
-  }, {
-    'name': 'mediumvioletred',
-    'code': '#C71585',
-    'rbg': {'red': 199, 'green': 21, 'blue': 133},
-  }, {
-    'name': 'midnightblue',
-    'code': '#191970',
-    'rbg': {'red': 25, 'green': 25, 'blue': 112},
-  }, {
-    'name': 'mintcream',
-    'code': '#F5FFFA',
-    'rbg': {'red': 245, 'green': 255, 'blue': 250},
-  }, {
-    'name': 'mistyrose',
-    'code': '#FFE4E1',
-    'rbg': {'red': 255, 'green': 228, 'blue': 225},
-  }, {
-    'name': 'moccasin',
-    'code': '#FFE4B5',
-    'rbg': {'red': 255, 'green': 228, 'blue': 181},
-  }, {
-    'name': 'navajowhite',
-    'code': '#FFDEAD',
-    'rbg': {'red': 255, 'green': 222, 'blue': 173},
-  }, {
-    'name': 'navy',
-    'code': '#000080',
-    'rbg': {'red': 0, 'green': 0, 'blue': 128},
-  }, {
-    'name': 'oldlace',
-    'code': '#FDF5E6',
-    'rbg': {'red': 253, 'green': 245, 'blue': 230},
-  }, {
-    'name': 'olive',
-    'code': '#808000',
-    'rbg': {'red': 128, 'green': 128, 'blue': 0},
-  }, {
-    'name': 'olivedrab',
-    'code': '#6B8E23',
-    'rbg': {'red': 107, 'green': 142, 'blue': 35},
-  }, {
-    'name': 'orange',
-    'code': '#FFA500',
-    'rbg': {'red': 255, 'green': 165, 'blue': 0},
-  }, {
-    'name': 'orangered',
-    'code': '#FF4500',
-    'rbg': {'red': 255, 'green': 69, 'blue': 0},
-  }, {
-    'name': 'orchid',
-    'code': '#DA70D6',
-    'rbg': {'red': 218, 'green': 112, 'blue': 214},
-  }, {
-    'name': 'palegoldenrod',
-    'code': '#EEE8AA',
-    'rbg': {'red': 238, 'green': 232, 'blue': 170},
-  }, {
-    'name': 'palegreen',
-    'code': '#98FB98',
-    'rbg': {'red': 152, 'green': 251, 'blue': 152},
-  }, {
-    'name': 'paleturquoise',
-    'code': '#AFEEEE',
-    'rbg': {'red': 175, 'green': 238, 'blue': 238},
-  }, {
-    'name': 'palevioletred',
-    'code': '#DB7093',
-    'rbg': {'red': 219, 'green': 112, 'blue': 147},
-  }, {
-    'name': 'papayawhip',
-    'code': '#FFEFD5',
-    'rbg': {'red': 255, 'green': 239, 'blue': 213},
-  }, {
-    'name': 'peachpuff',
-    'code': '#FFDAB9',
-    'rbg': {'red': 255, 'green': 218, 'blue': 185},
-  }, {
-    'name': 'peru',
-    'code': '#CD853F',
-    'rbg': {'red': 205, 'green': 133, 'blue': 63},
-  }, {
-    'name': 'pink',
-    'code': '#FFC0CB',
-    'rbg': {'red': 255, 'green': 192, 'blue': 203},
-  }, {
-    'name': 'plum',
-    'code': '#DDA0DD',
-    'rbg': {'red': 221, 'green': 160, 'blue': 221},
-  }, {
-    'name': 'powderblue',
-    'code': '#B0E0E6',
-    'rbg': {'red': 176, 'green': 224, 'blue': 230},
-  }, {
-    'name': 'purple',
-    'code': '#800080',
-    'rbg': {'red': 128, 'green': 0, 'blue': 128},
-  }, {
-    'name': 'rebeccapurple',
-    'code': '#663399',
-    'rbg': {'red': 102, 'green': 51, 'blue': 153},
-  }, {
-    'name': 'red',
-    'code': '#FF0000',
-    'rbg': {'red': 255, 'green': 0, 'blue': 0},
-  }, {
-    'name': 'rosybrown',
-    'code': '#BC8F8F',
-    'rbg': {'red': 188, 'green': 143, 'blue': 143},
-  }, {
-    'name': 'royalblue',
-    'code': '#4169E1',
-    'rbg': {'red': 65, 'green': 105, 'blue': 225},
-  }, {
-    'name': 'saddlebrown',
-    'code': '#8B4513',
-    'rbg': {'red': 139, 'green': 69, 'blue': 19},
-  }, {
-    'name': 'salmon',
-    'code': '#FA8072',
-    'rbg': {'red': 250, 'green': 128, 'blue': 114},
-  }, {
-    'name': 'sandybrown',
-    'code': '#F4A460',
-    'rbg': {'red': 244, 'green': 164, 'blue': 96},
-  }, {
-    'name': 'seagreen',
-    'code': '#2E8B57',
-    'rbg': {'red': 46, 'green': 139, 'blue': 87},
-  }, {
-    'name': 'seashell',
-    'code': '#FFF5EE',
-    'rbg': {'red': 255, 'green': 245, 'blue': 238},
-  }, {
-    'name': 'sienna',
-    'code': '#A0522D',
-    'rbg': {'red': 160, 'green': 82, 'blue': 45},
-  }, {
-    'name': 'silver',
-    'code': '#C0C0C0',
-    'rbg': {'red': 192, 'green': 192, 'blue': 192},
-  }, {
-    'name': 'skyblue',
-    'code': '#87CEEB',
-    'rbg': {'red': 135, 'green': 206, 'blue': 235},
-  }, {
-    'name': 'slateblue',
-    'code': '#6A5ACD',
-    'rbg': {'red': 106, 'green': 90, 'blue': 205},
-  }, {
-    'name': 'slategray',
-    'code': '#708090',
-    'rbg': {'red': 112, 'green': 128, 'blue': 144},
-  }, {
-    'name': 'slategrey',
-    'code': '#708090',
-    'rbg': {'red': 112, 'green': 128, 'blue': 144},
-  }, {
-    'name': 'snow',
-    'code': '#FFFAFA',
-    'rbg': {'red': 255, 'green': 250, 'blue': 250},
-  }, {
-    'name': 'springgreen',
-    'code': '#00FF7F',
-    'rbg': {'red': 0, 'green': 255, 'blue': 127},
-  }, {
-    'name': 'steelblue',
-    'code': '#4682B4',
-    'rbg': {'red': 70, 'green': 130, 'blue': 180},
-  }, {
-    'name': 'tan',
-    'code': '#D2B48C',
-    'rbg': {'red': 210, 'green': 180, 'blue': 140},
-  }, {
-    'name': 'teal',
-    'code': '#008080',
-    'rbg': {'red': 0, 'green': 128, 'blue': 128},
-  }, {
-    'name': 'thistle',
-    'code': '#D8BFD8',
-    'rbg': {'red': 216, 'green': 191, 'blue': 216},
-  }, {
-    'name': 'tomato',
-    'code': '#FF6347',
-    'rbg': {'red': 255, 'green': 99, 'blue': 71},
-  }, {
-    'name': 'turquoise',
-    'code': '#40E0D0',
-    'rbg': {'red': 64, 'green': 224, 'blue': 208},
-  }, {
-    'name': 'violet',
-    'code': '#EE82EE',
-    'rbg': {'red': 238, 'green': 130, 'blue': 238},
-  }, {
-    'name': 'wheat',
-    'code': '#F5DEB3',
-    'rbg': {'red': 245, 'green': 222, 'blue': 179},
-  }, {
-    'name': 'white',
-    'code': '#FFFFFF',
-    'rbg': {'red': 255, 'green': 255, 'blue': 255},
-  }, {
-    'name': 'whitesmoke',
-    'code': '#F5F5F5',
-    'rbg': {'red': 245, 'green': 245, 'blue': 245},
-  }, {
-    'name': 'yellow',
-    'code': '#FFFF00',
-    'rbg': {'red': 255, 'green': 255, 'blue': 0},
-  }, {
-    'name': 'yellowgreen',
-    'code': '#9ACD32',
-    'rbg': {'red': 154, 'green': 205, 'blue': 50},
-  }];
-
-
   options = {
     ancho: ancho,
     autoOrienting: false, //
@@ -639,11 +44,19 @@ class MyCanvas extends WebSystemObject {
     cabezaFlechaInicial: 2,
     cabezaFlechaInicialFinal: 3,
   };
-
   canvas; // store canvas element
   ctx; // store canvas 2d context element
   invocableDrawEvent; // store user drawing callable program (your drawer)
   frame; // 24 x sec ?
+
+  // do not touch, escalado original
+  RENDER_GLOBALSX = 1.0;
+  RENDER_GLOBALSY = 1.0;
+
+  // Ancho y alto originales
+  SW;
+  SH;
+
   constructor(id, opciones = MyCanvas.options, invocableDrawEvent = null) {
     super();
     // Opciones generales del canvas
@@ -667,6 +80,9 @@ class MyCanvas extends WebSystemObject {
       this.drawer = invocableDrawEvent;
     }
 
+    this.SW = this.width;
+    this.SH = this.height;
+
   }
 
   // setup your drawer as you wish...
@@ -680,7 +96,24 @@ class MyCanvas extends WebSystemObject {
     this.start();
   }
 
-  // Aquí van los gráficos
+  // Aquí van los gráficos...
+
+  // Si los vas a hacer tú, te fuese muy útil
+  #setglobalscales(w = this.width, h = this.height) {
+    //do not touch
+    this.RENDER_GLOBALSX = 1.0;
+    this.RENDER_GLOBALSY = 1.0;
+    // we are basing on the width, not the height....
+    if(w!=0) {
+      this.RENDER_GLOBALSX = w / this.SW;
+      this.RENDER_GLOBALSY = w / this.SW;
+      if(this.SH*this.RENDER_GLOBALSY>h) {
+        this.RENDER_GLOBALSX = h / this.SH;
+        this.RENDER_GLOBALSY = h / this.SH;
+      }
+    }
+  }
+
   renderCanvas() {
     if (this.state !== MyCanvas.needToRepaint || this.state === MyCanvas.updated) {
       return;
@@ -1297,10 +730,10 @@ class MyCanvas extends WebSystemObject {
   }
 
   // distancia subjetiva entre píxeles de un cuadro, valores entre 0 y 1.
-  distanciaSubjetivaEntrePixeles(ancho, alto, x, y, r1, g1, b1, r2, g2, b2, a1, a2) {
-    let argumentos = [].concat(...arguments);
-    [ancho, alto, x, y] = [argumentos.shift(), argumentos.shift(), argumentos.shift(), argumentos.shift()];
-    return Math.sqrt(Math.pow(x / ancho, 2) + Math.pow(y / alto, 2) + Math.pow(this.distanciaEntreColores(...argumentos), 2));
+  distanciaSubjetiva(width, height, x1, y1, x2, y2, r1, g1, b1, r2, g2, b2, a1, a2) {
+    let v1 = new Vector(x1/width, y1/height, r1, g1, b1, a1);
+    let v2 = new Vector(x2/width, y2/height, r2, g2, b2, a2);
+    return v1.distance(v2);
   }
 
   // sobre un fondo rf, gf, bf

@@ -1,11 +1,19 @@
 // wrapper for "class" Rectangle
-import {Shape} from './Shape';
+import {Vector} from './Vector';
 
-export class Point extends Shape {
+export class Point extends Vector {
   constructor(x, y) {
     super();
     this.x = x;
     this.y = y;
+  }
+
+  // Avanzar un pixel desde la posición actual en la dirección del punto 2
+  advance(point2) {
+    let address = point2.subtraction(this); // vector director
+    address.normalize(); // normalizado
+    address.division(Math.max(...address.dimmensions)); // a un pixel en la dirección dominante
+    this.dimmensions = this.dimmensions.map((d, i) => d + address[i]);
   }
 
   // Está el punto en el arco cerrado (corte transversal del toro)

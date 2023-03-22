@@ -1,5 +1,5 @@
 import {WebSystemObject} from './WebSystemObject.js';
-import {Vector} from './Vector';
+import {Point} from './Point';
 import {Keyboard} from './Keyboard';
 
 
@@ -7,9 +7,9 @@ import {Keyboard} from './Keyboard';
 export class Mouse extends WebSystemObject {
   #isMouseDown = false;
   target = window;
-  position = new Vector(0, 0);
-  #lastPosition = new Vector(x, y);
-  direction = new Vector(0, 0);
+  position = new Point(0, 0);
+  #lastPosition = new Point(x, y);
+  direction = new Point(0, 0);
   leftButton = false;
   midButton = false;
   rightButton = false; // Context menu, use in conjunction with: document.addEventListener("contextmenu", function(e){ e.preventDefault() });
@@ -99,6 +99,15 @@ export class Mouse extends WebSystemObject {
     document.title = `Mouse wheel ${Math.sqrt(dx + dy + dz)} ${units}, ${dx > 0 ? 'hacia derecha.' : 'hacia izquierda.'}.`;
     document.title += ` ${dy > 0 ? 'hacia abajo.' : 'hacia arriba.'}.`;
     document.title += ` ${dz > 0 ? 'hacia arriba.' : 'hacia abajo.'}.`;
+
+    if (dz > 0 ) {
+      document.body.style.cursor = 'zoom-in';
+    } else if (dz < 0) { // or vs
+      document.body.style.cursor = 'zoom-out';
+    } else {
+      document.body.style.cursor = 'default';
+    }
+
     this.#WheelEvents.forEach((event) => event(e));
 
   };
@@ -117,8 +126,7 @@ export class Mouse extends WebSystemObject {
     el.style.transform = `scale(${scale})`;
   }
 
-Incluir además mouseenter, mouseleave, mouseout (se va de los hijos) y mouseover
-
+  Incluir además mouseenter, mouseleave, mouseout (si el foco además, se va de los hijos) y mouseover
 
   */
 

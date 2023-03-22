@@ -7,7 +7,9 @@ export class Vector extends WebSystemObject {
     this.dimmensions = [];
     this.kind = 'planar';
     if (arguments.length > 0) {
-      if (arguments[0] instanceof Array) {
+      if (arguments[0] instanceof Vector) {
+        this.dimmensions = [].concat(arguments[0].dimmensions);
+      } else if (arguments[0] instanceof Array) {
         this.dimmensions = arguments[0]; // done
       } else if (arguments[0] instanceof String || typeof arguments[0] === 'string') {
         this.asString = components; // done
