@@ -68,6 +68,14 @@ export class Polygon extends Shape {
     return true;
   }; // Pls use array of Vector
 
+  verticesToLinePoints(p) {
+    return p.coords.map((e, i, a) => {
+      if (i !== 0) {
+        return [e, a[i - 1]];
+      }
+    });
+  }
+
   // polygon objects are an array of vertices forming the polygon
   //     var polygon1=[{x:100,y:100},{x:150,y:150},{x:50,y:150},...];
   // The polygons can be both concave and convex
@@ -92,6 +100,56 @@ export class Polygon extends Shape {
     }
     // none of the sides intersect
     return (false);
+  }
+
+  /*
+   Return whether a polygon in 2D is concave or convex
+   return 0 for incomputables eg: colinear points
+          CONVEX == 1
+          CONCAVE == -1
+   It is assumed that the polygon is simple
+   (does not intersect itself or have holes)
+*/
+  Convex() {
+    let i, j, k;
+    let flag = 0;
+    let z;
+
+    if (this.coords.length < 3) {
+      return null;
+    }
+
+    for (i = 0; i < n; i++) {
+      j = (i + 1) % this.coords.length;
+      k = (i + 2) % this.coords.length;
+      z = (p[j].x - p[i].x) * (p[k].y - p[j].y);
+      z -= (p[j].y - p[i].y) * (p[k].x - p[j].x);
+      if (z < 0) {
+        flag |= 1;
+      } else if (z > 0) {
+        flag |= 2;
+      }
+      if (flag == 3) {
+        return 'concave';
+      }
+    }
+    if (flag != 0) {
+      return 'convex';
+    } else {
+      return null;
+    }
+  }
+
+  // Polygon contains point ?
+  contains(p) {
+    let result = false;
+
+    for (let i = 0; i < this.coords.Length - 1; i++) {
+      if ((((this.coords[i + 1].Y <= p.Y) && (p.Y < this.coords[i].Y)) || ((this.coords[i].Y <= p.Y) && (p.Y < this.coords[i + 1].Y))) && (p.X < (this.coords[i].X - this.coords[i + 1].X) * (p.Y - this.coords[i + 1].Y) / (this.coords[i].Y - this.coords[i + 1].Y) + this.coords[i + 1].X)) {
+        result = !result;
+      }
+    }
+    return result;
   }
 
 }
