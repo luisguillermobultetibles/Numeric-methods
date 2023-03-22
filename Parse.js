@@ -1,4 +1,4 @@
-// Se queda así, es un producto terminado para un decompilador que reconozca otras cosas.
+// Se queda así, es un producto CASI terminado para un decompilador que reconozca otras cosas.
 const tokenTypeUnkKnown = 'Token desconocido';
 const tokenTypeLineComent = 'Comentario de línea';
 const tokenTypeBlockComent = 'Comentario de bloque';
@@ -166,3 +166,5 @@ function genericParse(v, options = {functionCallback: null, variableCallbak: nul
 
 // Para probar
 console.log(genericParse('1+2+3+4+sum(1,2,3)+avg(1+1+2+3+4)+apellidos("Luis Guillermo Bultet " + `Ibles`, 1+1)'));
+// Faltan los operadores, símbolos y palabras reservadas.
+// Recuerda probar con objetos, vacíos, es decir, {}, (), [] porsia pero debe parsear bien... allá por la línea 145.

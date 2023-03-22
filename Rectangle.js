@@ -37,5 +37,17 @@ class Rectangle extends Shape {
       r.top < this.bottom);
   }
 
+  // rectangle objects { x:, y:, width:, height: }
+  // return true if the 2 rectangles are colliding
+  // r1 and r2 are rectangles as defined above
+  static RectsColliding(r1, r2) {
+    return !(
+      r1.x > r2.x + r2.width ||
+      r1.x + r1.width < r2.x ||
+      r1.y > r2.y + r2.height ||
+      r1.y + r1.height < r2.y
+    );
+  }
+
 
 }
