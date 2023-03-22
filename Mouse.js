@@ -1,5 +1,7 @@
-import {WebSystemObject} from './system/WebSystemObject.js';
+import {WebSystemObject} from './WebSystemObject.js';
+import {Vector} from './Vector';
 import {Keyboard} from './Keyboard';
+
 
 // Clase para controlar el ratón...
 export class Mouse extends WebSystemObject {
@@ -104,16 +106,16 @@ export class Mouse extends WebSystemObject {
   /*
 
   function zoom(event) {
-  event.preventDefault();
+    event.preventDefault();
 
-  scale += event.deltaY * -0.01;
+    scale += event.deltaY * -0.01;
 
-  // Restrict scale
-  scale = Math.min(Math.max(0.125, scale), 4);
+    // Restrict scale
+    scale = Math.min(Math.max(0.125, scale), 4);
 
-  // Apply scale transform
-  el.style.transform = `scale(${scale})`;
-}
+    // Apply scale transform
+    el.style.transform = `scale(${scale})`;
+  }
 
 Incluir además mouseenter, mouseleave, mouseout (se va de los hijos) y mouseover
 
