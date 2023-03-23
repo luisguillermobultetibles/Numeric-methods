@@ -729,12 +729,6 @@ class MyCanvas extends WebSystemObject {
     }
   }
 
-  // distancia subjetiva entre píxeles de un cuadro, valores entre 0 y 1.
-  distanciaSubjetiva(width, height, x1, y1, x2, y2, r1, g1, b1, r2, g2, b2, a1, a2) { // Mover hacia clase pixels
-    let v1 = new Vector(x1/width, y1/height, r1, g1, b1, a1);
-    let v2 = new Vector(x2/width, y2/height, r2, g2, b2, a2);
-    return v1.distance(v2);
-  }
 
   // sobre un fondo rf, gf, bf
   suprimirColor(redBackground, greenBackground, blueBackground, redSupress, greenSupress, blueSupress, redReal, greenReal, blueReal) {

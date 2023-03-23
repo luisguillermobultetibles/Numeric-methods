@@ -53,5 +53,14 @@ export class Pixel extends Point {
     this.color.b = (this.r * .272) + (this.g * .534) + (this.b * .131);
   }
 
+  // distancia subjetiva entre píxeles de un cuadro, valores entre 0 y 1.
+  distanciaSubjetiva(width, height, pixel2) { // Mover hacia clase pixels
+    let v1 = new Vector(this.x / width, this.y / height, this.color.r, this.color.g, this.color.b, this.color.a);
+    let v2 = new Vector(pixel2.x / width, pixel2.y / height, pixel2.color.r, pixel2.color.g, pixel2.color.b, pixel2.color.a);
+    return v1.distance(v2);
+  }
+
+  // Incluir el imagedata del canvas en un objeto
+
 
 }
