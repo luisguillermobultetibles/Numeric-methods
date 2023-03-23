@@ -3,9 +3,7 @@ import {Vector} from './Vector';
 
 export class Point extends Vector {
   constructor(x, y) {
-    super();
-    this.x = x;
-    this.y = y;
+    super(...arguments);
   }
 
   DistancePointLine(px, py, x1, y1, x2, y2) {
