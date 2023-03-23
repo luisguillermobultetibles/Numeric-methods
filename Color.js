@@ -76,7 +76,7 @@ class Color extends WebSystemObject {
   /**
    * IDE-Memorándum structure to Web colors names (Bultet - Spectrum)
    */
-  static colors = [
+  static spectrum = [
     {
       'name': 'aliceblue',
       'code': '#F0F8FF',
@@ -681,11 +681,38 @@ class Color extends WebSystemObject {
    * @memberof Color
    */
 
-  constructor() {
+  constructor(name) {
     super();
-    this.r = this.g = this.b = 0;
-    this.h = this.s = this.l = 0;
-    this.a = 1;
+    if (arguments.length === 0) {
+      this.r = this.g = this.b = 0;
+      this.h = this.s = this.l = 0;
+      this.a = 1;
+    } else {
+      if (name instanceof String) {
+        let spec = Color.spectrum.find((color) = String(color.name).toLowerCase() === String(name).toLowerCase());
+        if (spec) {
+          this.r = spec.rbg.red;
+          this.g = spec.rbg.green;
+          this.b = spec.rbg.blue;
+        }
+      } else {
+        if (arguments.length > 0) {
+          this.r = arguments[0];
+        }
+        if (arguments.length > 1) {
+          this.g = arguments[1];
+        }
+        if (arguments.length > 2) {
+          this.b = arguments[2];
+        }
+        if (arguments.length > 3) {
+          this.a = arguments[3];
+        }
+      }
+      let tmp = Color.makeRGB(this.r, this.g, this.b);
+      [this.h, this.s, this.l] = [tmp.r, tmp.g, tmp.b];
+    }
+
   }
 
   // --- RGB ----------------------------------
