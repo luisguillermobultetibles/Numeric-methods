@@ -16,6 +16,42 @@ export class Pixel extends Point {
     this.dimmensions = this.dimmensions.map((d, i) => Math.round(d + address[i]));
   }
 
+  // some useful effects
+
+  invert() {
+    this.color.r = 255 - this.color.r; // red
+    this.color.g = 255 - this.color.g; // green
+    this.color.b = 255 - this.color.b; // blue
+    let tmp = Color.makeRGB(this.color.r, this.color.g, this.color.b);
+    [this.h, this.s, this.l] = [tmp.r, tmp.g, tmp.b];
+  }
+
+  contrast(factor) {
+    this.color.r = factor * (this.color.r - 128) + 128; // red
+    this.color.g = factor * (this.color.r - 128) + 128; // green
+    this.color.b = factor * (this.color.r - 128) + 128; // blue
+    let tmp = Color.makeRGB(this.color.r, this.color.g, this.color.b);
+    [this.h, this.s, this.l] = [tmp.r, tmp.g, tmp.b];
+  }
+
+  grayScale() {
+    let avg = (this.color.r + this.color.g + this.color.b) / 3;
+    this.color.r = avg; // red
+    this.color.g = avg; // green
+    this.color.b = avg; // blue
+    let tmp = Color.makeRGB(this.color.r, this.color.g, this.color.b);
+    [this.h, this.s, this.l] = [tmp.r, tmp.g, tmp.b];
+  }
+
+  sepia() {
+    this.color.r = 255 - this.color.r;
+    this.color.g = 255 - this.color.g;
+    this.color.b = 255 - this.color.b;
+
+    this.color.r = (this.r * .393) + (this.g * .769) + (this.b * .189);
+    this.color.g = (this.r * .349) + (this.g * .686) + (this.b * .168);
+    this.color.b = (this.r * .272) + (this.g * .534) + (this.b * .131);
+  }
 
 
 }
