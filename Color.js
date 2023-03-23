@@ -1217,4 +1217,5 @@ class Color extends WebSystemObject {
     this.a += (c.a - c.a) * t;
     return this;
   }
+
 } // END class
