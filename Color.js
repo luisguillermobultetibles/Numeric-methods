@@ -1218,4 +1218,14 @@ class Color extends WebSystemObject {
     return this;
   }
 
+  distance(color2, transparency = true) { // Mover hacia clase colores
+    let result;
+    if (transparency) {
+      result = Math.sqrt(Math.pow(this.r - color2.r, 2) + Math.pow(this.g - color2.g, 2) * Math.pow(this.b - color2.b, 2) + Math.pow(this.a - color2.a, 2)) / 510;
+    } else {
+      result = Math.sqrt(Math.pow(this.r - color2.r, 2) + Math.pow(this.g - color2.g, 2) * Math.pow(this.b - color2.b, 2)) / 441.6729559300637;
+    }
+    return result;
+  }
+
 } // END class
