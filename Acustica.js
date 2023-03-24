@@ -49,50 +49,7 @@ class Acustica extends WebSystemObject {
   // Clasifica un par de frecuencias puras (terminar, pueden tener proporciones consonantes en clasificaciones disonantes).
   // Análiiss armónico simple
   clasificarArmonia(frecuencia1, frecuencia2) {
-    function clasificarFrecuencia(f) {
-      let result = {frecuencia: f, octava: null, descripcion: 'Sin clasificar'};
-      if (f > 1 && f < 16) {
-        result.octava = 1;
-        result.descripcion = 'Pulsación, imperceptible al oido.';
-      } else if (f > 16 && f < 32) {
-        result.octava = 1;
-        result.descripcion = 'Tono grave, primera octava. (Casi imperceptible).';
-      } else if (f >= 32 && f < 64) {
-        result.octava = 2;
-        result.descripcion = 'Tono grave, segunda octava (zumbido).';
-      } else if (f >= 64 && f < 128) {
-        result.octava = 3;
-        result.descripcion = 'Tono grave medio (bajo).';
-      } else if (f >= 128 && f < 256) {
-        result.octava = 4;
-        result.descripcion = 'Tonos grave medios (alto).';
-      } else if (f >= 256 && f < 512) {
-        result.octava = 5;
-        result.descripcion = 'Tonos armónicos medios (bajos).';
-      } else if (f >= 512 && f < 1024) {
-        result.octava = 6;
-        result.descripcion = 'Tonos armónicos medios (alto).';
-      } else if (f >= 1024 && f < 2048) {
-        result.octava = 7;
-        result.descripcion = 'Tonos armónicos medio.';
-        if (f >= 2000) { // 2000-4096
-          result.octava = 8;
-          result.descripcion = 'Tonos armónicos medio alto (de máxima sensibilidad).';
-        }
-      } else if (f >= 2048 && f < 4096) {
-        result.octava = 9;
-        result.descripcion = 'Tonos armónicos (agudo) muy alto.';
-      } else if (f >= 4096 && f < 16384) {
-        result.octava = 10;
-        result.descripcion = 'Tonos agudos de alta frecuencia (chirrido desagradable, no se utilizan para hacer música).';
-        if (f >= 12000) {
-          result.octava = 7;
-          result.descripcion = 'Tonos agudo de muy alta freceuncia (imperceptible).';
-        }
-      }
-      return result;
-    }
-
+    
     function helmholtz(f1, f2) {
       return 1 - Math.cos((f1 - f2) * Math.PI / 80) / 2;
     }
