@@ -46,10 +46,55 @@ class Acustica extends WebSystemObject {
     return Math.cos((f1 - f2) * Math.PI / 80);
   }
 
+  clasificarFrecuencia(f) {
+    let result = {frecuencia: f, octava: null, descripcion: 'Sin clasificar'};
+    if (f > 1 && f < 16) {
+      result.octava = 1;
+      result.descripcion = 'Pulsación, imperceptible al oido.';
+    } else if (f > 16 && f < 32) {
+      result.octava = 1;
+      result.descripcion = 'Tono grave, primera octava. (Casi imperceptible).';
+    } else if (f >= 32 && f < 64) {
+      result.octava = 2;
+      result.descripcion = 'Tono grave, segunda octava (zumbido).';
+    } else if (f >= 64 && f < 128) {
+      result.octava = 3;
+      result.descripcion = 'Tono grave medio (bajo).';
+    } else if (f >= 128 && f < 256) {
+      result.octava = 4;
+      result.descripcion = 'Tonos grave medios (alto).';
+    } else if (f >= 256 && f < 512) {
+      result.octava = 5;
+      result.descripcion = 'Tonos armónicos medios (bajos).';
+    } else if (f >= 512 && f < 1024) {
+      result.octava = 6;
+      result.descripcion = 'Tonos armónicos medios (alto).';
+    } else if (f >= 1024 && f < 2048) {
+      result.octava = 7;
+      result.descripcion = 'Tonos armónicos medio.';
+      if (f >= 2000) { // 2000-4096
+        result.octava = 8;
+        result.descripcion = 'Tonos armónicos medio alto (de máxima sensibilidad).';
+      }
+    } else if (f >= 2048 && f < 4096) {
+      result.octava = 9;
+      result.descripcion = 'Tonos armónicos (agudo) muy alto.';
+    } else if (f >= 4096 && f < 16384) {
+      result.octava = 10;
+      result.descripcion = 'Tonos agudos de alta frecuencia (chirrido desagradable, no se utilizan para hacer música).';
+      if (f >= 12000) {
+        result.octava = 7;
+        result.descripcion = 'Tonos agudo de muy alta freceuncia (imperceptible).';
+      }
+    }
+    return result;
+  }
+
   // Clasifica un par de frecuencias puras (terminar, pueden tener proporciones consonantes en clasificaciones disonantes).
   // Análiiss armónico simple
   clasificarArmonia(frecuencia1, frecuencia2) {
-    
+
+
     function helmholtz(f1, f2) {
       return 1 - Math.cos((f1 - f2) * Math.PI / 80) / 2;
     }
@@ -63,8 +108,8 @@ class Acustica extends WebSystemObject {
     }
 
     let result = {
-      frecuencia1: clasificarFrecuencia(frecuencia1),
-      frecuencia2: clasificarFrecuencia(frecuencia2),
+      frecuencia1: this.clasificarFrecuencia(frecuencia1),
+      frecuencia2: this.clasificarFrecuencia(frecuencia2),
       consonanciaHelmotz: helmholtz(frecuencia1, frecuencia2),
       consonanciaPlompt: plomptlevelt(frecuencia1, frecuencia2),
       tono: null,
@@ -122,18 +167,17 @@ class Acustica extends WebSystemObject {
 
     // Cómo suenan juntas las dos frecuencias (OJO LAMER QUE ES LA ARMÓNICA NO EL PROMEDIO...)
     result.juntas = (frecuencia1*frecuencia2)/(frecuencia1 + frecuencia2);
-    result.juntasDescripcion = clasificarFrecuencia(result.juntas);
+    result.juntasDescripcion = this.clasificarFrecuencia(result.juntas);
 
 
     return result;
   }
 
-
   // Old
   // return frecuencia_LA_POR_ENCIMA_DEL_DO_CENTRAL_primera_octava * Math.pow(2, octava - 1) * Math.pow(2, (tono - 1) / 12);
 
   // Se toma como base nota La, seis blancas a la derecha del Do central en la octava 4.
-  toneFreq(tono = 1, octava = 4, LA4_Freq = 440) {
+  frecuencia(tono = 1, octava = 4, LA4_Freq = 440) {
     return LA4_Freq * Math.pow(2, octava - 4) * Math.pow(2, (tono - 10) / 12);
   }
 
@@ -162,8 +206,7 @@ class Acustica extends WebSystemObject {
     } else if (f >= 128 && f < 256) {
       result.octava = 4;
       result.descripcion = 'Tonos grave medios (alto).';
-    }
-    if (f >= 256 && f < 512) {
+    } else if (f >= 256 && f < 512) {
       result.octava = 5;
       result.descripcion = 'Tonos armónicos medios (bajos).';
     } else if (f >= 512 && f < 1024) {
@@ -178,8 +221,11 @@ class Acustica extends WebSystemObject {
       }
     } else if (f >= 2048 && f < 4096) {
       result.octava = 9;
-      result.descripcion = 'Tonos armónicos agudos.';
-    } else if (f >= 4096 && f < 16384) {
+      result.descripcion = 'Tonos armónicos altos (de máxima sensibilidad).';
+    } else if (f >= 4096 && f < 8192) {
+      result.octava = 10;
+      result.descripcion = 'Tonos agudos de altos.';
+    } else if (f >= 8192) {
       result.octava = 10;
       result.descripcion = 'Tonos agudos de alta frecuencia (chirrido desagradable, no se utilizan para hacer música).';
       if (f >= 12000) {
@@ -197,7 +243,7 @@ class Acustica extends WebSystemObject {
   play(channel, tono = 1, octava = 1, frecuencia_LA_POR_ENCIMA_DEL_DO_CENTRAL_primera_octava = 440) {
     let argumentos = args;
     let canal = argumentos.shift();
-    this.sound(this.toneFreq(...argumentos), canal);
+    this.sound(this.frecuencia(...argumentos), canal);
   }
 
   // Generador de sonido puro fundamental (suénalo).
@@ -220,8 +266,8 @@ class Acustica extends WebSystemObject {
 
   // Es cuestión de apreciación probar todos contra todos del uno al 12 y ordenarlos
   probarAcorde(a, b) {
-    this.sound(frecuencia(a), 0);
-    this.sound(frecuencia(b), 1);
+    this.sound(this.frecuencia(a), 0);
+    this.sound(this.frecuencia(b), 1);
   }
 
   terminarPrueba() {
@@ -231,10 +277,10 @@ class Acustica extends WebSystemObject {
 
   // Lista acordes
   listaAcordes() {
-    let doInicial = this.toneFreq();
+    let doInicial = this.frecuencia();
     let resultado = [];
     for (var i = 1; i < 25; i++) {
-      resultado.push(this.disonancia(doInicial, frecuencia(i)));
+      resultado.push(this.disonancia(doInicial, this.frecuencia(i)));
     }
     return resultado;
   }
