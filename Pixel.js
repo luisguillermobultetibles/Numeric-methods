@@ -2,61 +2,60 @@ import {Point} from './Point';
 import {Color} from './Color';
 
 export class Pixel extends Point {
-  constructor(x, y, r, g, b) {
-    super(...arguments);
+  constructor(coord, color) {
+    super(...coord);
+    this.color = color;
   }
 
-  get color() {
-    return new Color(this.dimmensions[2], this.dimmensions[3], this.dimmensions[4], this.dimmensions[5]);
-  }
-
-  set color(c) {
-    [this.dimmensions[2], this.dimmensions[3], this.dimmensions[4], this.dimmensions[5]] = [c.r, c.g, c.b, c.a];
-  }
 
   // Avanzar un pixel desde la posición actual en la dirección del punto 2
   advance(pixel2) {
-    let address = pixel2.subtraction(this).normalize();
+    let address = pixel2.coords.subtraction(this.coords).normalize();
     this.dimmensions = this.dimmensions.map((d, i) => Math.round(d + address[i]));
   }
 
   // some useful effects
 
   invert() {
-    this.dimmensions[2] = 255 - this.dimmensions[2];
-    this.dimmensions[3] = 255 - this.dimmensions[3];
-    this.dimmensions[4] = 255 - this.dimmensions[4];
+    this.color.r = 255 - this.color.r;
+    this.color.g = 255 - this.color.g;
+    this.color.b = 255 - this.color.b;
   }
 
   contrast(factor) {
-    this.dimmensions[2] = factor * (this.dimmensions[2] - 128) + 128;
-    this.dimmensions[3] = factor * (this.dimmensions[2] - 128) + 128;
-    this.dimmensions[4] = factor * (this.dimmensions[2] - 128) + 128;
+    this.color.r = factor * (this.color.r - 128) + 128;
+    this.color.g = factor * (this.color.g - 128) + 128;
+    this.color.b = factor * (this.color.b - 128) + 128;
   }
 
   grayScale() {
-    let avg = (this.dimmensions[2] + this.dimmensions[3] + this.dimmensions[4]) / 3;
-    this.dimmensions[2] = avg;
-    this.dimmensions[3] = avg;
-    this.dimmensions[4] = avg;
+    let avg = (this.color.r + this.color.g + this.color.b) / 3;
+    this.color.r = avg;
+    this.color.g = avg;
+    this.color.b = avg;
   }
 
   sepia() {
-    this.dimmensions[2] = 255 - this.dimmensions[2];
-    this.dimmensions[3] = 255 - this.dimmensions[3];
-    this.dimmensions[4] = 255 - this.dimmensions[4];
+    this.color.r = 255 - this.color.r;
+    this.color.g = 255 - this.color.g;
+    this.color.b = 255 - this.color.b;
 
-    this.dimmensions[2] = (this.dimmensions[2] * .393) + (this.dimmensions[3] * .769) + (this.dimmensions[4] * .189);
-    this.dimmensions[3] = (this.dimmensions[2] * .349) + (this.dimmensions[3] * .686) + (this.dimmensions[4] * .168);
-    this.dimmensions[4] = (this.dimmensions[2] * .272) + (this.dimmensions[3] * .534) + (this.dimmensions[4] * .131);
+    this.color.r = (this.color.r * .393) + (this.color.r * .769) + (this.color.r * .189);
+    this.color.g = (this.color.g * .349) + (this.color.g * .686) + (this.color.g * .168);
+    this.color.b = (this.color.b * .272) + (this.color.b * .534) + (this.color.b * .131);
   }
 
   distanciaObjetiva(pixel2) {
-    return Math.sqrt(Math.pow(this.x - pixel2.x, 2) + Math.pow(this.y - pixel2.y, 2));
+    return Math.sqrt(Math.pow(this.x - pixel2.x, 2)
+      + Math.pow(this.x - pixel2.y, 2)
+      + Math.pow(this.color.r - pixel2.color.r, 2)
+      + Math.pow(this.color.g - pixel2.color.g, 2)
+      + Math.pow(this.color.b - pixel2.color.b, 2)
+      + Math.pow(this.color.a - pixel2.color.a, 2));
   }
 
   distanciaSubjetiva(pixel2) {
-    return this.distance(pixel2);
+    return this.coords.distance(pixel2.coords);
   }
 
   // Incluir el imagedata del canvas en un objeto
