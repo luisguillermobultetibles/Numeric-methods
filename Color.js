@@ -1,4 +1,5 @@
 import {WebSystemObject} from './WebSystemObject';
+import {Vector} from './Vector';
 
 /**
  *
@@ -23,55 +24,102 @@ import {WebSystemObject} from './WebSystemObject';
  *    Original found at  https://gist.github.com/neolitec/1344610
  *    Thanks to neolitec
  */
-class Color extends WebSystemObject {
+export class Color extends Vector {
   /**
    * @member {number}
    * @memberof Color
    * @instance
    */
-  r;
+  get r() {
+    return this.x;
+  };
+  set r(v) {
+    this.x = v;
+  };
 
   /**
    * @member {number}
    * @memberof Color
    * @instance
    */
-  g;
+  get g() {
+    return this.y;
+  };
+  set g(v) {
+    this.g = v;
+  };
 
   /**
    * @member {number}
    * @memberof Color
    * @instance
    */
-  b;
+  get b() {
+    return this.z;
+  };
+  set b(v) {
+    this.b = v;
+  };
 
   /**
    * @member {number}
    * @memberof Color
    * @instance
    */
-  h;
+  get h() {
+    let tmp = Color.#Converter.RGBToHSL(this.clone());
+    return tmp.h;
+  };
+  set h(v) {
+    let tmp = Color.#Converter.RGBToHSL(this.clone());
+    tmp.h = v;
+    tmp = Color.#Converter.HSLToRGB(tmp);
+    [this.r, this.g, this.b] = [tmp.r, tmp.g, tmp.b];
+  };
 
   /**
    * @member {number}
    * @memberof Color
    * @instance
    */
-  s;
+  get s() {
+    let tmp = Color.#Converter.RGBToHSL(this.clone());
+    return tmp.s;
+  };
+  set s(v) {
+    let tmp = Color.#Converter.RGBToHSL(this.clone());
+    tmp.s = v;
+    tmp = Color.#Converter.HSLToRGB(tmp);
+    [this.r, this.g, this.b] = [tmp.r, tmp.g, tmp.b];
+  };
 
   /**
    * @member {number}
    * @memberof Color
    * @instance
    */
-  l;
+  get l() {
+    let tmp = Color.#Converter.RGBToHSL(this.clone());
+    return tmp.l;
+  };
+  set l(v) {
+    let tmp = Color.#Converter.RGBToHSL(this.clone());
+    tmp.l = v;
+    tmp = Color.#Converter.HSLToRGB(tmp);
+    [this.r, this.g, this.b] = [tmp.r, tmp.g, tmp.b];
+  };
 
   /**
    * @member {number}
    * @memberof Color
    * @instance
    */
-  a;
+  get a() {
+    return this.t;
+  };
+  set a(v) {
+    this.t = v;
+  };
 
   /**
    * IDE-Memorándum structure to Web colors names (Bultet - Spectrum)
