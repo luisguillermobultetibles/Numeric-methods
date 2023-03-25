@@ -1,5 +1,6 @@
 // wrapper for "class" Rectangle
 import {Vector} from './Vector';
+import {WebSystemObject} from './WebSystemObject';
 
 export class Point extends Vector {
   constructor(x, y) {
@@ -145,4 +146,116 @@ export class Point extends Vector {
   isPointInRectangle(x, y, rect) {
     return (x > rect.x && x < rect.x + rect.width && y > rect.y && y < rect.y + rect.height);
   }
+
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+
+  // 2023, Luis Bultet Ibles
+
+  // Me devuelve el radio del círculo circunscrito a los puntos a, b y c.
+  // Es decir, el radio de la cinrcunferencia que se tragó el triángulo
+  circunRadio(a, b, c) {
+    let dx = b.x - a.x;
+    let dy = b.y - a.y;
+    let ex = c.x - a.x;
+    let ey = c.y - a.y;
+
+    let bl = d.x * d.x + d.y * d.y;
+    let cl = ex * ex + ey * ey;
+    let d = 0.5 / (dx * ey - dy * ex);
+
+    let x = (ey * bl - dy * cl) * d;
+    let y = (dx * cl - ex * bl) * d;
+
+    return Math.sqrt(x * x + y * y);
+  }
+
+  // Me devuelve el circuncentro de los puntos a, b y c.
+  // Es decir, el centro de la cinrcunferencia que el triángulo se tragó
+  circunCentro(a, b, c) {
+    let dx = b.x - a.x;
+    let dy = b.y - a.y;
+    let ex = c.x - a.x;
+    let ey = c.y - a.y;
+
+    let bl = dx * dx + dy * dy;
+    let cl = ex * ex + ey * ey;
+    let d = 0.5 / (dx * ey - dy * ex);
+
+    let x = a.x + (ey * bl - dy * cl) * d;
+    let y = a.y + (dx * cl - ex * bl) * d;
+
+    return {x: x, y: y};
+  }
+
+  // Me dice si el punto p queda dentro del círculo círcunscrito a los puntos a, b y c
+  estaCirculado(p, a, b, c) {
+    var dx = ax - px;
+    var dy = ay - py;
+    var ex = bx - px;
+    var ey = by - py;
+    var fx = cx - px;
+    var fy = cy - py;
+
+    var ap = dx * dx + dy * dy;
+    var bp = ex * ex + ey * ey;
+    var cp = fx * fx + fy * fy;
+
+    return (
+      dx * (ey * cp - bp * fy) -
+      dy * (ex * cp - bp * fx) +
+      ap * (ex * fy - ey * fx) <
+      0
+    );
+  }
+
+  // Me devueve true si el orden de los puntos está a favor de las manecillas del reloj, falso si en contra.
+  orientacion(a, b, c) {
+    // Es el algoritmo para cálculo de área por el método de Gauss, pero de él solo me interesa el signo.
+    return a.x * by + b.x * cy + c.x * ay - (a.x * by + b.x * cy + c.x * ay) < 0;
+  }
+
+  // Para una rotación cartesiana sencilla, casi cristiana usa esta (en radianes).
+  rotacion(centro, punto, angulo) {
+    // Te sitúas en el origen
+    let ax = punto.x - centro.x;
+    let ay = punto.y - centro.y;
+    // rotas...
+    let tmpx = ax * Math.cos(angulo) + ay * Math.sin(angulo);
+    let tmpy = -ax * Math.sin(angulo) + ay * Math.cos(angulo);
+    // y lo devuelves
+    punto.x = tmpx + centro.x;
+    punto.y = tmpy + centro.y;
+    return punto;
+  }
+
+  // Distancia entre dos puntos a y b
+  distancia(a, b) {
+    return Math.sqrt(Math.pow(a.x - b.x, 2) - Math.pow(a.y - b.y, 2));
+  }
+
+  // Punto medio entre dos puntos a y b
+  puntoMedio(a, b) {
+    let x = (a.x + b.x) / 2;
+    let y = (a.y + b.y) / 2;
+    return {x: x, y: y};
+  }
+
+  // Me dice si dos puntos son iguales dentro de lo permisible
+  pasanPoriguales(a, b) {
+    return this.distancia(a, b) <= this.epsilon;
+  }
+
+  // Me devuelve otro punto que equivale al avance en coordenadas polares de p, en una dirección absoluta angular a en radianes, una distancio d.
+  caminalo(p, a, d) {
+    let x = p.x + d * Math.cos(a);
+    let y = p.y + d * Math.sin(a);
+    let resultado = {x: x, y: y};
+    return resultado;
+  }
+
+  // aquí f es una factor entre cero y uno... (un porciento).
+  avanzar(x1, x2, y1, y2, f) {
+    return {x: x1 + f * (x2 - x1), y: y1 + f * (y2 - y1)};
+  }
+
 }

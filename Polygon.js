@@ -76,6 +76,40 @@ export class Polygon extends Shape {
     });
   }
 
+
+  // Linestring [[x, y], [x2, y2], [x3, y3]]
+  avanzarEnPolilinea(pl, distanciaARecorrer, longitudTotal) { // revisar
+    function getX(p, i) {
+      return p[i][0];
+    }
+
+    function getY(p, i) {
+      return p[i][1];
+    }
+    let distanciaRecorrida = 0;
+    let longitudSegmento = 0;
+
+    for (let index = 1; index < pl.length; index++) {
+      longitudSegmento = this.distancia(
+        getX(pl, index - 1),
+        getY(pl, index - 1),
+        getX(pl, index),
+        getY(pl, index)
+      );
+
+      if (distanciaRecorrida + longitudSegmento < distanciaARecorrer) {
+        distanciaRecorrida += longitudSegmento;
+        distanciaARecorrer -= longitudSegmento;
+      } else {
+        let f = distanciaARecorrer / longitudSegmento;
+        return [
+          getX(pl, index) + f * (getX(pl, index) - getX(pl, index - 1)),
+          getY(pl, index) + f * (getY(pl, index) - getY(pl, index - 1)),
+        ];
+      }
+    }
+  }
+
   // polygon objects are an array of vertices forming the polygon
   //     var polygon1=[{x:100,y:100},{x:150,y:150},{x:50,y:150},...];
   // The polygons can be both concave and convex
