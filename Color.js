@@ -46,7 +46,7 @@ export class Color extends Vector {
     return this.y;
   };
   set g(v) {
-    this.g = v;
+    this.y = v;
   };
 
   /**
@@ -58,7 +58,7 @@ export class Color extends Vector {
     return this.z;
   };
   set b(v) {
-    this.b = v;
+    this.z = v;
   };
 
   /**
