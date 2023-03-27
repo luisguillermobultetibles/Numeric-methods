@@ -252,17 +252,21 @@ export class WebSystemObject extends Object {
         now = new Date();
         // app.ProcessMessages;
         /* Here should go the javascript, C++ Application.ProcessMessages equivalent (the programmings doc said that)
-                   Interrupts the execution of an application so that it can process the application dedicated operating system message queue.
-                   Call ProcessMessages to permit the application to process messages that are currently in the message queue.
-                   ProcessMessages cycles the Windows message loop until it is empty, and then returns control to the application.
-                   Note: Neglecting message processing affects only the application calling ProcessMessages, not other applications.
-                   In lengthy operations, calling ProcessMessages periodically allows the application to respond to paint and other messages.
-                   Note: ProcessMessages does not allow the application to go idle, whereas HandleMessage does.
-                 */
+           Interrupts the execution of an application so that it can process the application dedicated operating system message queue.
+           Call ProcessMessages to permit the application to process messages that are currently in the message queue.
+           ProcessMessages cycles the Windows message loop until it is empty, and then returns control to the application.
+           Note: Neglecting message processing affects only the application calling ProcessMessages, not other applications.
+           In lengthy operations, calling ProcessMessages periodically allows the application to respond to paint and other messages.
+           Note: ProcessMessages does not allow the application to go idle, whereas HandleMessage does.
+         */
       } while (now - fromMoment < millis);
     } catch (e) {
       throw new Error(`Error ${String(e)}, al inducir una espera de ${millis} milisegundos.`);
     }
+  }
+
+  delay(d) {
+    this.sleep(d);
   }
 
   // Algunos efectos y funciones para el web
