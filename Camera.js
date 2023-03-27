@@ -2,7 +2,8 @@
 import {WebSystemObject} from './WebSystemObject';
 
 export class Camera extends WebSystemObject {
-  constructor(viewport = null) {
+  // Oberva una escena desde una posición y la proyecta en un viewport
+  constructor(viewport = null, scene = null) {
     super();
     this.viewport = viewport;
   }
