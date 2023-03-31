@@ -237,6 +237,17 @@ export class WebSystemObject extends Object {
     }
   }
 
+  // Calculo de lo longitud de un lapso de tiempo en milisegundos
+  static lapso(anhos = 0, meses = 0, dias = 0, horas = 0, minutos = 0, segundos = 0, milisegundos = 0) {
+    let phase = milisegundos + (1000 * segundos) + (1000 * 60 * minutos) + (1000 * 60 * 60 * horas) + (1000 * 60 * 60 * 24 * dias) + (1000 * 60 * 60 * 24 * (146097 / 4800) * meses) + (1000 * 60 * 60 * 24 * 365.25 * anhos);
+    return new Date(Number(desde) + phase);
+  };
+
+  // Propagación del tiempo actual a un antes o a un después...
+  moment(desde = new Date(), anhos = 0, meses = 0, dias = 0, horas = 0, minutos = 0, segundos = 0, milisegundos = 0) {
+    return new Date(Number(desde) + WebSystemObject.lapso(...arguments.shift()));
+  };
+
   tellMeTheTime() {
     // this.initializeSpeaker();
     let momento = new Date();
@@ -252,17 +263,21 @@ export class WebSystemObject extends Object {
         now = new Date();
         // app.ProcessMessages;
         /* Here should go the javascript, C++ Application.ProcessMessages equivalent (the programmings doc said that)
-                   Interrupts the execution of an application so that it can process the application dedicated operating system message queue.
-                   Call ProcessMessages to permit the application to process messages that are currently in the message queue.
-                   ProcessMessages cycles the Windows message loop until it is empty, and then returns control to the application.
-                   Note: Neglecting message processing affects only the application calling ProcessMessages, not other applications.
-                   In lengthy operations, calling ProcessMessages periodically allows the application to respond to paint and other messages.
-                   Note: ProcessMessages does not allow the application to go idle, whereas HandleMessage does.
-                 */
+           Interrupts the execution of an application so that it can process the application dedicated operating system message queue.
+           Call ProcessMessages to permit the application to process messages that are currently in the message queue.
+           ProcessMessages cycles the Windows message loop until it is empty, and then returns control to the application.
+           Note: Neglecting message processing affects only the application calling ProcessMessages, not other applications.
+           In lengthy operations, calling ProcessMessages periodically allows the application to respond to paint and other messages.
+           Note: ProcessMessages does not allow the application to go idle, whereas HandleMessage does.
+         */
       } while (now - fromMoment < millis);
     } catch (e) {
       throw new Error(`Error ${String(e)}, al inducir una espera de ${millis} milisegundos.`);
     }
+  }
+
+  delay(d) {
+    this.sleep(d);
   }
 
   // Algunos efectos y funciones para el web
@@ -1047,49 +1062,6 @@ export class WebSystemObject extends Object {
     this.synth.resume();
   }
 
-  // Geolocalizar la posición del navegador del usuario (si lo permite) y ubicar su posición en el mapper a determinado zoom.
-
-  // Cálculo de distancia aproximada en metros a partir de coordenadas geográficas, fórmula válida para posiciones geográficas del mundo entero.
-  distancia(latitud1, longitud1, latitud2, longitud2) {
-    return (Math.sqrt(Math.pow(latitud2 - latitud1, 2) + Math.pow(longitud2 - longitud1, 2)) % 180) * 111111;
-  }
-
-  // Distancia de transporte,
-  // Copyright 2023 ®Lic. Luis Bultet Ibles... All rights reserved under GPL 2.0 (You are free to use under your responsiblitity).
-
-  distanciaTransporte(latitud1, longitud1, latitud2, longitud2, radioEcuatorial = 6378136.66378, radioPolar = 6356751.9) {
-    let toRadians = (x) => x * Math.PI / 180;
-    let pythagoras = (x, y) => Math.sqrt(x * x + y * y);
-    let arc = (radio, amplitud) => radio * Math.abs(amplitud);
-    let radius = (lattitude) => radioPolar - (radioPolar - radioEcuatorial) * Math.cos(lattitude);
-
-    let delta_lon = Math.abs(toRadians(longitud2) - toRadians(longitud1));
-    let delta_lat = Math.abs(toRadians(latitud2) - toRadians(latitud1));
-
-    let delta_height = Math.abs(radius(toRadians(latitud1)) - radius(toRadians(latitud2)));
-    let mid_length = arc(radius(toRadians(latitud1 + latitud2) / 2), pythagoras(delta_lat, delta_lon));
-
-    return pythagoras(delta_height, mid_length);
-  }
-
-  nivelMedioDelMar(lattitude) {
-    return radioPolar - (radioPolar - radioEcuatorial) * Math.cos(lattitude);
-  };
-
-  // Leaflet Map Distance,
-  // using Haversine distance formula, see http://en.wikipedia.org/wiki/Haversine_formula
-  distanciaLeaflet(latitud1, longitud1, latitud2, longitud2, earthRadius = 6378137 /* earth radius in meters */) {
-    let R = earthRadius,
-      d2r = Math.PI / 180,
-      dLat = (latitud2 - latitud1) * d2r,
-      dLon = (longitud2 - longitud1) * d2r,
-      lat1 = latitud1 * d2r,
-      lat2 = latitud2 * d2r,
-      sin1 = Math.sin(dLat / 2),
-      sin2 = Math.sin(dLon / 2);
-    let a = sin1 * sin1 + sin2 * sin2 * Math.cos(lat1) * Math.cos(lat2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  }
 
   // evento privado de geolocalización (this is my location response handler)
   _onLocationFound(pos) {
@@ -1704,8 +1676,8 @@ export class WebSystemObject extends Object {
     return String(str).substring(str.length - l, str.length);
   }
 
-  ends(str, s) {
-    return this.right(str, s.length) === s;
+  ends(str, sub) {
+    return this.right(str, sub.length) === sub;
   }
 
   eliminarSufijo(str, s) {
@@ -1716,8 +1688,8 @@ export class WebSystemObject extends Object {
     }
   }
 
-  begins(str, s) {
-    return this.left(str, s.length) === s;
+  begins(str, sub) {
+    return this.left(str, sub.length) === sub;
   }
 
   eliminarPrefijo(str, s) {
@@ -2007,7 +1979,7 @@ export class WebSystemObject extends Object {
         return false;
       } else {
         for (var i = 0; i < a.length; i++) {
-          if (!this.equals2(a[i], b[i])) {
+          if (!this.equals(a[i], b[i])) {
             return false;
           }
         }
@@ -3388,12 +3360,13 @@ export class WebSystemObject extends Object {
     return '<' + (tagName ? tagName : this.toString()) + ' ' + (attributions ? attributions : ' ') + '>' + (content ? content : '') + '</' + (tagName ? tagName : this.toString()) + '>';
   }
 
-  toComment(mensaje) {
-    return '<!-- $' + mensaje + '-->';
+  toComment(comentario) {
+    return '<!-- $' + comentario + '-->';
   }
 
-  toScript() {
-    return this.toTag('SCRIPT');
+  toScript(code, language = 'Javascript', source = null) {
+    let src = source ? ' src = ' + source : '';
+    return this.toTag('SCRIPT', `language = "${language}" ${src}`, code);
   }
 
   _attribution(name, value) {
@@ -3415,11 +3388,103 @@ export class WebSystemObject extends Object {
     return 'HR';
   }
 
+  htmlTitulo(id, text, enabled, hidden) {
+    let conferedAttributions = '';
+    if (id) {
+      conferedAttributions += this._attribution('name', id);
+      conferedAttributions += this._attribution('id', id);
+    }
+
+    if (!!enabled) {
+      conferedAttributions += ' enabled';
+    } else {
+      conferedAttributions += ' disabled';
+    }
+    if (hidden) {
+      conferedAttributions += ' hidden';
+    }
+
+    return this.toTag('H1', conferedAttributions, text);
+  }
+
+  htmlSubTitulo(id, type, title, onClick, enabled, hidden, imageURL) {
+    let conferedAttributions = '';
+    if (id) {
+      conferedAttributions += this._attribution('name', id);
+      conferedAttributions += this._attribution('id', id);
+    }
+
+    if (!!enabled) {
+      conferedAttributions += ' enabled';
+    } else {
+      conferedAttributions += ' disabled';
+    }
+    if (hidden) {
+      conferedAttributions += ' hidden';
+    }
+
+    return this.toTag('H2', conferedAttributions, text);
+  }
+
+  htmlParrafo(id, type, title, onClick, enabled, hidden, imageURL) {
+    let conferedAttributions = '';
+    if (id) {
+      conferedAttributions += this._attribution('name', id);
+      conferedAttributions += this._attribution('id', id);
+    }
+
+    if (!!enabled) {
+      conferedAttributions += ' enabled';
+    } else {
+      conferedAttributions += ' disabled';
+    }
+    if (hidden) {
+      conferedAttributions += ' hidden';
+    }
+
+    return this.toTag('P', conferedAttributions, text);
+  }
+
+  htmlHipervinculo(id, text, locationURL, onClick, enabled, hidden, imageURL) {
+    let conferedAttributions = '';
+    if (id) {
+      conferedAttributions += this._attribution('name', id);
+      conferedAttributions += this._attribution('id', id);
+    }
+
+    if (!!enabled) {
+      conferedAttributions += ' enabled';
+    } else {
+      conferedAttributions += ' disabled';
+    }
+    if (hidden) {
+      conferedAttributions += ' hidden';
+    }
+    let locat = locationURL ? `href = "${locationURL}"` : ``;
+    return this.toTag(`A ${locat}`, conferedAttributions, text);
+  }
+
+  htmlNota(id, type, title, onClick, enabled, hidden, imageURL) {
+    let conferedAttributions = '';
+    if (id) {
+      conferedAttributions += this._attribution('name', id);
+      conferedAttributions += this._attribution('id', id);
+    }
+
+    if (!!enabled) {
+      conferedAttributions += ' enabled';
+    } else {
+      conferedAttributions += ' disabled';
+    }
+    if (hidden) {
+      conferedAttributions += ' hidden';
+    }
+
+    return this.toTag('PRE', conferedAttributions, text);
+  }
+
   htmlButton(id, type, title, onClick, enabled, hidden, imageURL) {
-    var conferedAttributions = '';
-
-    // en tl tipo se pasa el método del botón y el formulario ("button", "reset", "submit")
-
+    let conferedAttributions = '';
     if (id) {
       conferedAttributions += this._attribution('name', id);
       conferedAttributions += this._attribution('id', id);
@@ -3440,6 +3505,7 @@ export class WebSystemObject extends Object {
     } else {
       conferedAttributions += ' disabled';
     }
+
     if (hidden) {
       conferedAttributions += ' hidden';
     }
@@ -3449,7 +3515,6 @@ export class WebSystemObject extends Object {
     } else {
       return this.toTag('BUTTON', conferedAttributions);
     }
-
 
   }
 
@@ -4188,7 +4253,7 @@ export class WebSystemObject extends Object {
    *
    * @param {String} patronAReconocer     El patrón que quiero encontrar en el texto.
    * @param {String} patronAAplicar       El patrón que voy a aplicar si lo encuentro.
-   * @param {Boolean} objetivo            El texto que voy a analizar.
+   * @param {string} objetivo            El texto que voy a analizar.
    *
    * @author Lic. Luis G. Bultet Ibles
    * @mail luisguillermobultetibles@gmail.com
@@ -4343,407 +4408,6 @@ export class WebSystemObject extends Object {
     return resultado;
   }
 
-  // Español
-  /** Syllabler gets a word and outputs and array containing its syllables.
-   *  This code belongs to https://github.com/vic/silabas.js
-   *
-   *    The up´s comment and the code itself was taken from Lorca library by Lic Luis Guillermo Bultet Ibles.
-   */
-  syllaber() {
-    let stressedFound = false;
-    let stressed = 0;
-    let letterAccent = -1;
 
-    let wordLength = this.length;
-    let positions = [];
-    let word = this;
-
-    function process() {
-      let numSyl = 0;
-
-      // Look for syllables in the word
-      for (let i = 0; i < wordLength;) {
-        positions[numSyl++] = i;
-
-        i = onset(i);
-        i = nucleus(i);
-        i = coda(i);
-
-        if (stressedFound && stressed === 0) {
-          stressed = numSyl; // it marks the stressed syllable
-        }
-      }
-
-      // If the word has not written accent, the stressed syllable is determined
-      // according to the stress rules
-      if (!stressedFound) {
-        if (numSyl < 2) {
-          stressed = numSyl;
-        }// Monosyllables
-        else {
-          // Polysyllables
-          let endLetter = toLower(wordLength - 1);
-
-          if (
-            !isConsonant(wordLength - 1) ||
-            endLetter === 'y' ||
-            endLetter === 'n' ||
-            (endLetter === 's' && !isConsonant(wordLength - 2))
-          ) {
-            stressed = numSyl - 1;
-          }// Stressed penultimate syllable
-          else {
-            stressed = numSyl;
-          } // Stressed last syllable
-        }
-      }
-    }
-
-    function onset(pos) {
-      let lastConsonant = 'a';
-
-      while (pos < wordLength && isConsonant(pos) && toLower(pos) !== 'y') {
-        lastConsonant = toLower(pos);
-        pos++;
-      }
-
-      // (q | g) + u (example: queso, gueto)
-      if (pos < wordLength - 1) {
-        if (toLower(pos) === 'u') {
-          if (lastConsonant === 'q') {
-            pos++;
-          } else if (lastConsonant === 'g') {
-            let letter = toLower(pos + 1);
-            if (
-              letter === 'e' ||
-              letter === 'é' ||
-              letter === 'i' ||
-              letter === 'í'
-            ) {
-              pos++;
-            }
-          }
-        } else if (toLower(pos) === 'ü' && lastConsonant === 'g') {
-          // The 'u' with diaeresis is added to the consonant
-          pos++;
-        }
-      }
-
-      return pos;
-    }
-
-    function nucleus(pos) {
-      // Saves the type of previous vowel when two vowels together exists
-      let previous = 0;
-      // 0 = open
-      // 1 = close with written accent
-      // 2 = close
-
-      if (pos >= wordLength) return pos; // ¡¿Doesn't it have nucleus?!
-
-      // Jumps a letter 'y' to the starting of nucleus, it is as consonant
-      if (toLower(pos) === 'y') pos++;
-
-      // First vowel
-      if (pos < wordLength) {
-        switch (toLower(pos)) {
-          // Open-vowel or close-vowel with written accent
-          case 'á':
-          case 'à':
-          case 'é':
-          case 'è':
-          case 'ó':
-          case 'ò':
-            letterAccent = pos;
-            stressedFound = true;
-            break;
-          case 'a':
-          case 'e':
-          case 'o':
-            previous = 0;
-            pos++;
-            break;
-          // Close-vowel with written accent breaks some possible diphthong
-          case 'í':
-          case 'ì':
-          case 'ú':
-          case 'ù':
-          case 'ü':
-            letterAccent = pos;
-            pos++;
-            stressedFound = true;
-            return pos;
-          // Close-vowel
-          case 'i':
-          case 'I':
-          case 'u':
-          case 'U':
-            previous = 2;
-            pos++;
-            break;
-        }
-      }
-
-      // If 'h' has been inserted in the nucleus then it doesn't determine diphthong neither hiatus
-      let aitch = false;
-      if (pos < wordLength) {
-        if (toLower(pos) === 'h') {
-          pos++;
-          aitch = true;
-        }
-      }
-
-      // Second vowel
-      if (pos < wordLength) {
-        switch (toLower(pos)) {
-          // Open-vowel with written accent
-          case 'á':
-          case 'à':
-          case 'é':
-          case 'è':
-          case 'ó':
-          case 'ò':
-            letterAccent = pos;
-            if (previous !== 0) {
-              stressedFound = true;
-            }
-            break;
-          case 'a':
-          case 'e':
-          case 'o':
-            if (previous === 0) {
-              // Two open-vowels don't form syllable
-              if (aitch) pos--;
-              return pos;
-            } else {
-              pos++;
-            }
-
-            break;
-
-          // Close-vowel with written accent, can't be a triphthong, but would be a diphthong
-          case 'í':
-          case 'ì':
-          case 'ú':
-          case 'ù':
-            letterAccent = pos;
-
-            if (previous !== 0) {
-              // Diphthong
-              stressedFound = true;
-              pos++;
-            } else if (aitch) pos--;
-
-            return pos;
-          // Close-vowel
-          case 'i':
-          case 'u':
-          case 'ü':
-            if (pos < wordLength - 1) {
-              // ¿Is there a third vowel?
-              if (!isConsonant(pos + 1)) {
-                if (toLower(pos - 1) === 'h') pos--;
-                return pos;
-              }
-            }
-
-            // Two equals close-vowels don't form diphthong
-            if (toLower(pos) !== toLower(pos - 1)) pos++;
-
-            return pos; // It is a descendent diphthong
-        }
-      }
-
-      // Third vowel?
-      if (pos < wordLength) {
-        if (toLower(pos) === 'i' || toLower(pos) === 'u') {
-          // Close-vowel
-          pos++;
-          return pos; // It is a triphthong
-        }
-      }
-
-      return pos;
-    }
-
-    function coda(pos) {
-      if (pos >= wordLength || !isConsonant(pos)) {
-        return pos; // Syllable hasn't coda
-      } else if (pos === wordLength - 1) {
-        // End of word
-        pos++;
-        return pos;
-      }
-
-      // If there is only a consonant between vowels, it belongs to the following syllable
-      if (!isConsonant(pos + 1)) return pos;
-
-      let c1 = toLower(pos);
-      let c2 = toLower(pos + 1);
-
-      // Has the syllable a third consecutive consonant?
-      if (pos < wordLength - 2) {
-        let c3 = toLower(pos + 2);
-
-        if (!isConsonant(pos + 2)) {
-          // There isn't third consonant
-          // The groups ll, ch and rr begin a syllable
-
-          if (c1 === 'l' && c2 === 'l') return pos;
-          if (c1 === 'c' && c2 === 'h') return pos;
-          if (c1 === 'r' && c2 === 'r') return pos;
-
-          // A consonant + 'h' begins a syllable, except for groups sh and rh
-          if (c1 !== 's' && c1 !== 'r' && c2 === 'h') return pos;
-
-          // If the letter 'y' is preceded by the some
-          // letter 's', 'l', 'r', 'n' or 'c' then
-          // a new syllable begins in the previous consonant
-          // else it begins in the letter 'y'
-          if (c2 === 'y') {
-            if (c1 === 's' || c1 === 'l' || c1 === 'r' || c1 === 'n' || c1 === 'c') {
-              return pos;
-            }
-            pos++;
-
-            return pos;
-          }
-
-          // groups: gl - kl - bl - vl - pl - fl - tl
-          if (
-            (c1 === 'b' ||
-              c1 === 'v' ||
-              c1 === 'c' ||
-              c1 === 'k' ||
-              c1 === 'f' ||
-              c1 === 'g' ||
-              c1 === 'p' ||
-              c1 === 't') &&
-            c2 === 'l'
-          ) {
-            return pos;
-          }
-
-          // groups: gr - kr - dr - tr - br - vr - pr - fr
-          if (
-            (c1 === 'b' ||
-              c1 === 'v' ||
-              c1 === 'c' ||
-              c1 === 'd' ||
-              c1 === 'k' ||
-              c1 === 'f' ||
-              c1 === 'g' ||
-              c1 === 'p' ||
-              c1 === 't') &&
-            c2 === 'r'
-          ) {
-            return pos;
-          }
-
-          pos++;
-
-          return pos;
-        } else {
-          // There is a third consonant
-          if (pos + 3 === wordLength) {
-            // Three consonants to the end, foreign words?
-            if (c2 === 'y') {
-              // 'y' as vowel
-              if (c1 === 's' || c1 === 'l' || c1 === 'r' || c1 === 'n' || c1 === 'c') {
-                return pos;
-              }
-            }
-
-            if (c3 === 'y') {
-              // 'y' at the end as vowel with c2
-              pos++;
-            } else {
-              // Three consonants to the end, foreign words?
-              pos += 3;
-            }
-            return pos;
-          }
-
-          if (c2 === 'y') {
-            // 'y' as vowel
-            if (c1 === 's' || c1 === 'l' || c1 === 'r' || c1 === 'n' || c1 === 'c') {
-              return pos;
-            }
-
-            pos++;
-            return pos;
-          }
-
-          // The groups pt, ct, cn, ps, mn, gn, ft, pn, cz, tz and ts begin a syllable
-          // when preceded by other consonant
-
-          if (
-            (c2 === 'p' && c3 === 't') ||
-            (c2 === 'c' && c3 === 't') ||
-            (c2 === 'c' && c3 === 'n') ||
-            (c2 === 'p' && c3 === 's') ||
-            (c2 === 'm' && c3 === 'n') ||
-            (c2 === 'g' && c3 === 'n') ||
-            (c2 === 'f' && c3 === 't') ||
-            (c2 === 'p' && c3 === 'n') ||
-            (c2 === 'c' && c3 === 'z') ||
-            (c2 === 't' && c3 === 's') ||
-            (c2 === 't' && c3 === 's')
-          ) {
-            pos++;
-            return pos;
-          }
-
-          if (
-            c3 === 'l' ||
-            c3 === 'r' || // The consonantal groups formed by a consonant
-            // following the letter 'l' or 'r' cann't be
-            // separated and they always begin syllable
-            (c2 === 'c' && c3 === 'h') || // 'ch'
-            c3 === 'y'
-          ) {
-            // 'y' as vowel
-            pos++; // Following syllable begins in c2
-          } else {
-            pos += 2;
-          } // c3 begins the following syllable
-        }
-      } else {
-        if (c2 === 'y') return pos;
-
-        pos += 2; // The word ends with two consonants
-      }
-
-      return pos;
-    }
-
-    function toLower(pos) {
-      return word[pos].toLowerCase();
-    }
-
-    function isConsonant(pos) {
-      return !/[aeiouáéíóúàèìòùüAEIOUÁÉÍÓÚÀÈÌÒÙÜ]/.test(word[pos]);
-    }
-
-    process();
-
-    //this.positions = function () {
-    //   return positions;
-    //};
-
-    let syllables = [];
-
-    for (let i = 0; i < positions.length; i++) {
-      let start = positions[i];
-      let end = wordLength;
-      if (positions.length > i + 1) {
-        end = positions[i + 1];
-      }
-      let seq = word.slice(start, end).replace(/ /, '').toLowerCase();
-      syllables.push(seq);
-    }
-
-    return syllables;
-  }
 
 }

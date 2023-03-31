@@ -226,8 +226,12 @@ export class Vector extends WebSystemObject {
     return this;
   };
 
-  length() {
+  get length() {
     return this.norm;
+  };
+
+  set length(v) {
+    this.norm = v;
   };
 
   lengthSq() {

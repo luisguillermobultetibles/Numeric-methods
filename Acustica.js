@@ -300,5 +300,60 @@ class Acustica extends WebSystemObject {
     return resultado;
   }
 
+
+  /* Acordes
+
+    Valores de consonancia armónica para los acordes que se forman con los 24 tonos comprendidos por dos octavas consecutivas de la escala cromática.
+    (disonante < 0, irrelevante = 0 y consonante > 0)
+
+                                          Tonos enteros                 | Tonos semienteros               | Tonos enteros                  | Tonos semienteros
+     Valor        Nombre                  Menores   Nota                | Menores  Nota                   | Mayores   Nota                 | Mayores  Nota
+   + 3/3 = + 1      Consonancia perfecta    8 G     SOL (quinta justa)  |                                 |                                |
+   + 2/3 = + 0.(6)  Consonancia imperfecta  4 F     FA  (cuarta justa)  |                                 |                                |
+   + 1/3 = + 0.(3)  Semi consonancia        3 E     MI  (tercera menor) |                                 |                                |
+     0/3 =   0      Insípido                1 C     DO  (al unísono)    |                                 |                                |
+   - 1/3 = - 0.(3)  Semi disonancia        10 A     LA  (sexta menor)   |                                 |                                |
+   - 2/3 = - 0.(6)  Disonancia suave       12 B     SI  (séptima menor) |                                 |                                |
+   - 3/3 = - 1      Disonancia fuerte       3 D     RE  (segunda menor) |  5  F#    FA  (4t aum o 5ta dis)|  24 B     SI  (séptima mayor)  |
+
+    May you complete this for me please ?
+
+
+
+
+
+
+  let arreglar = [
+    {no: 1, code: 'C', name: 'Primera al unísono', acorde: 'Insípido'},
+    {no: 2, code: 'C#', name: '', acorde: ''},
+    {no: 3, code: 'D', name: 'Segunda menor', acorde: 'Disonancia fuerte'},
+    {no: 4, code: 'D#', name: '', acorde: ''},
+    {no: 5, code: 'E', name: 'Tercera menor', acorde: 'Consonancia imperfecta'},
+    {no: 6, code: 'F', name: 'Cuarta menor', acorde: 'Semi consonancia'},
+    {no: 7, code: 'F#', name: '', acorde: ''},
+    {no: 8, code: 'G', name: 'Quinta menor', acorde: 'Consonancia perfecta'},
+    {no: 9, code: 'G#', name: '', acorde: ''},
+    {no: 10, code: 'A', name: 'Sexta menor', acorde: 'Semi disonancia'},
+    {no: 11, code: 'A#', name: '', acorde: ''},
+    {no: 12, code: 'B',  name: 'Séptima menor', acorde: 'Disonancia suave'},
+
+    {no: 13, code: 'C', name: 'Primera octava', acorde: 'Insípido'},
+    {no: 14, code: 'C#', name: '', acorde: ''},
+    {no: 15, code: 'D', name: 'Segunda mayor', acorde: ''},
+    {no: 16, code: 'D#', name: '', acorde: ''},
+    {no: 17, code: 'E', name: 'Tercera mayor', acorde: 'Semi disonancia'},
+    {no: 18, code: 'F', name: 'Cuarta menor', acorde: ''},
+    {no: 19, code: 'F#', name: '', acorde: ''},
+    {no: 20, code: 'G', name: 'Quinta mayor', acorde: ''},
+    {no: 21, code: 'G#', name: '', acorde: ''},
+    {no: 22, code: 'A', name: 'Sexta mayor', acorde: ''},
+    {no: 23, code: 'A#', name: '', acorde: 'Disonancia fuerte'},
+    {no: 24, code: 'B', name: 'Séptima mayor', acorde: 'Disonancia fuerte'}];
+
+}
+
+     */
+
+
 }
 

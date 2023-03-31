@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {Arreglo} from './Arreglo.js';
+import {Arreglo} from './Group.js';
 import process from 'process';
 
 // Versión inestable...

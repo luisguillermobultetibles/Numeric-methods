@@ -382,3 +382,78 @@ export class Webcam extends Camera {
     return {base64, imageHeight, imageWidth};
   }
 }
+
+export class studyWebCam extends Camera {
+  // based on Christopher Schmich Instacam one (https://github.com/schmich/instascan)
+  constructor(id, name) {
+    super();
+    this.id = id;
+    this.name = name;
+    this._stream = null;
+  }
+
+  async start() {
+    let constraints = {
+      audio: false,
+      video: {
+        mandatory: {
+          sourceId: this.id,
+          minWidth: 600,
+          maxWidth: 800,
+          minAspectRatio: 1.6
+        },
+        optional: []
+      }
+    };
+
+    this._stream = await studyWebCam._wrapErrors(async () => {
+      return await navigator.mediaDevices.getUserMedia(constraints);
+    });
+
+    return this._stream;
+  }
+
+  stop() {
+    if (!this._stream) {
+      return;
+    }
+
+    for (let stream of this._stream.getVideoTracks()) {
+      stream.stop();
+    }
+
+    this._stream = null;
+  }
+
+  static async getCameras() {
+    await this._ensureAccess();
+
+    let devices = await navigator.mediaDevices.enumerateDevices();
+    return devices
+      .filter(d => d.kind === 'videoinput')
+      .map(d => new studyWebCam(d.deviceId, cameraName(d.label)));
+  }
+
+  static async _ensureAccess() {
+    return await this._wrapErrors(async () => {
+      let access = await navigator.mediaDevices.getUserMedia({ video: true });
+      for (let stream of access.getVideoTracks()) {
+        stream.stop();
+      }
+    });
+  }
+
+  static async _wrapErrors(fn) {
+    try {
+      return await fn();
+    } catch (e) {
+      if (e.name) {
+        throw new MediaError(e.name);
+      } else {
+        throw e;
+      }
+    }
+  }
+}
+
+

@@ -14,8 +14,7 @@
         .Entrelazamientos: (Nada que ver con el cuántico) Relativa a los nudos y lazos entre las asas o agujeros.
         .Grupos: Relativo a la cantidad de grupos aislados no conexos.
         .Topología: Relativa al orden de los caminos, resultado de la métrica de las distancias y recorridos internos.       
-        
-        
+
    Objetivos:
    
         .Desarollar una estructura para representar nudos (knot), extendiendo una clase de tipo Graph típico.
@@ -27,4 +26,5 @@
         .En el caso de los autolazos, en tres tiempos: antes del lazo, en el... y después... también una orientación.
         .Y que los nudos o lazos "crean" nuevos arcos "virtuales" a los que es aplicable, todo lo anterior.
         .Por eso exacto: no es tan fácilito, es recursivo.
+
         ...

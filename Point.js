@@ -3,7 +3,7 @@ import {Vector} from './Vector';
 import {WebSystemObject} from './WebSystemObject';
 
 export class Point extends Vector {
-  constructor(x, y) {
+  constructor() {
     super(...arguments);
   }
 
