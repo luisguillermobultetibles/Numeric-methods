@@ -26,6 +26,33 @@ class Acustica extends WebSystemObject {
     }
   }
 
+  // Cálculo de nivel de sonoridad aproximado (en sonios)
+  // contra una frecuencia clínica de 1000 Hz
+  // Sonoridad = 2 ^ [(NS - 40) / 20]
+  // Fuente: Interpolación de la norma IEC 651/79 Nivel A
+  // Copyright © Abril, 3; 2023 Lic. Luis Guillermo Bultet Ibles ®
+  // Todos los derechos reservados.
+  sonoridad_A(freq) {
+    function octave(f) { // aprox.
+      return Math.log((f + 0.64710459283) / 7.9415) / 0.6909;
+    }
+
+    let i = 3 * octave(freq);
+    let result = 0.0012 * Math.pow(i, 3) - 0.1933 * Math.pow(i, 2) + 7.1735 * i - 75.75;
+    return result;
+  }
+
+  octava(f) {
+    return Math.ln((f + 0.64710459283) / 7.9415) / 0.6909;
+  }
+
+  Sonoridad_A(freq) {
+    let i = 3 * this.octava(freq);
+    let result = 0.0012 * Math.pow(i, 3) - 0.1933 * Math.pow(i, 2) + 7.1735 * i - 75.75;
+    return result;
+  }
+
+
   // Plompt y Levelt, versión conmutativa.
   disonancia(f1, f2, v1 = 1, v2 = 1) {
     if (f1 > f2) {
@@ -40,7 +67,7 @@ class Acustica extends WebSystemObject {
       Existe un criterio de disonancia que las clasifica teniendo en cuenta la diferencia (Δf) absoluta entre las mismas
       (Δf = |f2 - f1|) y pudiese expresarse por la función:
       CH ( f1, f2 ) = COS((f1 - f2)π/80) 	(en la ecuación se divide por 80 Hz, no 180°)
-      Que se obtiene a partir de la observación de Helmholtz: (una diferencia aprox. entre 30 y 130 ya suena disonante),
+      Que se obtiene a partir de la observación de Helmholtz: (una diferencia aprox. entre < 30 y > 130 ya es disonante),
       este criterio y el anterior sugiere que existen familias de notas.
     */
     return Math.cos((f1 - f2) * Math.PI / 80);
@@ -91,7 +118,7 @@ class Acustica extends WebSystemObject {
   }
 
   // Clasifica un par de frecuencias puras (terminar, pueden tener proporciones consonantes en clasificaciones disonantes).
-  // Análiiss armónico simple
+  // Análiss armónico simple
   clasificarArmonia(frecuencia1, frecuencia2) {
 
 
@@ -182,6 +209,13 @@ class Acustica extends WebSystemObject {
     const LA4_Freq = 440;
     return LA4_Freq * Math.pow(2, octava - 4) * Math.pow(2, (tono - 9) / 12);
   }
+
+  /*
+       Esta ecuación puede hacerse invariante si tuviese en cuenta la sonoridad
+      de las frecuencias, en esos casos, resolviera igual en los armómicos y
+      además en las bajas y altas.
+
+  */
 
   /*
     When the MIDI device sends the message about the note being played, it sends
@@ -306,21 +340,17 @@ class Acustica extends WebSystemObject {
     Valores de consonancia armónica para los acordes que se forman con los 24 tonos comprendidos por dos octavas consecutivas de la escala cromática.
     (disonante < 0, irrelevante = 0 y consonante > 0)
 
-                                          Tonos enteros                 | Tonos semienteros               | Tonos enteros                  | Tonos semienteros
-     Valor        Nombre                  Menores   Nota                | Menores  Nota                   | Mayores   Nota                 | Mayores  Nota
+                                            Tonos enteros               | Tonos semienteros               | Tonos enteros                  | Tonos semienteros
+     Valor          Nombre                  Menores Nota                | Menores  Nota                   | Mayores   Nota                 | Mayores  Nota
    + 3/3 = + 1      Consonancia perfecta    8 G     SOL (quinta justa)  |                                 |                                |
    + 2/3 = + 0.(6)  Consonancia imperfecta  4 F     FA  (cuarta justa)  |                                 |                                |
    + 1/3 = + 0.(3)  Semi consonancia        3 E     MI  (tercera menor) |                                 |                                |
      0/3 =   0      Insípido                1 C     DO  (al unísono)    |                                 |                                |
    - 1/3 = - 0.(3)  Semi disonancia        10 A     LA  (sexta menor)   |                                 |                                |
    - 2/3 = - 0.(6)  Disonancia suave       12 B     SI  (séptima menor) |                                 |                                |
-   - 3/3 = - 1      Disonancia fuerte       3 D     RE  (segunda menor) |  5  F#    FA  (4t aum o 5ta dis)|  24 B     SI  (séptima mayor)  |
+   - 3/3 = - 1      Disonancia fuerte       2 D     RE  (segunda menor) |  5  F#    FA  (4t aum o 5ta dis)|  24 B     SI  (séptima mayor)  |
 
     May you complete this for me please ?
-
-
-
-
 
 
   let arreglar = [
