@@ -334,11 +334,24 @@ class Acustica extends WebSystemObject {
     return resultado;
   }
 
-
   /* Acordes
+
+  Cada grado de una escala o acorde recibe tradicionalmente los siguientes nombres.[2]
+
+    I Tónica
+    II Supertónica
+    III Mediante
+    IV Subdominante
+    V Dominante
+    VI Superdominante o submediante
+    VII Sensible (en la escala diatónica mayor) o subtónica (en la diatónica menor)
 
     Valores de consonancia armónica para los acordes que se forman con los 24 tonos comprendidos por dos octavas consecutivas de la escala cromática.
     (disonante < 0, irrelevante = 0 y consonante > 0)
+
+    Aquí les muestro las relaciones de las notas con respecto al do (entonces debería llamarse: "tónica", soy matemático no músico).
+
+    May you complete this for me please ? Tonic (sin mucho vino por favor).
 
                                             Tonos enteros               | Tonos semienteros               | Tonos enteros                  | Tonos semienteros
      Valor          Nombre                  Menores Nota                | Menores  Nota                   | Mayores   Nota                 | Mayores  Nota
@@ -350,7 +363,6 @@ class Acustica extends WebSystemObject {
    - 2/3 = - 0.(6)  Disonancia suave       12 B     SI  (séptima menor) |                                 |                                |
    - 3/3 = - 1      Disonancia fuerte       2 D     RE  (segunda menor) |  5  F#    FA  (4t aum o 5ta dis)|  24 B     SI  (séptima mayor)  |
 
-    May you complete this for me please ?
 
 
   let arreglar = [
