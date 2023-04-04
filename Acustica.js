@@ -1,3 +1,4 @@
+'use strict';
 import {WebSystemObject} from './WebSystemObject';
 
 // Generador de sonido puro... con algunas funciones de cálculo acústico.
@@ -27,10 +28,10 @@ class Acustica extends WebSystemObject {
   }
 
   // Cálculo de nivel de sonoridad aproximado (en sonios)
-  // contra una frecuencia clínica de 1000 Hz
-  // Sonoridad = 2 ^ [(NS - 40) / 20]
+  // isófona a una frecuencia clínica de 1000 Hz a una
+  // intensidad constante 60 dB = 2 ^ [(NS - 40) / 20]
   // Fuente: Interpolación de la norma IEC 651/79 Nivel A
-  // Copyright © Abril, 3; 2023 Lic. Luis Guillermo Bultet Ibles ®
+  // Copyright © abril, 4; 2023 Lic. Luis Guillermo Bultet Ibles ®
   // Todos los derechos reservados.
   sonoridad_A(freq) {
     function octave(f) { // aprox.
@@ -117,6 +118,14 @@ class Acustica extends WebSystemObject {
     return result;
   }
 
+
+  // Sonido aparente de dos frecuencias (la suma menos la armónica)
+  // Puede ponderar las intensidades (entre cero y uno)
+  sonidoAparente(f1, f2, i1 = 1, i2 = 1) {
+    // return (f1 + f2) - (2 * (f1 * f2 / (f1 + f2)));
+    return ((i1 * f1 + i2 * f2) - (2 * (i1 * f1 * i2 * f2 / (i1 * f1 + i2 * f2)))) / (i1 + i2);
+  }
+
   // Clasifica un par de frecuencias puras (terminar, pueden tener proporciones consonantes en clasificaciones disonantes).
   // Análiss armónico simple
   clasificarArmonia(frecuencia1, frecuencia2) {
@@ -191,9 +200,8 @@ class Acustica extends WebSystemObject {
       result.descripcion += ' DISONANCIA CONDICIONAL';
     }
 
-
-    // Cómo suenan juntas las dos frecuencias (OJO LAMER QUE ES LA ARMÓNICA NO EL PROMEDIO...)
-    result.juntas = (frecuencia1 * frecuencia2) / (frecuencia1 + frecuencia2);
+    // Cómo suenan juntas las dos frecuencias
+    result.juntas = this.sonidoAparente(frecuencia1, frecuencia2);
     result.juntasDescripcion = this.clasificarFrecuencia(result.juntas);
 
 
