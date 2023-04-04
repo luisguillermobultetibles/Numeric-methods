@@ -342,6 +342,33 @@ class Acustica extends WebSystemObject {
     return resultado;
   }
 
+  /*   Tradicionalmente se ha utilizado el término grado conjunto para denominar al
+    grado inmediatamente anterior o posterior a la nota que se toma como referencia.
+    Por lo tanto es sinónimo de intervalo de segunda. Por el contrario, el grado no
+    adyacente a la nota que se toma como referencia se ha llamado grado disjunto. */
+
+  static grados = [
+    {no: 'I', note: 'C', name: 'Tónica'},
+    {no: 'I', note: 'D', name: 'Supertónica'},
+    {no: 'II', note: 'E', name: 'Mediante'},
+    {no: 'IV', note: 'F', name: 'Subdominante'},
+    {no: 'V', note: 'G', name: 'Dominante'},
+    {no: 'VI', note: 'A', name: 'Superdominante (submediante)'}, //
+    {no: 'VII', note: 'B', name: 'Sensible'},
+  ];
+
+  // El acorde o combinación de dos o más notas tiene un efecto psicológico.
+  // En este sistema (también hay grados intermedios, se incorporan luego).
+  static consonancias = [
+    {value: +3 / 3, name: 'Sublime'},
+    {value: +2 / 3, name: 'Concerto'},
+    {value: +1 / 3, name: 'Pianíssimo'},
+    {value: 0 / 3, name: 'Piano'},
+    {value: -1 / 3, name: 'Absorto'},
+    {value: -2 / 3, name: 'Desconcerto'},
+    {value: -3 / 3, name: 'Ridículo'},
+  ];
+
   /* Acordes
 
   Cada grado de una escala o acorde recibe tradicionalmente los siguientes nombres.[2]
