@@ -130,7 +130,6 @@ class Acustica extends WebSystemObject {
   // Análiss armónico simple
   clasificarArmonia(frecuencia1, frecuencia2) {
 
-
     function helmholtz(f1, f2) {
       return 1 - Math.cos((f1 - f2) * Math.PI / 80) / 2;
     }
@@ -369,6 +368,102 @@ class Acustica extends WebSystemObject {
     {value: -3 / 3, name: 'Ridículo'},
   ];
 
+  // Orden de consonancia tónica según la fórmula de Plompt y levelt.
+  static #conso = [{
+    'nota': 6,
+    'nombre': 'F Cuarta menor',
+    'disonancia': 0.18006033795695903,
+  }, {
+    'nota': 7,
+    'nombre': 'F# ',
+    'disonancia': 0.17941961172282958,
+  }, {
+    'nota': 8,
+    'nombre': 'G Quinta menor',
+    'disonancia': 0.17181850041838476,
+  }, {
+    'nota': 5,
+    'nombre': 'E Tercera menor',
+    'disonancia': 0.17157959603839418,
+  }, {
+    'nota': 9,
+    'nombre': 'G# ',
+    'disonancia': 0.15923632792055098,
+  }, {
+    'nota': 4,
+    'nombre': 'D# ',
+    'disonancia': 0.15168562833209576,
+  }, {
+    'nota': 10,
+    'nombre': 'A Sexta menor',
+    'disonancia': 0.14343009215581598,
+  }, {
+    'nota': 11,
+    'nombre': 'A# ',
+    'disonancia': 0.12590150851067936,
+  }, {
+    'nota': 3,
+    'nombre': 'D Segunda menor',
+    'disonancia': 0.11802116852702582,
+  }, {
+    'nota': 12,
+    'nombre': 'B Séptima menor',
+    'disonancia': 0.10788495107471455,
+  }, {
+    'nota': 13,
+    'nombre': 'C Primera octava',
+    'disonancia': 0.09034185065899747,
+  }, {
+    'nota': 14,
+    'nombre': 'C# ',
+    'disonancia': 0.0739749425457503,
+  }, {
+    'nota': 2,
+    'nombre': 'C# ',
+    'disonancia': 0.06822457643067581,
+  }, {
+    'nota': 15,
+    'nombre': 'D Segunda mayor',
+    'disonancia': 0.059247369388900566,
+  }, {
+    'nota': 16,
+    'nombre': 'D# ',
+    'disonancia': 0.04641569679191183,
+  }, {
+    'nota': 17,
+    'nombre': 'E Tercera mayor',
+    'disonancia': 0.03556305405827431,
+  }, {
+    'nota': 18,
+    'nombre': 'F Cuarta menor',
+    'disonancia': 0.02663997988091822,
+  }, {
+    'nota': 19,
+    'nombre': 'F# ',
+    'disonancia': 0.019501397341327442,
+  }, {
+    'nota': 20,
+    'nombre': 'G Quinta mayor',
+    'disonancia': 0.013942655899859858,
+  }, {
+    'nota': 21,
+    'nombre': 'G# ',
+    'disonancia': 0.009728989759950702,
+  }, {
+    'nota': 22,
+    'nombre': 'A Sexta mayor',
+    'disonancia': 0.0066202373201031525,
+  }, {
+    'nota': 23,
+    'nombre': 'A# ',
+    'disonancia': 0.004388972933796877,
+  }, {
+    'nota': 1,
+    'nombre': 'C Primera al unísono',
+    'disonancia': 0,
+  }];
+
+
   /* Acordes
 
   Cada grado de una escala o acorde recibe tradicionalmente los siguientes nombres.[2]
@@ -386,19 +481,17 @@ class Acustica extends WebSystemObject {
 
     Aquí les muestro las relaciones de las notas con respecto al do (entonces debería llamarse: "tónica", soy matemático no músico).
 
-    May you complete this for me please ? Tonic (sin mucho vino por favor).
+    May you reorder or complete complete this for me please? Consonance tonic order (sin mucho vino por favor).
 
                                             Tonos enteros               | Tonos semienteros               | Tonos enteros                  | Tonos semienteros
      Valor          Nombre                  Menores Nota                | Menores  Nota                   | Mayores   Nota                 | Mayores  Nota
-   + 3/3 = + 1      Consonancia perfecta    8 G     SOL (quinta justa)  |                                 |                                |
-   + 2/3 = + 0.(6)  Consonancia imperfecta  4 F     FA  (cuarta justa)  |                                 |                                |
-   + 1/3 = + 0.(3)  Semi consonancia        3 E     MI  (tercera menor) |                                 |                                |
-     0/3 =   0      Insípido                1 C     DO  (al unísono)    |                                 |                                |
-   - 1/3 = - 0.(3)  Semi disonancia        10 A     LA  (sexta menor)   |                                 |                                |
-   - 2/3 = - 0.(6)  Disonancia suave       12 B     SI  (séptima menor) |                                 |                                |
-   - 3/3 = - 1      Disonancia fuerte       2 D     RE  (segunda menor) |  5  F#    FA  (4t aum o 5ta dis)|  24 B     SI  (séptima mayor)  |
-
-
+   + 3/3 = + 1      Consonancia perfecta    8 G     SOL (quinta menor)  |                                 |  18 F     FA  (cuarta mayor)   |
+   + 2/3 = + 0.(6)  Consonancia imperfecta  6 F     FA  (cuarta menor)  |                                 |  20 G     SOL (quinta mayor)   |
+   + 1/3 = + 0.(3)  Semi consonancia        3 E     MI  (tercera menor) |                                 |  22 A     LA  (sexta mayor)    |
+     0/3 =   0      Insípido                1 C     DO  (al unísono)    |  5  F#    FA  (4t aum o 5ta dis)|  13 C     DO  (octava)         |
+   - 1/3 = - 0.(3)  Semi disonancia        10 A     LA  (sexta menor)   |                                 |  17 E     MI  (tercera mayor)  |
+   - 2/3 = - 0.(6)  Disonancia suave       12 B     SI  (séptima menor) | 11  A#    SI  (bemol)           |  15 D     RE  (segunda mayor)  |
+   - 3/3 = - 1      Disonancia fuerte       2 D     RE  (segunda menor) |                                 |  24 B     SI  (séptima mayor)  |
 
   let arreglar = [
     {no: 1, code: 'C', name: 'Primera al unísono', acorde: 'Insípido'},
