@@ -997,3 +997,73 @@ export class Phone extends WebSystemObject {
     }
 }
 
+// This one is a more clean versión
+class SagePhone extends WebSystemObject {
+    constructor(brand, model, price) {
+        super();
+        this.brand = brand;
+        this.model = model;
+        this.price = price;
+        this.isTurnedOn = false;
+        this.batteryLevel = 0;
+        this.contacts = [];
+        this.messages = [];
+    }
+
+    turnOn() {
+        this.isTurnedOn = true;
+        this.batteryLevel = 100;
+        console.log(`${this.brand} ${this.model} is turned on.`);
+    }
+
+    turnOff() {
+        this.isTurnedOn = false;
+        console.log(`${this.brand} ${this.model} is turned off.`);
+    }
+
+    recharge() {
+        this.batteryLevel = 100;
+        console.log(`${this.brand} ${this.model} is recharged.`);
+    }
+
+    addContact(name, number) {
+        this.contacts.push({ name, number });
+        console.log(`${name} is added to the contacts.`);
+    }
+
+    sendMessage(number, message) {
+        if (this.isTurnedOn && this.batteryLevel > 0) {
+            const contact = this.contacts.find(c => c.number === number);
+            if (contact) {
+                this.messages.push({ to: contact.name, message });
+                console.log(`Message sent to ${contact.name}.`);
+                this.batteryLevel -= 1;
+            } else {
+                console.log(`No contact found with number ${number}.`);
+            }
+        } else {
+            console.log(`${this.brand} ${this.model} is turned off or has low battery.`);
+        }
+    }
+
+    receiveMessage(from, message) {
+        if (this.isTurnedOn && this.batteryLevel > 0) {
+            this.messages.push({ from, message });
+            console.log(`Message received from ${from}.`);
+            this.batteryLevel -= 1;
+        } else {
+            console.log(`${this.brand} ${this.model} is turned off or has low battery.`);
+        }
+    }
+
+    listContacts() {
+        console.log(`Contacts:`);
+        this.contacts.forEach(c => console.log(`${c.name} - ${c.number}`));
+    }
+
+    listMessages() {
+        console.log(`Messages:`);
+        this.messages.forEach(m => console.log(`${m.to ? `To ${m.to}: ` : `From ${m.from}: `}${m.message}`));
+    }
+}
+
