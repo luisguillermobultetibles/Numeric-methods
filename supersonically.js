@@ -10,29 +10,38 @@ export const onmessage = (instructions, initialAccumulator = 0) => {
   let enqueue = [];
   let result = initialAccumulator;
   for (let i = 0; i < instructions.length(); i++) {
-    let parseo = new SimpleParse(SuperScalar.validSentences);
+    let parseo = new SimpleParse();
     let resultado = parseo.parsear();
-    switch (String(resultao.op).toLocaleUpperCase()) {
-      case 'ADD': {
-        result =
-        break;
-      }
-      case 'SUB': {
-        break;
-      }
-      case 'MUL': {
-        break;
-      }
-      case 'DIV': {
-        break;
-      }
-      case 'LOAD': {
-        let tal = result;
-        break;
-      }
-      case 'STORE': {
-        result = tal;
-        break;
+    if (resultado.length > 0) {
+      switch (SuperScalar.Task.validInstructions.some(String(resultado[0].op).toLocaleUpperCase())) {
+        case 'ADD': {
+          result = resultado.resultado[0].args[0];
+          result = SuperScalar.coreAdd(result, resultado.resultado[0].args[1]);
+          break;
+        }
+        case 'SUB': {
+          result = resultado.resultado[0].args[0];
+          result = SuperScalar.coreSubtract(result, resultado.resultado[0].args[1]);
+          break;
+        }
+        case 'MUL': {
+          result = resultado.resultado[0].args[0];
+          result = SuperScalar.coreMultiply(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
+          break;
+        }
+        case 'DIV': {
+          result = resultado.resultado[0].args[0];
+          result = SuperScalar.coreDivide(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
+          break;
+        }
+        case 'LOAD': {
+          result = resultado.resultado[0].args[0];
+          break;
+        }
+        case 'STORE': {
+          result = tal; // ¿?
+          break;
+        }
       }
     }
   }
