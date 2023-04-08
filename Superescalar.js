@@ -57,6 +57,16 @@ export class SuperScalar extends WebSystemObject {
               result = SuperScalar.#coreDivide(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
               break;
             }
+            case 'ROOT': {
+              result = resultado.resultado[0].args[0];
+              result = SuperScalar.#coreRoot(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
+              break;
+            }
+            case 'POW': {
+              result = resultado.resultado[0].args[0];
+              result = SuperScalar.#corePow(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
+              break;
+            }
             case 'LOAD': {
               result = resultado.resultado[0].args[0];
               break;
@@ -707,7 +717,7 @@ export class SuperScalar extends WebSystemObject {
     let result;
     if (this.multitasking) {
       this.addTask('', `LOAD ${base}`);
-      this.addTask('', `POWER ${exponent}`);
+      this.addTask('', `POW ${exponent}`);
       result = this.addTask('', `STORE`);
     } else {
       result = SuperScalar.#corePow(str1, str2);
