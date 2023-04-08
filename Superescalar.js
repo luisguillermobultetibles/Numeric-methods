@@ -1,13 +1,85 @@
 // Clase para representar números enteros extremadamente grandes (naturales no negativos),
 // implementación del Teorema fundamental de la aritmética, en lenguaje OOP de Javascript.
 import {WebSystemObject} from './system/WebSystemObject.js';
+import {SimpleParse} from './Parse';
 
 
 export class SuperScalar extends WebSystemObject {
 
   static Task = class {
+    // Hidden general purpose javascript task class
+    static Thread = class {
+
+      /*
+          Usage:
+
+      const tarea = new SuperScalar.Task.Thread(() => {
+        self.onmessage = (event) => {
+          const result = eval(event.data);
+          self.postMessage(result);
+        };
+      });
+
+      async function evaluarCodigo(code) {
+        const resultado = await tarea.getResults(code);
+        console.log(resultado);
+      }
+
+      */
+      constructor(func) {
+        let blob;
+        if (func instanceof Function) {
+          blob = new Blob([`(${func.toString()})()`], {type: 'application/javascript'});
+        }
+        const url = URL.createObjectURL(blob);
+        this.worker = new Worker(url);
+        this.worker.onmessage = (event) => {
+          if (this.onmessage) {
+            this.onmessage(event.data);
+          }
+        };
+        URL.revokeObjectURL(url);
+      }
+
+      postMessage(message) {
+        this.worker.postMessage(message);
+      }
+
+      set onmessage(handler) {
+        this._onmessage = handler;
+      }
+
+      get onmessage() {
+        return this._onmessage;
+      }
+
+      async getResults(code) {
+        return new Promise((resolve, reject) => {
+          this.onmessage = (result) => {
+            resolve(result);
+          };
+          this.postMessage(code);
+        });
+      }
+    };
+
+    // Evaluación paralela de código en otro hilo
+    // this.paralellEval('2 + 2'); // Imprime "4" en la consola (solo crea el Thread)
+    async paralellEval(code) {
+      const thread = new SuperScalar.Task.Thread(() => {
+        self.onmessage = (event) => {
+          const result = eval(event.data);
+          self.postMessage(result);
+        };
+      });
+      const resultado = await thread.getResults(code);
+      console.log(resultado);
+    }
+
     // alive tasks ids (not by names)
     static tasks = [];
+    // valid instructions (luego incluye la ayuda, parámetros y extensibilidad).
+    static validInstructions = ['ADD', 'SUB', 'MUL', 'DIV', 'LOAD', 'POW', 'ROOT', 'STORE', 'BRANCH'];
 
     constructor(name, fn, worker = false) {
       this.name = name;
@@ -551,50 +623,8 @@ export class SuperScalar extends WebSystemObject {
     return (BigInt(str1.toString()) / BigInt(str2.toString())).toString();
   }
 
-  // Cebrero clase A-Normal viejo
-  strAdd(str1, str2) {
-    let result;
-    if (this.usingWorkers) {
-      result = await this.addTask('', `SUM ${str1} ${str2}`);
-    } else {
-      result = SuperScalar.coreAdd(str1, str2);
-    }
-    return result;
-  }
-
-  strSubtract(str1, str2) {
-    return (BigInt(str1.toString()) - BigInt(str2.toString())).toString();
-  }
-
-  // Multiplies two stringifisable factors whatever they are, and return result.
-  strMultiply(str1, str2) {
-    return (BigInt(str1.toString()) * BigInt(str2.toString())).toString();
-  }
-
-  // By the way (str1 by str2)
-  strDivide(str1, str2) {
-    return (BigInt(str1.toString()) / BigInt(str2.toString())).toString();
-  }
-
-  // Enesimal root of value
-  strRoot(root, value) {
-    let result;
-    const base = BigInt(String(value));
-    const r = BigInt(String(root));
-    let s = BigInt(base + 1n);
-    const k1 = BigInt(r - 1n);
-    let u = BigInt(base);
-    while (u < s) {
-      s = u;
-      u = ((u * k1) + base / BigInt(this.strPow(u, k1))) / r;
-    }
-    result = s;
-
-    return result.toString();
-  }
-
   // Raise the base at the power of exponent
-  strPow(base, exponent) {
+  static corePow(base, exponent) {
     // just work with strings (again)
     const bigBase = BigInt(String(base));
     const bigExponent = BigInt(String(exponent));
@@ -613,8 +643,146 @@ export class SuperScalar extends WebSystemObject {
     } else if (bigExponent % 2n === 0n) {
       result = this.strPow(bigBase, bigExponent / 2n);
     } else {
-      result = bigBase * BigInt(this.strPow(bigBase, bigExponent - 1n));
+      result = bigBase * BigInt(SuperScalar.corePow(bigBase, bigExponent - 1n));
     }
     return String(result);
   }
+
+  static coreRoot(root, value) {
+    let result;
+    const base = BigInt(String(value));
+    const r = BigInt(String(root));
+    let s = BigInt(base + 1n);
+    const k1 = BigInt(r - 1n);
+    let u = BigInt(base);
+    while (u < s) {
+      s = u;
+      u = ((u * k1) + base / BigInt(SuperScalar.strPow(u, k1))) / r;
+    }
+    result = s;
+
+    return result.toString();
+  }
+
+  // Cebrero clase A-Normal viejo
+
+  procesarMensaje(instructions, initialAccumulator = 0) {
+    let enqueue = [];
+    let result = initialAccumulator;
+    for (let i = 0; i < instructions.length(); i++) {
+      let parseo = new SimpleParse();
+      let resultado = parseo.parsear();
+      if (resultado.length > 0) {
+        switch (SuperScalar.Task.validInstructions.some(String(resultado[0].op).toLocaleUpperCase())) {
+          case 'ADD': {
+            result = resultado.resultado[0].args[0];
+            result = SuperScalar.coreAdd(result, resultado.resultado[0].args[1]);
+            break;
+          }
+          case 'SUB': {
+            result = resultado.resultado[0].args[0];
+            result = SuperScalar.coreSubtract(result, resultado.resultado[0].args[1]);
+            break;
+          }
+          case 'MUL': {
+            result = resultado.resultado[0].args[0];
+            result = SuperScalar.coreMultiply(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
+            break;
+          }
+          case 'DIV': {
+            result = resultado.resultado[0].args[0];
+            result = SuperScalar.coreDivide(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
+            break;
+          }
+          case 'LOAD': {
+            result = resultado.resultado[0].args[0];
+            break;
+          }
+          case 'STORE': {
+            result = tal; // ¿?
+            break;
+          }
+        }
+      }
+    }
+    return result;
+  };
+
+
+  strAdd(str1, str2) {
+    let result;
+    if (this.usingWorkers) {
+      this.addTask('', `LOAD ${str1}`);
+      this.addTask('', `ADD ${str2}`);
+      result = this.addTask('', `STORE`);
+    } else {
+      result = SuperScalar.coreAdd(str1, str2);
+    }
+    return result;
+  }
+
+  strSubtract(str1, str2) {
+    let result;
+    if (this.usingWorkers) {
+      this.addTask('', `LOAD ${str1}`);
+      this.addTask('', `SUB ${str2}`);
+      result = this.addTask('', `STORE`);
+    } else {
+      result = SuperScalar.coreSubtract(str1, str2);
+    }
+    return result;
+  }
+
+  // Multiplies two stringifisable factors whatever they are, and return result.
+  strMultiply(str1, str2) {
+    let result;
+    if (this.usingWorkers) {
+      this.addTask('', `LOAD ${str1}`);
+      this.addTask('', `MUL ${str2}`);
+      result = this.addTask('', `STORE`);
+    } else {
+      result = SuperScalar.coreMultiply(str1, str2);
+    }
+    return result;
+  }
+
+  // By the way (str1 by str2)
+  strDivide(str1, str2) {
+    let result;
+    if (this.usingWorkers) {
+      this.addTask('', `LOAD ${str1}`);
+      this.addTask('', `DIV ${str2}`);
+      result = this.addTask('', `STORE`);
+    } else {
+      result = SuperScalar.coreDivide(str1, str2);
+    }
+    return result;
+  }
+
+  // Enesimal root of value
+  strRoot(root, value) {
+    let result;
+    if (this.usingWorkers) {
+      this.addTask('', `LOAD ${root}`);
+      this.addTask('', `ROOT ${value}`);
+      result = this.addTask('', `STORE`);
+    } else {
+      result = SuperScalar.coreRoot(str1, str2);
+    }
+    return result;
+  }
+
+  // Raise the base at the power of exponent
+  strPow(base, exponent) {
+    let result;
+    if (this.usingWorkers) {
+      this.addTask('', `LOAD ${base}`);
+      this.addTask('', `ROOT ${exponent}`);
+      result = this.addTask('', `STORE`);
+    } else {
+      result = SuperScalar.corePow(str1, str2);
+    }
+    return result;
+  }
+
 }
