@@ -3,57 +3,62 @@
 import {WebSystemObject} from './system/WebSystemObject.js';
 
 
-
 export class SuperScalar extends WebSystemObject {
+
   static Task = class {
-  constructor(name, fn, worker = null) {
-    this.name = name;
-    if (worker) {
-      this.worker = new Worker('worker.js');
-      this.worker.onmessage = event => this.onMessage(event);
-      this.worker.postMessage({name, fn});
-    } else {
-      this.fn = fn;
-    }
-    this.result = null;
-    this.error = null;
-  }
+    // alive tasks ids (not by names)
+    static tasks = [];
 
-  onMessage(event) {
-    const {result, error} = event.data;
-    if (error) {
-      this.error = error;
-    } else {
-      this.result = result;
+    constructor(name, fn, worker = false) {
+      this.name = name;
+      this.id = this.autoNum(Task.tasks); // like a process id
+      if (worker) {
+        this.worker = new Worker('supersonically.js');
+        this.worker.onmessage = event => this.onMessage(event);
+        this.worker.postMessage({name, fn});
+      } else {
+        this.fn = fn;
+      }
+      this.result = null;
+      this.error = null;
     }
-  }
 
-  async getResult() {
-    if (this.error) {
-      throw this.error;
+    onMessage(event) {
+      const {result, error} = event.data;
+      if (error) {
+        this.error = error;
+      } else {
+        this.result = result;
+      }
     }
-    return this.result;
-  }
 
-  async execute() {
-    try {
-      this.result = await this.fn();
-    } catch (error) {
-      this.error = error;
+    async getResult() {
+      if (this.error) {
+        throw this.error;
+      }
+      return this.result;
     }
-  }
 
-  getResult() {
-    if (this.error) {
-      throw this.error;
+    async execute() {
+      try {
+        this.result = await this.fn();
+      } catch (error) {
+        this.error = error;
+      }
     }
-    return this.result;
-  }
 
-  hasError() {
-    return this.error !== null;
-  }
-}
+    getResult() {
+      if (this.error) {
+        throw this.error;
+      }
+      return this.result;
+    }
+
+    hasError() {
+      return this.error !== null;
+    }
+
+  };
   // this privates inheritances for polymorphic internal use only...
   static #ScalarZero = class extends SuperScalar {
     constructor() {
@@ -152,9 +157,12 @@ export class SuperScalar extends WebSystemObject {
   // some Mersenne numbers (the two exponent) from 1 to 50
   static mersennes = ['2', '3', '5', '7', '13', '17', '19', '31', '61', '89', '107', '127', '521', '607', '1279', '2203', '2281', '3217', '4253', '4423', '9689', '9941', '11213', '19937', '21701', '23209', '44497', '86243', '110503', '132049', '216091', '756839', '859433', '1257787', '1398269', '2976221', '3021377', '6972593', '13466917', '20996011', '24036583', '25964951', '30402457', '32582657', '37156667', '42643801', '43112609', '57885161', '74207281', '77232917'];
 
-  constructor(definition) {
+  usingWorkers = false;
+  static tasks = [];
+
+  constructor(definition, useWorkers = false) {
     super();
-    this.tasks = [];
+    this.usingWorkers = useWorkers;
     if (definition) {
       if (definition instanceof SuperScalar) {
         this.stru = definition.stru; // Acepta un Number, BigInteger o objeto Scalar.
@@ -189,22 +197,22 @@ export class SuperScalar extends WebSystemObject {
     }
   }
 
-
   addTask(name, fn) {
     const task = new SuperScalar.Task(name, fn);
-    this.tasks.push(task);
+    SuperScalar.Task.tasks.push(task);
   }
 
   async executeTasks(workers = false) {
     let promises;
     if (workers) {
-      const promises = this.tasks.map(task => task.getResult());
+      const promises = SuperScalar.Task.tasks.map(task => task.getResult());
     } else {
-      const promises = this.tasks.map(task => task.execute());
+      const promises = SuperScalar.Task.tasks.map(task => task.execute());
       await Promise.allSettled(promises);
     }
     return promises;
   }
+
   isZero(definition) {
     const likeMe = definition instanceof SuperScalar ? definition : new SuperScalar(definition);
     return likeMe instanceof SuperScalar.#ScalarZero;
@@ -524,8 +532,34 @@ export class SuperScalar extends WebSystemObject {
     return result;
   }
 
-  strAdd(str1, str2) {
+
+  static coreAdd(str1, str2) {
     return (BigInt(str1.toString()) + BigInt(str2.toString())).toString();
+  }
+
+  static coreSubtract(str1, str2) {
+    return (BigInt(str1.toString()) - BigInt(str2.toString())).toString();
+  }
+
+  // Multiplies two stringifisable factors whatever they are, and return result.
+  static coreMultiply(str1, str2) {
+    return (BigInt(str1.toString()) * BigInt(str2.toString())).toString();
+  }
+
+  // By the way (str1 by str2)
+  static coreDivide(str1, str2) {
+    return (BigInt(str1.toString()) / BigInt(str2.toString())).toString();
+  }
+
+  // Cebrero clase A-Normal viejo
+  strAdd(str1, str2) {
+    let result;
+    if (this.usingWorkers) {
+      result = await this.addTask('', `SUM ${str1} ${str2}`);
+    } else {
+      result = SuperScalar.coreAdd(str1, str2);
+    }
+    return result;
   }
 
   strSubtract(str1, str2) {
