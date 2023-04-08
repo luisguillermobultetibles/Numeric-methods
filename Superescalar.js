@@ -1,36 +1,21 @@
+'use strict';
+import {WebSystemObject} from './WebSystemObject.js';
+import {SimpleParse} from './Parse';
 // Clase para representar números enteros extremadamente grandes (naturales no negativos),
 // implementación del Teorema fundamental de la aritmética, en lenguaje OOP de Javascript.
-import {WebSystemObject} from './system/WebSystemObject.js';
-import {SimpleParse} from './Parse';
-
 
 export class SuperScalar extends WebSystemObject {
 
-  static Task = class {
-    // Hidden general purpose javascript task class
-    static Thread = class {
+  static Thread = class {
+    // alive tasks ids (not by names)
+    static tasks = [];
+    // valid instructions (luego incluye la ayuda, parámetros y extensibilidad).
+    static validInstructions = ['ADD', 'SUB', 'MUL', 'DIV', 'LOAD', 'POW', 'ROOT', 'STORE', 'BRANCH'];
 
-      /*
-          Usage:
-
-      const tarea = new SuperScalar.Task.Thread(() => {
-        self.onmessage = (event) => {
-          const result = eval(event.data);
-          self.postMessage(result);
-        };
-      });
-
-      async function evaluarCodigo(code) {
-        const resultado = await tarea.getResults(code);
-        console.log(resultado);
-      }
-
-      */
-      constructor(func) {
-        let blob;
-        if (func instanceof Function) {
-          blob = new Blob([`(${func.toString()})()`], {type: 'application/javascript'});
-        }
+    constructor(func, paralell = SuperScalar.multitasking) {
+      let blob;
+      if (func instanceof Function) {
+        blob = new Blob([`(${func.toString()})()`], {type: 'application/javascript'});
         const url = URL.createObjectURL(blob);
         this.worker = new Worker(url);
         this.worker.onmessage = (event) => {
@@ -39,98 +24,88 @@ export class SuperScalar extends WebSystemObject {
           }
         };
         URL.revokeObjectURL(url);
+      } else {
+        this.onmessage(Thread.procesarMensaje(func, 0));
       }
+    }
 
-      postMessage(message) {
-        this.worker.postMessage(message);
+    static procesarMensaje(instructions, initialAccumulator = 0) {
+      let enqueue = [];
+      let result = initialAccumulator;
+      for (let i = 0; i < instructions.length(); i++) {
+        let parseo = new SimpleParse();
+        let resultado = parseo.parsear();
+        if (resultado.length > 0) {
+          switch (SuperScalar.Task.validInstructions.some(String(resultado[0].op).toLocaleUpperCase())) {
+            case 'ADD': {
+              result = resultado.resultado[0].args[0];
+              result = SuperScalar.#coreAdd(result, resultado.resultado[0].args[1]);
+              break;
+            }
+            case 'SUB': {
+              result = resultado.resultado[0].args[0];
+              result = SuperScalar.#coreSubtract(result, resultado.resultado[0].args[1]);
+              break;
+            }
+            case 'MUL': {
+              result = resultado.resultado[0].args[0];
+              result = SuperScalar.#coreMultiply(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
+              break;
+            }
+            case 'DIV': {
+              result = resultado.resultado[0].args[0];
+              result = SuperScalar.#coreDivide(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
+              break;
+            }
+            case 'LOAD': {
+              result = resultado.resultado[0].args[0];
+              break;
+            }
+            case 'STORE': {
+              result = tal; // ¿?
+              break;
+            }
+          }
+        }
       }
-
-      set onmessage(handler) {
-        this._onmessage = handler;
-      }
-
-      get onmessage() {
-        return this._onmessage;
-      }
-
-      async getResults(code) {
-        return new Promise((resolve, reject) => {
-          this.onmessage = (result) => {
-            resolve(result);
-          };
-          this.postMessage(code);
-        });
-      }
+      return result;
     };
 
-    // Evaluación paralela de código en otro hilo
-    // this.paralellEval('2 + 2'); // Imprime "4" en la consola (solo crea el Thread)
-    async paralellEval(code) {
-      const thread = new SuperScalar.Task.Thread(() => {
-        self.onmessage = (event) => {
-          const result = eval(event.data);
-          self.postMessage(result);
+    postMessage(message) {
+      this.worker.postMessage(message);
+    }
+
+    set onmessage(handler) {
+      this._onmessage = handler;
+    }
+
+    get onmessage() {
+      return this._onmessage;
+    }
+
+    async getResults(code) {
+      return new Promise((resolve, reject) => {
+        this.onmessage = (result) => {
+          resolve(result);
         };
+        this.postMessage(code);
       });
-      const resultado = await thread.getResults(code);
-      console.log(resultado);
     }
 
-    // alive tasks ids (not by names)
-    static tasks = [];
-    // valid instructions (luego incluye la ayuda, parámetros y extensibilidad).
-    static validInstructions = ['ADD', 'SUB', 'MUL', 'DIV', 'LOAD', 'POW', 'ROOT', 'STORE', 'BRANCH'];
-
-    constructor(name, fn, worker = false) {
-      this.name = name;
-      this.id = this.autoNum(Task.tasks); // like a process id
-      if (worker) {
-        this.worker = new Worker('supersonically.js');
-        this.worker.onmessage = event => this.onMessage(event);
-        this.worker.postMessage({name, fn});
-      } else {
-        this.fn = fn;
-      }
-      this.result = null;
-      this.error = null;
+    // Evaluación paralela de código en otro hilo
+    // awaqit this.calculateResult('2 + 2'); // Imprime "4" en la consola (solo crea el Thread)
+    async calculateResult(code) {
+      return new Promise((resolve, reject) => {
+        this.onmessage = (result) => {
+          resolve(result);
+        };
+        this.postMessage(code);
+      });
     }
 
-    onMessage(event) {
-      const {result, error} = event.data;
-      if (error) {
-        this.error = error;
-      } else {
-        this.result = result;
-      }
-    }
-
-    async getResult() {
-      if (this.error) {
-        throw this.error;
-      }
-      return this.result;
-    }
-
-    async execute() {
-      try {
-        this.result = await this.fn();
-      } catch (error) {
-        this.error = error;
-      }
-    }
-
-    getResult() {
-      if (this.error) {
-        throw this.error;
-      }
-      return this.result;
-    }
-
-    hasError() {
-      return this.error !== null;
-    }
 
   };
+
   // this privates inheritances for polymorphic internal use only...
   static #ScalarZero = class extends SuperScalar {
     constructor() {
@@ -229,12 +204,12 @@ export class SuperScalar extends WebSystemObject {
   // some Mersenne numbers (the two exponent) from 1 to 50
   static mersennes = ['2', '3', '5', '7', '13', '17', '19', '31', '61', '89', '107', '127', '521', '607', '1279', '2203', '2281', '3217', '4253', '4423', '9689', '9941', '11213', '19937', '21701', '23209', '44497', '86243', '110503', '132049', '216091', '756839', '859433', '1257787', '1398269', '2976221', '3021377', '6972593', '13466917', '20996011', '24036583', '25964951', '30402457', '32582657', '37156667', '42643801', '43112609', '57885161', '74207281', '77232917'];
 
-  usingWorkers = false;
+  static multitasking = true;
   static tasks = [];
 
-  constructor(definition, useWorkers = false) {
+  constructor(definition, multitasking = true) {
     super();
-    this.usingWorkers = useWorkers;
+    SuperScalar.multitasking = multitasking;
     if (definition) {
       if (definition instanceof SuperScalar) {
         this.stru = definition.stru; // Acepta un Number, BigInteger o objeto Scalar.
@@ -605,26 +580,26 @@ export class SuperScalar extends WebSystemObject {
   }
 
 
-  static coreAdd(str1, str2) {
+  static #coreAdd(str1, str2) {
     return (BigInt(str1.toString()) + BigInt(str2.toString())).toString();
   }
 
-  static coreSubtract(str1, str2) {
+  static #coreSubtract(str1, str2) {
     return (BigInt(str1.toString()) - BigInt(str2.toString())).toString();
   }
 
   // Multiplies two stringifisable factors whatever they are, and return result.
-  static coreMultiply(str1, str2) {
+  static #coreMultiply(str1, str2) {
     return (BigInt(str1.toString()) * BigInt(str2.toString())).toString();
   }
 
   // By the way (str1 by str2)
-  static coreDivide(str1, str2) {
+  static #coreDivide(str1, str2) {
     return (BigInt(str1.toString()) / BigInt(str2.toString())).toString();
   }
 
   // Raise the base at the power of exponent
-  static corePow(base, exponent) {
+  static #corePow(base, exponent) {
     // just work with strings (again)
     const bigBase = BigInt(String(base));
     const bigExponent = BigInt(String(exponent));
@@ -643,12 +618,12 @@ export class SuperScalar extends WebSystemObject {
     } else if (bigExponent % 2n === 0n) {
       result = this.strPow(bigBase, bigExponent / 2n);
     } else {
-      result = bigBase * BigInt(SuperScalar.corePow(bigBase, bigExponent - 1n));
+      result = bigBase * BigInt(SuperScalar.#corePow(bigBase, bigExponent - 1n));
     }
     return String(result);
   }
 
-  static coreRoot(root, value) {
+  static #coreRoot(root, value) {
     let result;
     const base = BigInt(String(value));
     const r = BigInt(String(root));
@@ -664,71 +639,26 @@ export class SuperScalar extends WebSystemObject {
     return result.toString();
   }
 
-  // Cebrero clase A-Normal viejo
-
-  procesarMensaje(instructions, initialAccumulator = 0) {
-    let enqueue = [];
-    let result = initialAccumulator;
-    for (let i = 0; i < instructions.length(); i++) {
-      let parseo = new SimpleParse();
-      let resultado = parseo.parsear();
-      if (resultado.length > 0) {
-        switch (SuperScalar.Task.validInstructions.some(String(resultado[0].op).toLocaleUpperCase())) {
-          case 'ADD': {
-            result = resultado.resultado[0].args[0];
-            result = SuperScalar.coreAdd(result, resultado.resultado[0].args[1]);
-            break;
-          }
-          case 'SUB': {
-            result = resultado.resultado[0].args[0];
-            result = SuperScalar.coreSubtract(result, resultado.resultado[0].args[1]);
-            break;
-          }
-          case 'MUL': {
-            result = resultado.resultado[0].args[0];
-            result = SuperScalar.coreMultiply(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
-            break;
-          }
-          case 'DIV': {
-            result = resultado.resultado[0].args[0];
-            result = SuperScalar.coreDivide(resultado.resultado[0].args[0], resultado.resultado[0].args[1]);
-            break;
-          }
-          case 'LOAD': {
-            result = resultado.resultado[0].args[0];
-            break;
-          }
-          case 'STORE': {
-            result = tal; // ¿?
-            break;
-          }
-        }
-      }
-    }
-    return result;
-  };
-
-
   strAdd(str1, str2) {
     let result;
-    if (this.usingWorkers) {
+    if (this.multitasking) {
       this.addTask('', `LOAD ${str1}`);
       this.addTask('', `ADD ${str2}`);
       result = this.addTask('', `STORE`);
     } else {
-      result = SuperScalar.coreAdd(str1, str2);
+      result = SuperScalar.#coreAdd(str1, str2);
     }
     return result;
   }
 
   strSubtract(str1, str2) {
     let result;
-    if (this.usingWorkers) {
+    if (this.multitasking) {
       this.addTask('', `LOAD ${str1}`);
       this.addTask('', `SUB ${str2}`);
       result = this.addTask('', `STORE`);
     } else {
-      result = SuperScalar.coreSubtract(str1, str2);
+      result = SuperScalar.#coreSubtract(str1, str2);
     }
     return result;
   }
@@ -736,12 +666,12 @@ export class SuperScalar extends WebSystemObject {
   // Multiplies two stringifisable factors whatever they are, and return result.
   strMultiply(str1, str2) {
     let result;
-    if (this.usingWorkers) {
+    if (this.multitasking) {
       this.addTask('', `LOAD ${str1}`);
       this.addTask('', `MUL ${str2}`);
       result = this.addTask('', `STORE`);
     } else {
-      result = SuperScalar.coreMultiply(str1, str2);
+      result = SuperScalar.#coreMultiply(str1, str2);
     }
     return result;
   }
@@ -749,12 +679,12 @@ export class SuperScalar extends WebSystemObject {
   // By the way (str1 by str2)
   strDivide(str1, str2) {
     let result;
-    if (this.usingWorkers) {
+    if (this.multitasking) {
       this.addTask('', `LOAD ${str1}`);
       this.addTask('', `DIV ${str2}`);
       result = this.addTask('', `STORE`);
     } else {
-      result = SuperScalar.coreDivide(str1, str2);
+      result = SuperScalar.#coreDivide(str1, str2);
     }
     return result;
   }
@@ -762,12 +692,12 @@ export class SuperScalar extends WebSystemObject {
   // Enesimal root of value
   strRoot(root, value) {
     let result;
-    if (this.usingWorkers) {
+    if (this.multitasking) {
       this.addTask('', `LOAD ${root}`);
       this.addTask('', `ROOT ${value}`);
       result = this.addTask('', `STORE`);
     } else {
-      result = SuperScalar.coreRoot(str1, str2);
+      result = SuperScalar.#coreRoot(str1, str2);
     }
     return result;
   }
@@ -775,12 +705,12 @@ export class SuperScalar extends WebSystemObject {
   // Raise the base at the power of exponent
   strPow(base, exponent) {
     let result;
-    if (this.usingWorkers) {
+    if (this.multitasking) {
       this.addTask('', `LOAD ${base}`);
-      this.addTask('', `ROOT ${exponent}`);
+      this.addTask('', `POWER ${exponent}`);
       result = this.addTask('', `STORE`);
     } else {
-      result = SuperScalar.corePow(str1, str2);
+      result = SuperScalar.#corePow(str1, str2);
     }
     return result;
   }
