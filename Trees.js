@@ -432,12 +432,3 @@ class HtmlTree {
     return htmlCode;
   }
 }
-
-/*
-    (The job): Quiero que encapsules los miembros que están antes de la clase
-    HtmlTree en una nueva clase DOMTree, a fin de que el resultado sea superior
-    en calidad a ambas soluciones, es decir, que tenga ramas colapsables, y que
-    se puedan arrastrar o editar en dependencia de una propiedad: "editable",
-    también puedes incorporarle las optimizaciones y animaciones que consideres;
-    puedes basarla en WebSystemObject y aprovechar las métodps ya implementados.
-*/
