@@ -1,13 +1,12 @@
 import {WebSystemObject} from './WebSystemObject.js';
+import {PointerDevice} from './PointerDevice.js';
 
 // Clase para controlar los toques en pantallas táctiles ...
-export class Touches extends WebSystemObject {
+export class Touches extends PointerDevice  {
   #isFingerDown = false;
   #ongoingTouches = [];
   #tpCache = [];
   target = window;
-  static x = 0;
-  static y = 0;
   static count = 0;
 
   static #DownEvents = [];

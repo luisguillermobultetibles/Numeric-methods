@@ -1,13 +1,12 @@
-import {WebSystemObject} from './WebSystemObject.js';
 import {Point} from './Point';
 import {Keyboard} from './Keyboard';
+import {PointerDevice} from './PointerDevice.js';
 
 
 // Clase para controlar el ratón...
-export class Mouse extends WebSystemObject {
+export class Mouse extends PointerDevice {
   #isMouseDown = false;
   target = window;
-  position = new Point(0, 0);
   #lastPosition = new Point(x, y);
   direction = new Point(0, 0);
   leftButton = false;
@@ -25,7 +24,7 @@ export class Mouse extends WebSystemObject {
 
   static #mouseDown(e) {
     this.#isMouseDown = true;
-    document.title = `Mouse abajo ${e}: estado ${this.#isMouseDown ? 'abajo' : 'arriba'} en (${this.position.x}, ${this.position.y}).`;
+    document.title = `Mouse abajo ${e}: estado ${this.#isMouseDown ? 'abajo' : 'arriba'} en (${this.x}, ${this.y}).`;
     document.body.style.cursor = 'grabbing';
 
     if (e.which === 1 || e.button === 0) {
@@ -49,7 +48,7 @@ export class Mouse extends WebSystemObject {
 
   static #mouseUp(e) {
     this.#isMouseDown = false;
-    document.title = `Mouse arriba ${e}: estado ${this.#isMouseDown ? 'abajo' : 'arriba'} en (${this.position.x}, ${this.position.y}).`;
+    document.title = `Mouse arriba ${e}: estado ${this.#isMouseDown ? 'abajo' : 'arriba'} en (${this.x}, ${this.y}).`;
     document.body.style.cursor = 'grab';
 
     if (e.which === 1 || e.button === 0) {
@@ -68,19 +67,19 @@ export class Mouse extends WebSystemObject {
   };
 
   static #mouseMove(e) {
-    this.position.x = e.clientX;
-    this.position.y = e.clientY;
+    this.x = e.clientX;
+    this.y = e.clientY;
 
     [this.direction.x, this.direction.y] = [x - this.#lastPosition.x, y - this.#lastPosition.y];
     [this.#lastPosition.x, this.#lastPosition.y] = [x, y];
 
-    document.title = `Mouse moviéndose ${e}: estado ${this.#isMouseDown ? 'abajo' : 'arriba'} en (${this.position.x}, ${this.position.y}).`;
+    document.title = `Mouse moviéndose ${e}: estado ${this.#isMouseDown ? 'abajo' : 'arriba'} en (${this.x}, ${this.y}).`;
     this.#MoveEvents.forEach((event) => event(e));
   };
 
   static #mouseWheel(e) {
-    this.position.x = e.clientX;
-    this.position.y = e.clientY;
+    this.x = e.clientX;
+    this.y = e.clientY;
 
     let dx = Math.sign(e.deltaX);
     let dy = Math.sign(e.deltaY);
@@ -100,7 +99,7 @@ export class Mouse extends WebSystemObject {
     document.title += ` ${dy > 0 ? 'hacia abajo.' : 'hacia arriba.'}.`;
     document.title += ` ${dz > 0 ? 'hacia arriba.' : 'hacia abajo.'}.`;
 
-    if (dz > 0 ) {
+    if (dz > 0) {
       document.body.style.cursor = 'zoom-in';
     } else if (dz < 0) { // or vs
       document.body.style.cursor = 'zoom-out';
@@ -132,7 +131,6 @@ export class Mouse extends WebSystemObject {
 
   constructor(onMouseDown, onMouseMove, onMouseUp, onMouseWheel, target = window) {
     super();
-
     if (this.#DownEvents.length === 0 && this.#UpEvents.length === 0 && this.#MoveEvents.length === 0) {
       if (target) {
         this.target = target;
