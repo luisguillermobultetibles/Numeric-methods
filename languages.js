@@ -5,6 +5,35 @@ class Languages {
   static languagesHash = [];
   static languagesRegexHash = [];
 
+  statuc;
+  messages = [{
+    key: 0,
+    data: {
+      'en': {
+        'greeting': 'Hello, {name}!',
+        'farewell': 'Goodbye, {name}!',
+      },
+      'es': {
+        'greeting': '¡Hola, {name}!',
+        'farewell': '¡Adiós, {name}!',
+      },
+    },
+  }];
+
+  static t(key, language, data) {
+    language = language || 'en';
+    data = data || {};
+    let template = languages[language][key];
+    if (template) {
+      return template.replace(/\{(\w+)\}/g, function(match, p1) {
+        return data.hasOwnProperty(p1) ? data[p1] : match;
+      });
+    } else {
+      console.warn('Language key not found: ' + key);
+      return key;
+    }
+  }
+
   constructor() {
     /* Initialize the languages arrays */
     Languages.languagesHash['aeb'] = 'زَوُن';
@@ -180,6 +209,138 @@ class Languages {
 
   getLanguageRegex(language) {
     return Languages.languagesRegexHash[language] || '';
+  }
+
+  async detectLanguage(text) {
+    const URL = `https://api-nam.cognitive.microsofttranslator.com/detect?api-version=3.0`;
+
+    const response = await fetch(URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([{'Text': text}]),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return data[0].language;
+    } else {
+      throw new Error(`Error al detectar el idioma. Código de error: ${response.status}`);
+    }
+  }
+
+  async translateWithKey(text, targetLang = 'en', API_KEY = 'TU_CLAVE_API_DE_MICROSOFT_TRANSLATE') {
+    const sourceLang = await this.detectLanguage(text);
+    const URL = `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${sourceLang}&to=${targetLang}`;
+
+    const response = await fetch(URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': API_KEY,
+        'Ocp-Apim-Subscription-Region': 'tu-region',
+      },
+      body: JSON.stringify([{'Text': text}]),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return data[0].translations[0].text;
+    } else {
+      throw new Error(`Error al traducir el texto. Código de error: ${response.status}`);
+    }
+  }
+
+  async translate(text, sourceLang = 'auto', targetLang = 'en') {
+    const URL = `https://api-nam.cognitive.microsofttranslator.com/translate?api-version=3.0&from=${sourceLang}&to=${targetLang}`;
+
+    const response = await fetch(URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([{'Text': text}]),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return data[0].translations[0].text;
+    } else {
+      throw new Error(`Error al traducir el texto. Código de error: ${response.status}`);
+    }
+
+  }
+
+  async analizarFrase1(frase) {
+    const url = `https://nlp.stanford.edu:443/sentiment/rntnDemo_ES.cgi?input=${encodeURIComponent(frase)}`;
+    const response = await fetch(url);
+    const html = await response.text();
+
+    // Extraer los componentes gramaticales y las características gramaticales del verbo de la oración
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const sentence = doc.querySelector('.sentence');
+    const sujeto = sentence.querySelector('.nsubj');
+    const predicado = sentence.querySelector('.root');
+    const objetoDirecto = sentence.querySelector('.dobj');
+    const verbo = sentence.querySelector('.root .verb');
+    const tiempo = verbo ? verbo.getAttribute('tense') : null;
+    const modo = verbo ? verbo.getAttribute('mood') : null;
+    const persona = verbo ? verbo.getAttribute('person') : null;
+    const numero = verbo ? verbo.getAttribute('number') : null;
+
+    // Devolver un objeto JSON con los componentes gramaticales y las características gramaticales del verbo encontrados
+    return {
+      sujeto: sujeto ? sujeto.textContent : null,
+      predicado: predicado ? predicado.textContent : null,
+      objetoDirecto: objetoDirecto ? objetoDirecto.textContent : null,
+      tiempo: tiempo,
+      modo: modo,
+      persona: persona,
+      numero: numero,
+    };
+  }
+
+  async analizarFrase2(frase) {
+    const url = `https://api.meaningcloud.com/parser-2.0?key=tu_api_key_de_MeaningCloud&lang=es&txt=${encodeURIComponent(frase)}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // Buscar el verbo en la oración
+    const sentence = data.sentence_list[0];
+    const verbo = sentence.token_list.find(token => token.pos.startsWith('V'));
+
+    // Extraer las características gramaticales del verbo
+    let tiempo = null;
+    let modo = null;
+    let persona = null;
+    let numero = null;
+    if (verbo) {
+      tiempo = verbo.tense;
+      modo = verbo.mood;
+      persona = verbo.person;
+      numero = verbo.number;
+    }
+
+    // Extraer los componentes gramaticales de la oración
+    const sujeto = sentence.token_list.find(token => token.dep == 'nsubj');
+    const predicado = sentence.token_list.find(token => token.dep == 'root');
+    const objetoDirecto = sentence.token_list.find(token => token.dep == 'obj');
+
+    // Devolver un objeto JSON con los componentes gramaticales y las características gramaticales del verbo encontrados
+    return {
+      sujeto: sujeto ? sujeto.token : null,
+      predicado: predicado ? predicado.token : null,
+      objetoDirecto: objetoDirecto ? objetoDirecto.token : null,
+      tiempo: tiempo,
+      modo: modo,
+      persona: persona,
+      numero: numero,
+    };
   }
 
 }
