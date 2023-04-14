@@ -47,20 +47,75 @@ class Acustica extends WebSystemObject {
     return Math.ln((f + 0.64710459283) / 7.9415) / 0.6909;
   }
 
-  Sonoridad_A(freq) {
-    let i = 3 * this.octava(freq);
-    let result = 0.0012 * Math.pow(i, 3) - 0.1933 * Math.pow(i, 2) + 7.1735 * i - 75.75;
-    return result;
+  /**
+   * Calcula el nivel de sonoridad aproximado (en sonios) isófona a una frecuencia clínica de 1000 Hz
+   * a una intensidad constante 60 dB = 2 ^ [(NS - 40) / 20]
+   * @param {number} frequency - La frecuencia en Hz
+   * @returns {number} El nivel de sonoridad aproximado en sonios
+   */
+  calculateSonorityAtFrequency(frequency) {
+    // Aproximación de la octava utilizando la ecuación logarítmica
+    const octaveIndex = Math.log((frequency + 0.64710459283) / 7.9415) / 0.6909;
+
+    // Cálculo de la sonoridad utilizando la aproximación de la norma IEC 651/79 Nivel A
+    const sonority = 0.0012 * Math.pow(octaveIndex, 3) - 0.1933 * Math.pow(octaveIndex, 2) + 7.1735 * octaveIndex - 75.75;
+
+    return sonority;
   }
 
+  /**
+ * Calcula el nivel de sonoridad aproximado (en sonios) isófona a una frecuencia clínica de 1000 Hz
+ * a una intensidad constante 60 dB = 2 ^ [(NS - 40) / 20]
+ * Utiliza la aproximación de la norma IEC 651/79 Nivel A y el coseno hiperbólico
+ * @param {number} frequency - La frecuencia en Hz
+ * @returns {number} El nivel de sonoridad aproximado en sonios
+ */
+calculateSonorityAtFrequencyWithCosH(frequency) {
+  // Frecuencia de referencia
+  const fRef = 1000;
 
-  // Plompt y Levelt, versión conmutativa.
-  disonancia(f1, f2, v1 = 1, v2 = 1) {
-    if (f1 > f2) {
-      [f1, f2, v1, v2] = [f2, f1, v2, v1];
+  // Coeficientes de la aproximación de la sonoridad
+  const a = 1.76;
+  const b = -0.84;
+  const c = -0.19;
+
+  // Cálculo del factor de intensidad
+  const intensityFactor = Math.pow(2, (-40 / 20));
+
+  // Cálculo de la sonoridad utilizando la aproximación de la norma IEC 651/79 Nivel A y el coseno hiperbólico
+  const sonority = 94.0 + a * Math.cosh(b * Math.log(frequency / fRef) + c) * intensityFactor;
+
+  return sonority;
+}
+
+
+  // Plom y Levelt, versión conmutativa.
+  /**
+   * Calcula la disonancia entre dos notas musicales utilizando la fórmula de disonancia de Plomp y Levelt
+   * @param {number} frequency1 - La frecuencia de la primera nota en Hz
+   * @param {number} frequency2 - La frecuencia de la segunda nota en Hz
+   * @param {number} volume1 - El volumen de la primera nota (opcional, valor predeterminado = 1)
+   * @param {number} volume2 - El volumen de la segunda nota (opcional, valor predeterminado = 1)
+   * @returns {number} La disonancia entre las dos notas
+   */
+  calculateDisonance = (frequency1, frequency2, volume1 = 1, volume2 = 1) => {
+    if (frequency1 <= 0 || frequency2 <= 0) {
+      throw new Error("Las frecuencias deben ser números positivos");
     }
-    let lambda = 0.24 / (0.021 * Math.min(f1, f2) * 19);
-    return v1 * v2 * (Math.exp(-3.5 * lambda * (f2 - f1)) - Math.exp(-5.75 * lambda * (f2 - f1)));
+
+    if (volume1 <= 0 || volume2 <= 0) {
+      throw new Error("Los valores de volumen deben ser números positivos");
+    }
+
+    // Asegurarse de que la frecuencia menor sea f1
+    if (frequency1 > frequency2) {
+      [frequency1, frequency2, volume1, volume2] = [frequency2, frequency1, volume2, volume1];
+    }
+
+    const lambda = 0.24 / (0.021 * Math.min(frequency1, frequency2) * 19);
+    const dissonance = volume1 * volume2 * (Math.exp(-3.5 * lambda * (frequency2 - frequency1)) - Math.exp(-5.75 * lambda * (frequency2 - frequency1)));
+
+    return dissonance;
   }
 
   disonancia1(f1, f2) {
@@ -120,10 +175,25 @@ class Acustica extends WebSystemObject {
 
 
   // Sonido aparente de dos frecuencias (la suma menos la armónica)
-  // Puede ponderar las intensidades (entre cero y uno)
-  sonidoAparente(f1, f2, i1 = 1, i2 = 1) {
-    // return (f1 + f2) - (2 * (f1 * f2 / (f1 + f2)));
-    return ((i1 * f1 + i2 * f2) - (2 * (i1 * f1 * i2 * f2 / (i1 * f1 + i2 * f2)))) / (i1 + i2);
+  /**
+   * Calcula el sonido aparente de dos frecuencias utilizando la sonoridad de cada frecuencia como un peso
+   * @param {number} frequency1 - La frecuencia de la primera nota en Hz
+   * @param {number} frequency2 - La frecuencia de la segunda nota en Hz
+   * @param {number} intensity1 - La intensidad de la primera nota (opcional, valor predeterminado = 1)
+   * @param {number} intensity2 - La intensidad de la segunda nota (opcional, valor predeterminado = 1)
+   * @returns {number} El sonido aparente de las dos notas
+   */
+  calculateApparentSound(frequency1, frequency2, intensity1 = 1, intensity2 = 1) {
+    const sonority1 = sonoridad_A(frequency1);
+    const sonority2 = sonoridad_A(frequency2);
+
+    const weightedFrequency1 = frequency1 * sonority1;
+    const weightedFrequency2 = frequency2 * sonority2;
+
+    const numerator = (intensity1 * weightedFrequency1) + (intensity2 * weightedFrequency2) - (2 * intensity1 * weightedFrequency1 * intensity2 * weightedFrequency2 / ((intensity1 * weightedFrequency1) + (intensity2 * weightedFrequency2)));
+    const denominator = intensity1 + intensity2;
+
+    return numerator / denominator;
   }
 
   // Clasifica un par de frecuencias puras (terminar, pueden tener proporciones consonantes en clasificaciones disonantes).
@@ -200,7 +270,7 @@ class Acustica extends WebSystemObject {
     }
 
     // Cómo suenan juntas las dos frecuencias
-    result.juntas = this.sonidoAparente(frecuencia1, frecuencia2);
+    result.juntas = this.calculateApparentSound(frecuencia1, frecuencia2);
     result.juntasDescripcion = this.clasificarFrecuencia(result.juntas);
 
 
@@ -212,9 +282,47 @@ class Acustica extends WebSystemObject {
 
   // Se toma como base nota La, seis blancas a la derecha del Do central en la octava 4.
   // tono de 0-11, octava 0-11 (El tono 9 de la octava 4 es un La de 440 Hz).
-  frecuencia(tono = 1, octava = 4) {
-    const LA4_Freq = 440;
-    return LA4_Freq * Math.pow(2, octava - 4) * Math.pow(2, (tono - 9) / 12);
+  /**
+   * Calcula la frecuencia de una nota musical en función del tono y la octava, tomando como referencia el tono La en 440 Hz
+   * @param {number} tono - El tono de la nota (0-11, donde 0 es Do, 1 es Do# o Re♭, 2 es Re, etc.)
+   * @param {number} octava - La octava de la nota (0-11, donde 4 es la octava central de un piano)
+   * @returns {number} La frecuencia de la nota en Hz
+   */
+  calculateFrequency(tono = 1, octava = 4) {
+    const A4_Freq = 440; // Frecuencia de referencia para el tono La
+
+    // Calibración de la octava
+    const octaveFactor = (octave < 4) ? Math.pow(2, 4 - octave) : (1 / Math.pow(2, octave - 4));
+
+    // Cálculo de la frecuencia
+    const frequency = A4_Freq * Math.pow(2, (tono - 9) / 12) * octaveFactor;
+
+    return frequency;
+  }
+
+  /**
+   * Calcula el ancho de banda de un tercio de octava en función de la frecuencia central y la octava
+   * @param {number} frequency - La frecuencia central del tercio de octava
+   * @param {number} octave - La octava de la frecuencia central
+   * @param {function} sonorityFunction - La función de sonoridad para ajustar el ancho de banda (opcional, valor predeterminado = sonoridad_A)
+   * @returns {number} El ancho de banda del tercio de octava en Hz
+   */
+  calculateThirdOctaveBandwidth(frequency, octave, sonorityFunction = this.calculateSonorityAtFrequency) {
+    const bandwidthFactor = this.sonorityFunction(frequency) / this.sonorityFunction(1000); // Factor de ajuste de ancho de banda
+
+    let lowerFrequency, upperFrequency; // Frecuencias límite del tercio de octava
+
+    if (octave < 4) {
+      lowerFrequency = (frequency / Math.pow(2, 1 / 6)) * Math.pow(2, -1 / 6 * (4 - octave)) * bandwidthFactor;
+      upperFrequency = (frequency * Math.pow(2, 1 / 6)) * Math.pow(2, -1 / 6 * (4 - octave)) * bandwidthFactor;
+    } else {
+      lowerFrequency = (frequency / Math.pow(2, 1 / 6)) * Math.pow(2, 1 / 6 * (octave - 4)) * bandwidthFactor;
+      upperFrequency = (frequency * Math.pow(2, 1 / 6)) * Math.pow(2, 1 / 6 * (octave - 4)) * bandwidthFactor;
+    }
+
+    const bandwidth = upperFrequency - lowerFrequency;
+
+    return bandwidth;
   }
 
   /*
@@ -299,7 +407,7 @@ class Acustica extends WebSystemObject {
   play(channel, tono = 1, octava = 1, frecuencia_LA_POR_ENCIMA_DEL_DO_CENTRAL_primera_octava = 440) {
     let argumentos = args;
     let canal = argumentos.shift();
-    this.sound(this.frecuencia(...argumentos), canal);
+    this.sound(this.calculateFrequency(...argumentos), canal);
   }
 
   // Generador de sonido puro fundamental (suénalo).
@@ -322,8 +430,8 @@ class Acustica extends WebSystemObject {
 
   // Es cuestión de apreciación probar todos contra todos del uno al 12 y ordenarlos
   probarAcorde(a, b) {
-    this.sound(this.frecuencia(a), 0);
-    this.sound(this.frecuencia(b), 1);
+    this.sound(this.calculateFrequency(a), 0);
+    this.sound(this.calculateFrequency(b), 1);
   }
 
   terminarPrueba() {
@@ -333,10 +441,10 @@ class Acustica extends WebSystemObject {
 
   // Lista acordes
   listaAcordes() {
-    let doInicial = this.frecuencia();
+    let doInicial = this.calculateFrequency();
     let resultado = [];
     for (var i = 1; i < 25; i++) {
-      resultado.push(this.disonancia(doInicial, this.frecuencia(i)));
+      resultado.push(this.disonancia(doInicial, this.calculateFrequency(i)));
     }
     return resultado;
   }
@@ -369,99 +477,153 @@ class Acustica extends WebSystemObject {
   ];
 
   // Orden de consonancia tónica según la fórmula de Plompt y levelt.
-  static #conso = [{
-    'nota': 6,
-    'nombre': 'F Cuarta menor',
-    'disonancia': 0.18006033795695903,
-  }, {
-    'nota': 7,
-    'nombre': 'F# ',
-    'disonancia': 0.17941961172282958,
-  }, {
-    'nota': 8,
-    'nombre': 'G Quinta menor',
-    'disonancia': 0.17181850041838476,
-  }, {
-    'nota': 5,
-    'nombre': 'E Tercera menor',
-    'disonancia': 0.17157959603839418,
-  }, {
-    'nota': 9,
-    'nombre': 'G# ',
-    'disonancia': 0.15923632792055098,
-  }, {
-    'nota': 4,
-    'nombre': 'D# ',
-    'disonancia': 0.15168562833209576,
-  }, {
-    'nota': 10,
-    'nombre': 'A Sexta menor',
-    'disonancia': 0.14343009215581598,
-  }, {
-    'nota': 11,
-    'nombre': 'A# ',
-    'disonancia': 0.12590150851067936,
-  }, {
-    'nota': 3,
-    'nombre': 'D Segunda menor',
-    'disonancia': 0.11802116852702582,
-  }, {
-    'nota': 12,
-    'nombre': 'B Séptima menor',
-    'disonancia': 0.10788495107471455,
-  }, {
-    'nota': 13,
-    'nombre': 'C Primera octava',
-    'disonancia': 0.09034185065899747,
-  }, {
-    'nota': 14,
-    'nombre': 'C# ',
-    'disonancia': 0.0739749425457503,
-  }, {
-    'nota': 2,
-    'nombre': 'C# ',
-    'disonancia': 0.06822457643067581,
-  }, {
-    'nota': 15,
-    'nombre': 'D Segunda mayor',
-    'disonancia': 0.059247369388900566,
-  }, {
-    'nota': 16,
-    'nombre': 'D# ',
-    'disonancia': 0.04641569679191183,
-  }, {
-    'nota': 17,
-    'nombre': 'E Tercera mayor',
-    'disonancia': 0.03556305405827431,
-  }, {
-    'nota': 18,
-    'nombre': 'F Cuarta menor',
-    'disonancia': 0.02663997988091822,
-  }, {
-    'nota': 19,
-    'nombre': 'F# ',
-    'disonancia': 0.019501397341327442,
-  }, {
-    'nota': 20,
-    'nombre': 'G Quinta mayor',
-    'disonancia': 0.013942655899859858,
-  }, {
-    'nota': 21,
-    'nombre': 'G# ',
-    'disonancia': 0.009728989759950702,
-  }, {
-    'nota': 22,
-    'nombre': 'A Sexta mayor',
-    'disonancia': 0.0066202373201031525,
-  }, {
-    'nota': 23,
-    'nombre': 'A# ',
-    'disonancia': 0.004388972933796877,
-  }, {
-    'nota': 1,
-    'nombre': 'C Primera al unísono',
-    'disonancia': 0,
-  }];
+  static #conso = [
+    {
+      "grado": 1,
+      "nombre": "Unísono",
+      "nota_anglosajona": "C",
+      "relacion_frecuencia": 1
+    },
+    {
+      "grado": 2,
+      "nombre": "Octava",
+      "nota_anglosajona": "C",
+      "relacion_frecuencia": 2
+    },
+    {
+      "grado": 3,
+      "nombre": "Quinta justa",
+      "nota_anglosajona": "G",
+      "relacion_frecuencia": 3/2
+    },
+    {
+      "grado": 4,
+      "nombre": "Cuarta justa",
+      "nota_anglosajona": "F",
+      "relacion_frecuencia": 4/3
+    },
+    {
+      "grado": 5,
+      "nombre": "Tercera mayor",
+      "nota_anglosajona": "E",
+      "relacion_frecuencia": 5/4
+    },
+    {
+      "grado": 6,
+      "nombre": "Sexta mayor",
+      "nota_anglosajona": "A",
+      "relacion_frecuencia": 5/3
+    },
+    {
+      "grado": 7,
+      "nombre": "Segunda mayor",
+      "nota_anglosajona": "D",
+      "relacion_frecuencia": 9/8
+    },
+    {
+      "grado": 8,
+      "nombre": "Séptima menor",
+      "nota_anglosajona": "B",
+      "relacion_frecuencia": 16/15
+    },
+    {
+      "grado": 9,
+      "nombre": "Sexta menor",
+      "nota_anglosajona": "Ab",
+      "relacion_frecuencia": 6/5
+    },
+    {
+      "grado": 10,
+      "nombre": "Quinta disminuida",
+      "nota_anglosajona": "Gb",
+      "relacion_frecuencia": 7/5
+    },
+    {
+      "grado": 11,
+      "nombre": "Cuarta aumentada / Quinta disminuida",
+      "nota_anglosajona": "F# / Gb",
+      "relacion_frecuencia": 25/18
+    },
+    {
+      "grado": 12,
+      "nombre": "Tercera menor",
+      "nota_anglosajona": "Eb",
+      "relacion_frecuencia": 6/5
+    },
+    {
+      "grado": 13,
+      "nombre": "Segunda menor",
+      "nota_anglosajona": "Db",
+      "relacion_frecuencia": 256/225
+    },
+    {
+      "grado": 14,
+      "nombre": "Séptima mayor / Octava menor",
+      "nota_anglosajona": "Bb",
+      "relacion_frecuencia": 15/8
+    },
+    {
+      "grado": 15,
+      "nombre": "Sexta mayor / Séptima menor",
+      "nota_anglosajona": "A# / Bb",
+      "relacion_frecuencia": 27/16
+    },
+    {
+      "grado": 16,
+      "nombre": "Quinta mayor",
+      "nota_anglosajona": "G",
+      "relacion_frecuencia": 3/2
+    },
+    {
+      "grado": 17,
+      "nombre": "Cuarta aumentada / Quinta disminuida",
+      "nota_anglosajona": "F# / Gb",
+      "relacion_frecuencia": 25/18
+    },
+    {
+      "grado": 18,
+      "nombre": "Tercera menor",
+      "nota_anglosajona": "F",
+      "relacion_frecuencia": 16/11
+    },
+    {
+      "grado": 19,
+      "nombre": "Segunda menor",
+      "nota_anglosajona": "E",
+      "relacion_frecuencia": 10/9
+    },
+    {
+      "grado": 20,
+      "nombre": "Séptima mayor / Octava menor",
+      "nota_anglosajona": "D",
+      "relacion_frecuencia": 9/5
+    },
+    {
+      "grado": 21,
+      "nombre": "Sexta mayor / Séptima menor",
+      "nota_anglosajona": "D# / Eb",
+      "relacion_frecuencia": 16/9
+    },
+    {
+      "grado": 22,
+      "nombre": "Quinta aumentada / Sexta disminuida",
+      "nota_anglosajona": "E# / F",
+      "relacion_frecuencia": 45/32
+    },
+    {
+      "grado": 23,
+      "nombre": "Cuarta aumentada",
+      "nota_anglosajona": "F#",
+      "relacion_frecuencia": 64/45
+    },
+    {
+      "grado": 24,
+      "nombre": "Tritono",
+      "nota_anglosajona": "G# / Ab",
+      "relacion_frecuencia": 729/512
+    }
+  ]
+
 
 
   /* Acordes
