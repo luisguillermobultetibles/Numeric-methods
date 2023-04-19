@@ -37,6 +37,14 @@ export class CustomComponent {
     this.element.removeEventListener(eventName, this.handler);
   }
 
+  hide() {
+    this.element.style.display = 'none';
+  }
+
+  show() {
+    this.element.style.display = '';
+  }
+
 }
 
 export class CustomContainer extends CustomComponent {
@@ -336,7 +344,7 @@ class Table extends CustomComponent {
         const inputs = event.target.parentNode.parentNode.getElementsByTagName(
           'input',
         );
-        for (let i = 1; i < inputs.length; i++) {
+        for (let i = 1; i < inputs.length; i++) { // Se sugiere que comience en 0
           if (event.target.checked) {
             inputs[i].readOnly = false;
             inputs[i].removeAttribute('disabled');
@@ -503,3 +511,179 @@ class Table extends CustomComponent {
   }
 
 }
+
+// Incorporar
+function createSlider(labelText, minValue, maxValue, step, defaultValue, onValueChange) {
+  const slider = document.createElement('div');
+  slider.classList.add('slider');
+
+  const label = document.createElement('label');
+  label.innerText = labelText;
+  label.classList.add('slider-label');
+  slider.appendChild(label);
+
+  const input = document.createElement('input');
+  input.setAttribute('type', 'range');
+  input.setAttribute('min', minValue);
+  input.setAttribute('max', maxValue);
+  input.setAttribute('step', step);
+  input.setAttribute('value', defaultValue);
+  input.classList.add('slider-input');
+  slider.appendChild(input);
+
+  let value = defaultValue;
+
+  input.addEventListener('input', function() {
+    value = parseFloat(input.value);
+    if (onValueChange) {
+      onValueChange(value);
+    }
+  });
+
+  return {
+    element: slider,
+    getValue: function() {
+      return value;
+    }
+  };
+}
+
+class Slider extends CustomComponent {
+  constructor(owner, labelText, minValue, maxValue, step, defaultValue, onValueChange) {
+    super(owner, null, 'div');
+
+    this.element.classList.add('slider');
+
+    const label = document.createElement('label');
+    label.innerText = labelText;
+    label.classList.add('slider-label');
+    this.element.appendChild(label);
+
+    const input = document.createElement('input');
+    input.setAttribute('type', 'range');
+    input.setAttribute('min', minValue);
+    input.setAttribute('max', maxValue);
+    input.setAttribute('step', step);
+    input.setAttribute('value', defaultValue);
+    input.classList.add('slider-input');
+    this.element.appendChild(input);
+
+    let value = defaultValue;
+
+    input.addEventListener('input', function() {
+      value = parseFloat(input.value);
+      if (onValueChange) {
+        onValueChange(value);
+      }
+    });
+    this.element = this.element;
+    this.getValue = function() {
+      return value;
+    };
+  }
+}
+function createTable(numRows, numCols, headers) {
+  const table = document.createElement('table');
+
+  // Create header row
+  if (headers) {
+    const headerRow = document.createElement('tr');
+    for (let i = 0; i < numCols; i++) {
+      const headerCell = document.createElement('th');
+      headerCell.textContent = headers[i];
+      headerRow.appendChild(headerCell);
+    }
+    table.appendChild(headerRow);
+  }
+
+  // Create data rows
+  for (let i = 0; i < numRows; i++) {
+    const row = document.createElement('tr');
+    for (let j = 0; j < numCols; j++) {
+      const cell = document.createElement('td');
+      row.appendChild(cell);
+    }
+    table.appendChild(row);
+  }
+
+  return table;
+}
+
+function createProgressBar(value, maxValue) {
+  const progressBar = document.createElement('progress');
+  progressBar.setAttribute('max', maxValue);
+  progressBar.setAttribute('value', value);
+  return progressBar;
+}
+
+function createStatusBar(items) {
+  const statusBar = document.createElement('div');
+  statusBar.classList.add('status-bar');
+  for (let i = 0; i < items.length; i++) {
+    const item = document.createElement('div');
+    item.textContent = items[i];
+    item.classList.add('status-item');
+    statusBar.appendChild(item);
+  }
+  return statusBar;
+}
+
+class ProgressBar extends CustomComponent {
+  constructor(owner, value, maxValue = 100) {
+    super(owner, progressBar, 'progress');
+    this.element.setAttribute('max', maxValue);
+    this.element.setAttribute('value', value);
+  }
+}
+
+class PresentableText extends CustomComponent {
+  constructor(owner, text, className = 'p') {
+    super(owner);
+    this.element = document.createElement(className);
+    this.element.textContent = text;
+    if (className) {
+      this.element.classList.add(className);
+    }
+  }
+
+  setText(text) {
+    this.element.textContent = text;
+  }
+
+  setClass(className) {
+    this.element.classList.add(className);
+  }
+
+  hide() {
+    this.element.style.display = 'none';
+  }
+
+  show() {
+    this.element.style.display = '';
+  }
+}
+
+class Paragraph extends PresentableText {
+  constructor(text, className) {
+    super(text, className);
+    this.element = document.createElement('p');
+    this.element.textContent = text;
+    if (className) {
+      this.element.classList.add(className);
+    }
+  }
+}
+
+class Heading extends PresentableText {
+  constructor(text, level, className) {
+    super(text, className);
+    this.element = document.createElement('h' + level);
+    this.element.textContent = text;
+    if (className) {
+      this.element.classList.add(className);
+    }
+  }
+}
+
+
+
