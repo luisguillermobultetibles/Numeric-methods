@@ -1,5 +1,6 @@
 // Componentes interactivos del DOM
 'use strict';
+import {EventDispathcer} from './EventDispatcher.js';
 
 export class CustomComponent {
   constructor(owner = null, id = null, _class = null) {
@@ -48,7 +49,7 @@ export class CustomComponent {
 }
 
 export class CustomContainer extends CustomComponent {
-  constructor(containerId = 'myCustomComponentContainer') {
+  constructor(containerId = 'myCustomComponentContainer', owner = null) {
     super(owner, id, 'div');
     this.container = element;
     this.components = [];
@@ -286,278 +287,52 @@ export function unitaryTest() {
 
 ///////////////////////////////////
 class Table extends CustomComponent {
-  constructor(data, id) {
-    super(owner, id);
-    this.data = data;
-    this.element = null;
-    this.tbody = null;
-    this.createTable();
-  }
+  constructor(owner, numRows, numCols, headers) {
+    const table = document.createElement('table');
 
-  createTable() {
-// Crear la tabla y agregar los encabezados
-    this.element = document.createElement('table');
-    const thead = document.createElement('thead');
-    const trHead = document.createElement('tr');
-    const thCheck = document.createElement('th');
-    thCheck.textContent = 'Check';
-    trHead.appendChild(thCheck);
-    for (const key in this.data[0]) {
-      const th = document.createElement('th');
-      th.textContent = key;
-      trHead.appendChild(th);
-    }
-    thead.appendChild(trHead);
-    this.element.appendChild(thead);
-
-// Crear el cuerpo de la tabla y agregar los datos
-    this.tbody = document.createElement('tbody');
-    for (let i = 0; i < this.data.length; i++) {
-      const tr = document.createElement('tr');
-      const tdCheck = document.createElement('td');
-      const inputCheck = document.createElement('input');
-      inputCheck.type = 'checkbox';
-
-      tdCheck.appendChild(inputCheck);
-      tr.appendChild(tdCheck);
-      for (const key in this.data[i]) {
-        const td = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = this.data[i][key];
-        input.readOnly = true;
-        input.setAttribute('disabled', '');
-        input.name = key;
-        td.appendChild(input);
-        tr.appendChild(td);
+    // Create header row
+    if (headers) {
+      const headerRow = document.createElement('tr');
+      for (let i = 0; i < numCols; i++) {
+        const headerCell = document.createElement('th');
+        headerCell.textContent = headers[i];
+        headerRow.appendChild(headerCell);
       }
-      this.tbody.appendChild(tr);
-    }
-    this.element.appendChild(this.tbody);
-
-// Agregar la tabla al contenedor
-    this.element.appendChild(this.element);
-
-// Agregar un listener al checkbox para hacer los campos editables o no
-    this.element.addEventListener('click', (event) => {
-      if (event.target.type === 'checkbox') {
-        const inputs = event.target.parentNode.parentNode.getElementsByTagName(
-          'input',
-        );
-        for (let i = 1; i < inputs.length; i++) { // Se sugiere que comience en 0
-          if (event.target.checked) {
-            inputs[i].readOnly = false;
-            inputs[i].removeAttribute('disabled');
-          } else {
-            inputs[i].readOnly = true;
-            inputs[i].setAttribute('disabled', '');
-          }
-        }
-      }
-    });
-
-// Agregar un botón para aceptar los cambios y actualizar la data
-    const button = document.createElement('button');
-    button.textContent = 'Guardar cambios';
-    button.addEventListener('click', () => {
-      for (let i = 0; i < this.tbody.children.length; i++) {
-        const tr = this.tbody.children[i];
-        const inputs = tr.getElementsByTagName('input');
-        for (let j = 0; j < inputs.length; j++) {
-          const input = inputs[j];
-          this.data[i][input.name] = input.value;
-        }
-      }
-    });
-    this.element.appendChild(button);
-
-  }
-
-// Elementos para combinar y dividir
-
-  static TableRow = class {
-    constructor(row) {
-      this.row = row;
-      this.cells = [];
-      for (let i = 0; i < row.cells.length; i++) {
-        this.cells.push(new TableCell(row.cells[i]));
-      }
+      table.appendChild(headerRow);
     }
 
-    addCell() {
-      const cell = this.row.insertCell();
-      const tableCell = new TableCell(cell);
-      this.cells.push(tableCell);
-      return tableCell;
-    }
-
-    remove() {
-      for (let i = 0; i < this.cells.length; i++) {
-        this.cells[i].remove();
-      }
-      this.row.remove();
-    }
-
-  };
-
-  static TableCell = class {
-    constructor(cell) {
-      this.cell = cell;
-    }
-
-    remove() {
-      this.cell.parentNode.removeChild(this.cell);
-    }
-
-  };
-
-  // Reconstruir una tabla dadas sus filas y columnas
-  constructTable(numRows = 1, numCols = 1) {
-    this.numRows = numRows;
-    this.numCols = numCols;
-    this.rows = [];
+    // Create data rows
     for (let i = 0; i < numRows; i++) {
-      const row = this.addRow();
-      this.rows.push(row);
-      for (let j = 1; j < numCols; j++) {
-        row.addCell();
+      const row = document.createElement('tr');
+      for (let j = 0; j < numCols; j++) {
+        const cell = document.createElement('td');
+        row.appendChild(cell);
       }
+      table.appendChild(row);
     }
+
+    super(owner, null, null);
+    this.element = table;
   }
 
-  get numRows() {
-    return this.element.rows.length;
+  setCell(row, col, value) {
+    this.element.rows[row].cells[col].textContent = value;
   }
 
-  set numRows(r) {
-    this.element.rows.length = r;
+  getCell(row, col) {
+    return this.element.rows[row].cells[col].textContent;
   }
-
-  get numCols() {
-    return this.element.cols;
-  }
-
-  set numCols(c) {
-    this.element.cols = c;
-  }
-
-  addRow() {
-    const row = new Table.TableRow(this.element.insertRow());
-    this.numRows++;
-    this.rows.push(row);
-    return row;
-  }
-
-  addColumn() {
-    for (let i = 0; i < this.numRows; i++) {
-      this.rows[i].addCell();
-    }
-    this.numCols++;
-  }
-
-  removeColumn(col = this.numRows - 1) {
-    this.rows[col].remove();
-  }
-
-
-  combineCells(startRow, startCol, endRow, endCol) {
-    const startCell = this.getCellElement(startRow, startCol);
-    const endCell = this.getCellElement(endRow, endCol);
-    const colspan = endCol - startCol + 1;
-    const rowspan = endRow - startRow + 1;
-    startCell.cell.colSpan = colspan;
-    startCell.cell.rowSpan = rowspan;
-    for (let i = startRow; i <= endRow; i++) {
-      for (let j = startCol + 1; j <= endCol; j++) {
-        this.getCellElement(i, j).remove();
-      }
-    }
-    for (let i = startRow + 1; i <= endRow; i++) {
-      this.rows[i].cells[startCol].remove();
-    }
-  }
-
-  splitCell(row, col) {
-    const cell = this.getCellElement(row, col);
-    const rowspan = cell.cell.rowSpan;
-    const colspan = cell.cell.colSpan;
-    cell.cell.rowSpan = 1;
-    cell.cell.colSpan = 1;
-    for (let i = rowspan - 1; i >= 1; i--) {
-      const newRow = row + i;
-      const newCell = this.rows[newRow].insertCell(col);
-      newCell.innerHTML = cell.cell.innerHTML;
-      this.rows[newRow].cells[col] = new this.TableCell(newCell);
-    }
-    for (let i = colspan - 1; i >= 1; i--) {
-      const newCol = col + i;
-      const newCell = this.rows[row].insertCell(newCol);
-      newCell.innerHTML = cell.cell.innerHTML;
-      this.rows[row].cells[newCol] = new this.TableCell(newCell);
-    }
-  }
-
-  getCellElement(row, col) {
-    return this.element.rows[row].cells[col];
-  }
-
-  getCellValue(row, col) {
-    return this.element.rows[row].cells[col].innerHTML;
-  }
-
-  // Inner html
-  setCellValue(row, col, value) {
-    this.element.rows[row].cells[col].innerHTML = value;
-  }
-
-}
-
-// Incorporar
-function createSlider(labelText, minValue, maxValue, step, defaultValue, onValueChange) {
-  const slider = document.createElement('div');
-  slider.classList.add('slider');
-
-  const label = document.createElement('label');
-  label.innerText = labelText;
-  label.classList.add('slider-label');
-  slider.appendChild(label);
-
-  const input = document.createElement('input');
-  input.setAttribute('type', 'range');
-  input.setAttribute('min', minValue);
-  input.setAttribute('max', maxValue);
-  input.setAttribute('step', step);
-  input.setAttribute('value', defaultValue);
-  input.classList.add('slider-input');
-  slider.appendChild(input);
-
-  let value = defaultValue;
-
-  input.addEventListener('input', function() {
-    value = parseFloat(input.value);
-    if (onValueChange) {
-      onValueChange(value);
-    }
-  });
-
-  return {
-    element: slider,
-    getValue: function() {
-      return value;
-    }
-  };
 }
 
 class Slider extends CustomComponent {
   constructor(owner, labelText, minValue, maxValue, step, defaultValue, onValueChange) {
-    super(owner, null, 'div');
-
-    this.element.classList.add('slider');
+    const slider = document.createElement('div');
+    slider.classList.add('slider');
 
     const label = document.createElement('label');
     label.innerText = labelText;
     label.classList.add('slider-label');
-    this.element.appendChild(label);
+    slider.appendChild(label);
 
     const input = document.createElement('input');
     input.setAttribute('type', 'range');
@@ -566,7 +341,7 @@ class Slider extends CustomComponent {
     input.setAttribute('step', step);
     input.setAttribute('value', defaultValue);
     input.classList.add('slider-input');
-    this.element.appendChild(input);
+    slider.appendChild(input);
 
     let value = defaultValue;
 
@@ -576,65 +351,70 @@ class Slider extends CustomComponent {
         onValueChange(value);
       }
     });
-    this.element = this.element;
+
+    super(owner, null, null);
+    this.element = slider;
     this.getValue = function() {
       return value;
     };
   }
 }
-function createTable(numRows, numCols, headers) {
-  const table = document.createElement('table');
-
-  // Create header row
-  if (headers) {
-    const headerRow = document.createElement('tr');
-    for (let i = 0; i < numCols; i++) {
-      const headerCell = document.createElement('th');
-      headerCell.textContent = headers[i];
-      headerRow.appendChild(headerCell);
-    }
-    table.appendChild(headerRow);
-  }
-
-  // Create data rows
-  for (let i = 0; i < numRows; i++) {
-    const row = document.createElement('tr');
-    for (let j = 0; j < numCols; j++) {
-      const cell = document.createElement('td');
-      row.appendChild(cell);
-    }
-    table.appendChild(row);
-  }
-
-  return table;
-}
-
-function createProgressBar(value, maxValue) {
-  const progressBar = document.createElement('progress');
-  progressBar.setAttribute('max', maxValue);
-  progressBar.setAttribute('value', value);
-  return progressBar;
-}
-
-function createStatusBar(items) {
-  const statusBar = document.createElement('div');
-  statusBar.classList.add('status-bar');
-  for (let i = 0; i < items.length; i++) {
-    const item = document.createElement('div');
-    item.textContent = items[i];
-    item.classList.add('status-item');
-    statusBar.appendChild(item);
-  }
-  return statusBar;
-}
 
 class ProgressBar extends CustomComponent {
-  constructor(owner, value, maxValue = 100) {
-    super(owner, progressBar, 'progress');
-    this.element.setAttribute('max', maxValue);
-    this.element.setAttribute('value', value);
+  constructor(owner, value, maxValue) {
+    const progressBar = document.createElement('progress');
+    progressBar.setAttribute('max', maxValue);
+    progressBar.setAttribute('value', value);
+    super(owner, null, null);
+    this.element = progressBar;
+  }
+
+  setValue(value) {
+    this.element.value = value;
+  }
+
+  getValue() {
+    return this.element.value;
   }
 }
+
+class StatusBar extends CustomComponent {
+  constructor(owner, items) {
+    const statusBar = document.createElement('div');
+    statusBar.classList.add('status-bar');
+    for (let i = 0; i < items.length; i++) {
+      const item = document.createElement('div');
+      item.textContent = items[i];
+      item.classList.add('status-item');
+      statusBar.appendChild(item);
+    }
+    super(owner, null, null);
+    this.element = statusBar;
+  }
+
+  setText(index, text) {
+    this.element.children[index].textContent = text;
+  }
+
+  getText(index) {
+    return this.element.children[index].textContent;
+  }
+}
+
+class VerticalContainer extends CustomContainer {
+  constructor(id) {
+    super(id);
+    this.element.classList.add('vertical-container');
+  }
+}
+
+class HorizontalContainer extends CustomContainer {
+  constructor(id) {
+    super(id);
+    this.element.classList.add('horizontal-container');
+  }
+}
+
 
 class PresentableText extends CustomComponent {
   constructor(owner, text, className = 'p') {
