@@ -28,13 +28,14 @@ export class CustomComponent {
   setEvent(eventName, handler = () => {
     console.warn(` Empty event ${eventName} on ${this.constructor.name}.`);
   }) {
-    this.element.addEventListener(eventName, handler.bind(this));
+    this.handler = handler.bind(this);
+    this.element.addEventListener(eventName, this.handler);
   }
 
   // Revisar si acepta un solo parámetro
-  // removeEvent(eventName) {
-  //   this.element.removeEventListener(eventName);
-  // }
+  removeEvent(eventName) {
+    this.element.removeEventListener(eventName, this.handler);
+  }
 
 }
 
@@ -226,7 +227,7 @@ export class Form extends CustomComponent {
   }
 }
 
-export function visualComponentsTest() {
+export function unitaryTest() {
   let myForm = new Form();
 
   const myButton = new Button(myForm, 'Click me', function() {
