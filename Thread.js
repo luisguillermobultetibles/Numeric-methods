@@ -1,4 +1,4 @@
-export class SimpleThread {
+export class SimpleThread { // Multitask motor
 
   static #taskData = [];
 
@@ -23,7 +23,7 @@ export class SimpleThread {
     }
 
     const code = func.toString();
-    const workerURL = URL.createObjectURL(new Blob([code], {type: 'application/javascript'}));
+    const workerURL = URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
     const worker = new SharedWorker(workerURL);
     this.id = autonum(SimpleThread.#taskData);
     const data = {
@@ -67,14 +67,12 @@ export class SimpleThread {
       task.status = 'ended';
     }
   }
-
   postMessage(message) {
     const task = SimpleThread.#taskData.find((task) => task.id === this.id);
     if (task) {
       task.worker.port.postMessage(message);
     }
   }
-
   async getResults() {
     const task = SimpleThread.#taskData.find((task) => task.id === this.id);
     if (task && task.status === null) {
@@ -86,10 +84,9 @@ export class SimpleThread {
     }
     return null;
   }
-
   static unitaryTest() {
     // Crea dos instancias de la clase Thread
-    const thread1 = new Thread(() => {
+    const thread1 = new Thread(async () => {
       // Función que se ejecutará en el primer hilo
       let result = 0;
       for (let i = 0; i < 1000000000; i++) {
@@ -98,7 +95,7 @@ export class SimpleThread {
       this.postMessage(result);
     });
 
-    const thread2 = new Thread(() => {
+    const thread2 = new Thread(async () => {
       // Función que se ejecutará en el segundo hilo
       let result = 0;
       for (let i = 1000000000; i < 2000000000; i++) {
@@ -110,7 +107,7 @@ export class SimpleThread {
     // Lanza las dos tareas en paralelo y espera a que terminen
     Promise.all([thread1.getResults(), thread2.getResults()]).then((results) => {
       // Combina los resultados de las dos tareas
-      const total = results.reduce((acc, val) => acc + val, 0);
+      const total = results.reduce(async (acc, val) => acc + val, 0);
       console.log(total); // Output: 1999999999000000000
     }).finally(() => {
       // Cierra los hilos web
@@ -144,7 +141,7 @@ export class PauseableThread {
     }
 
     const code = func.toString();
-    const workerURL = URL.createObjectURL(new Blob([code], {type: 'application/javascript'}));
+    const workerURL = URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
     const worker = new SharedWorker(workerURL);
     this.id = autonum(PauseableThread.#taskData);
     const data = {
@@ -282,4 +279,8 @@ Terminado: el hilo, proceso o tarea ha finalizado su ejecución de manera normal
 
 Suspendido: el hilo, proceso o tarea ha sido detenido temporalmente y su ejecución se reanudará en un momento posterior.
 */
+
+
+
+
 
