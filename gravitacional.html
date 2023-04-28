@@ -192,6 +192,86 @@
       }
     });
   });
+  
+  // La mitad de mi reino (que me pertenece), para el que arregle la siguiente función de transporte si tocar el coseno hiperbólico: 
+  
+    function calcularDistribucionAportes(aportesconsumos, tablaDistancias) {
+    function calcularPesoPonderado(consumo) {
+      const i = Math.floor(-consumo);
+
+      console.log('i:', i);
+      console.log('tablaDistancias:', tablaDistancias);
+
+      let peso = 0;
+      for (let j = 0; j < tablaDistancias[i].length; j++) {
+        peso += consumo * tablaDistancias[i][j] / Math.cosh(tablaDistancias[i][j]);
+      }
+      return peso;
+    }
+
+    const totalAportes = aportesconsumos.reduce((total, a) => total + Math.max(a, 0), 0);
+
+    const consumosNegativos = {
+      consumos: aportesconsumos.filter((ayc) => ayc < 0),
+      suma: aportesconsumos.reduce((suma, ayc) => suma + Math.min(0, ayc), 0)
+    };
+
+    console.log('Consumos negativos:', consumosNegativos.consumos);
+    console.log('Suma de consumos negativos:', consumosNegativos.suma);
+
+    const pesoTotal = consumosNegativos.consumos.reduce((total, consumo) => total + calcularPesoPonderado(consumo), 0);
+
+    console.log('Peso total:', pesoTotal);
+
+    const distribucion = consumosNegativos.consumos.map((consumo) => {
+      const peso = calcularPesoPonderado(consumo);
+      const porcentaje = peso / pesoTotal;
+      const cantidad = Math.round(porcentaje * totalAportes);
+      return {consumo, cantidad};
+    });
+
+    console.log('Distribución de aportes:', distribucion);
+
+    return distribucion;
+  }
+  function generarJuegoDeDatos(numAportes = 10, numConsumos = 10) {
+    const aportes = [];
+    const consumos = [];
+
+    // Generamos valores aleatorios para los aportes
+    for (let i = 0; i < numAportes; i++) {
+      aportes.push(Math.round(Math.random() * 1000));
+    }
+
+    // Generamos valores aleatorios para los consumos
+    for (let i = 0; i < numConsumos; i++) {
+      consumos.push(-Math.round(Math.random() * 1000));
+    }
+
+    // Generamos valores aleatorios para la tabla de distancias
+    const tablaDistancias = [];
+    for (let i = 0; i < numConsumos; i++) {
+      const fila = [];
+      for (let j = 0; j < numConsumos; j++) {
+        if (i === j) {
+          fila.push(0);
+        } else {
+          fila.push(Math.random() * 10);
+        }
+      }
+      tablaDistancias.push(fila);
+    }
+    return [aportes.concat(consumos), tablaDistancias];
+  }
+
+  const [aportesconsumos, tablaDistancias] = generarJuegoDeDatos();
+
+  const distribucion = calcularDistribucionAportes(aportesconsumos, tablaDistancias);
+  console.log(distribucion);
+  
+  
+  
+  
 </script>
 </body>
 </html>
