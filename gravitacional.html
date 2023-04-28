@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Vogel Algorithm</title>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Define los datos de entrada
+  const aportes = [10, 20, 30];
+  const consumos = [15, 25, 30, 10];
+  const nFilas = aportes.length;
+  const nColumnas = consumos.length;
+
+  // Calcula la oferta y la demanda total
+  let ofertaTotal = aportes.reduce((a, b) => a + b, 0);
+  let demandaTotal = consumos.reduce((a, b) => a + b, 0);
+
+  // Inicializa las variables necesarias para el algoritmo de Vogel
+  const sumasFilas = Array(nFilas).fill(0);
+  const sumasColumnas = Array(nColumnas).fill(0);
+  const asignaciones = Array(nFilas).fill(null).map(() => Array(nColumnas).fill(null));
+
+
+
+  // Función para calcular la distancia gravitacional entre dos puntos
+  function distanciaGravitacional(a, c) {
+    return a * c * Math.cosh(distancia(a, c));
+  }
+
+  // Función para calcular la distancia euclidiana entre dos puntos
+  function distancia(x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // Calcula las sumas de las filas y las columnas
+  for (let i = 0; i < nFilas; i++) {
+    for (let j = 0; j < nColumnas; j++) {
+      if (aportes[i] > 0 && consumos[j] > 0) {
+        const costo = distanciaGravitacional(aportes[i], consumos[j]);
+        sumasFilas[i] += costo;
+        sumasColumnas[j] += costo;
+      }
+    }
+  }
+
+  // Ejecuta el algoritmo de Vogel
+  while (ofertaTotal > 0 && demandaTotal > 0) {
+    // Encuentra la celda con la mayor diferencia de costos
+    let maxDiferencia = -Infinity;
+    let maxI = null;
+    let maxJ = null;
+    for (let i = 0; i < nFilas; i++) {
+      for (let j = 0; j < nColumnas; j++) {
+        if (aportes[i] > 0 && consumos[j] > 0) {
+          const diferencia = Math.abs(sumasFilas[i] - sumasColumnas[j]);
+          if (diferencia > maxDiferencia) {
+            maxDiferencia = diferencia;
+            maxI = i;
+            maxJ = j;
+          }
+        }
+      }
+    }
+
+    // Encuentra la asignación óptima para la celda seleccionada
+    let minCosto = Infinity;
+    let mejorConsumo = null;
+    if (sumasFilas[maxI] > sumasColumnas[maxJ]) {
+      consumos.forEach((consumo, j) => {
+        if (asignaciones[maxI][j] === null) {
+          const costo = distanciaGravitacional(aportes[maxI], consumo);
+          if (costo < minCosto) {
+            minCosto = costo;
+            mejorConsumo = j;
+          }
+        }
+      });
+    } else {
+      aportes.forEach((aporte, i) => {
+        if (asignaciones[i][maxJ] === null) {
+          const costo = distanciaGravitacional(aporte, consumos[maxJ]);
+          if (costo < minCosto) {
+            minCosto = costo;
+            mejorConsumo = i;
+          }
+        }
+      });
+    }
+
+    // Asigna la oferta y la demanda a la celda seleccionada
+    const cantidad = Math.min(aportes[maxI], consumos[maxJ]);
+    if (asignaciones[maxI]) asignaciones[maxI][maxJ] = cantidad;
+    ofertaTotal -= cantidad;
+    demandaTotal -= cantidad;
+
+    // Actualiza las sumas de las filas y las columnas
+    sumasFilas[maxI] = sumasColumnas[maxJ] = 0;
+    for (let i = 0; i < nFilas; i++) {
+      for (let j = 0; j < nColumnas; j++) {
+        if (asignaciones[i][j] === null) {
+          if (aportes[i] > 0 && consumos[j] > 0) {
+            const costo = distanciaGravitacional(aportes[i], consumos[j]);
+            sumasFilas[i] += costo;
+            sumasColumnas[j] += costo;
+          }
+        }
+      }
+    }
+
+    // Encuentra la asignación óptima para la otra celda seleccionada
+    minCosto = Infinity;
+    mejorConsumo = null;
+    if (maxI !== mejorConsumo) {
+      if (sumasFilas[mejorConsumo] > sumasColumnas[maxJ]) {
+        consumos.forEach((consumo, j) => {
+          if (asignaciones[mejorConsumo][j] === null) {
+            const costo = distanciaGravitacional(aportes[mejorConsumo], consumo);
+            if (costo < minCosto) {
+              minCosto = costo;
+              mejorConsumo = j;
+            }
+          }
+        });
+      } else {
+        aportes.forEach((aporte, i) => {
+          if (asignaciones[i][maxJ] === null) {
+            const costo = distanciaGravitacional(aporte, consumos[maxJ]);
+            if (costo < minCosto) {
+              minCosto = costo;
+              mejorConsumo = i;
+            }
+          }
+        });
+      }
+
+      // Asigna la oferta y la demanda a la otra celda seleccionada
+      const cantidad2 = Math.min(aportes[mejorConsumo], consumos[maxJ]);
+      asignaciones[mejorConsumo][maxJ] = cantidad2;
+      ofertaTotal -= cantidad2;
+      demandaTotal -= cantidad2;
+
+      // Actualiza las sumas de las filas y las columnas
+      sumasFilas[mejorConsumo] = sumasColumnas[maxJ] = 0;
+      for (let i = 0; i < nFilas; i++) {
+        for (let j = 0; j < nColumnas; j++) {
+          if (asignaciones[i][j] === null) {
+            if (aportes[i] > 0 && consumos[j] > 0) {
+              const costo = distanciaGravitacional(aportes[i], consumos[j]);
+              sumasFilas[i] += costo;
+              sumasColumnas[j] += costo;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Dibuja los nodos y las asignaciones en el canvas
+  const radio = 20;
+  const x0 = 100;
+  const y0 = 100;
+  const separacion = 50;
+  ctx.font = '12px Arial';
+  aportes.forEach((aporte, i) => {
+    ctx.fillStyle = 'blue';
+    ctx.beginPath();
+    ctx.arc(x0, y0 + i * separacion, radio * aporte / ofertaTotal, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillStyle = 'black';
+    ctx.fillText(`A${i+1}`, x0 - radio, y0 + i * separacion + 4);
+    consumos.forEach((consumo, j) => {
+      if (asignaciones[i][j] !== null) {
+        ctx.fillStyle = 'green';
+        ctx.beginPath();
+        ctx.arc(x0 + (j + 1) * separacion, y0 + i * separacion, radio * asignaciones[i][j] / ofertaTotal, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = 'black';
+        ctx.fillText(`C${j+1}`, x0 + (j + 1) * separacion - radio, y0 + i * separacion + 4);
+        ctx.beginPath();
+        ctx.moveTo(x0 + i * separacion + radio, y0 + i * separacion);
+        ctx.lineTo(x0 + (j + 1) * separacion - radio, y0 + i * separacion);
+        ctx.stroke();
+      }
+    });
+  });
+</script>
+</body>
+</html>
