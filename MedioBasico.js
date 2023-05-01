@@ -1,4 +1,35 @@
 
+// Clase para agrupar los medios básicos por grupos según el codificador nacional
+class GrupoMediosBasicos {
+  constructor(nombreGrupo) {
+    this.nombreGrupo = nombreGrupo;
+    this.mediosBasicos = [];
+  }
+
+  // Método para agregar un medio básico al grupo
+  agregarMedioBasico(medioBasico) {
+    this.mediosBasicos.push(medioBasico);
+  }
+
+  // Método para calcular la depreciación acumulada de todos los medios básicos del grupo en un año determinado
+  depreciacionAcumulada(anio) {
+    let depreciacionAcumuladaGrupo = 0;
+    for (let i = 0; i < this.mediosBasicos.length; i++) {
+      depreciacionAcumuladaGrupo += this.mediosBasicos[i].depreciacionAcumulada(anio);
+    }
+    return depreciacionAcumuladaGrupo;
+  }
+
+  // Método para calcular el valor en libros de todos los medios básicos del grupo en un año determinado
+  valorEnLibros(anio) {
+    let valorEnLibrosGrupo = 0;
+    for (let i = 0; i < this.mediosBasicos.length; i++) {
+      valorEnLibrosGrupo += this.mediosBasicos[i].valorEnLibros(anio);
+    }
+    return valorEnLibrosGrupo;
+  }
+}
+
 class MedioBasico {
   constructor(nombre, descripcion, valor, fechaCompra, vidaUtil, codigo) {
     this.nombre = nombre;
@@ -13,6 +44,12 @@ class MedioBasico {
     this.valorInicial = valor;
     this.cuentaActivo = 'Activo Fijo';
     this.cuentaDepreciacion = 'Depreciación Acumulada';
+
+    this.grupo = grupo; // Grupo al que pertenece el medio básico según el codificador nacional
+    this.valorInicial = valorInicial; // Valor inicial del medio básico
+    this.aniosVidaUtil = aniosVidaUtil; // Años de vida útil del medio básico
+
+    this.gastosMantenimiento = 0;
   }
 
   comprar(fechaCompra, valor, cuenta) {
@@ -48,6 +85,14 @@ class MedioBasico {
       descripcion: 'Movimiento interno del activo fijo tangible',
       cuenta: cuenta,
     });
+  }
+
+
+  // Método para calcular el valor en libros de un medio básico en un año determinado
+  valorEnLibros(anio) {
+    let depreciacionAcumulada = this.depreciacionAcumulada(anio);
+    let valorEnLibros = this.valorInicial - depreciacionAcumulada;
+    return valorEnLibros;
   }
 
   amortizar(fechaAmortizacion, metodoDepreciacion, cuenta) {
@@ -185,8 +230,52 @@ class MedioBasico {
     }
   }
 
-  calcularValorEnLibros(fecha) {
-    return this.valorInicial - this.calcularDepreciacionAcumulada(fecha);
+// Método para calcular la depreciación acumulada de un medio básico en un año determinado
+  depreciacionAcumulada(anio) {
+    let aniosTranscurridos = anio - 1;
+    let valorDepreciado = this.valorInicial / this.aniosVidaUtil;
+    let depreciacionAcumulada = valorDepreciado * aniosTranscurridos;
+    return depreciacionAcumulada;
+  }
+
+  // Método para registrar gastos de mantenimiento del medio básico
+  registrarGastosMantenimiento(gastos) {
+    this.gastosMantenimiento += gastos;
+  }
+
+  // Método para calcular el costo total de un medio básico, incluyendo el valor inicial y los gastos de mantenimiento registrados
+  costoTotal() {
+    let costoTotal = this.valorInicial + this.gastosMantenimiento;
+    return costoTotal;
+  }
+
+  // Método para obtener la clasificación contable del medio básico según su tipo
+  clasificacionContable() {
+    let clasificacion = "";
+    switch (this.tipoMedio) {
+      case "Edificios y construcciones":
+        clasificacion = "Activo inmovilizado";
+        break;
+      case "Maquinarias y equipos":
+        clasificacion = "Activo fijo";
+        break;
+      case "Vehículos":
+        clasificacion = "Activo fijo";
+        break;
+      case "Herramientas y utensilios":
+        clasificacion = "Activo fijo";
+        break;
+      case "Muebles y enseres":
+        clasificacion = "Activo fijo";
+        break;
+      case "Equipos de cómputo y comunicaciones":
+        clasificacion = "Activo fijo";
+        break;
+      default:
+        clasificacion = "Tipo de medio básico no definido";
+        break;
+    }
+    return clasificacion;
   }
 
 }
@@ -194,7 +283,7 @@ class MedioBasico {
 
 // Actualizar la arriba con los métodos
 
-class MedioBasico {
+class MedioBasico1 {
   constructor(nombre, descripcion, valor, fechaCompra, vidaUtil, codigo) {
     this.nombre = nombre;
     this.descripcion = descripcion;
