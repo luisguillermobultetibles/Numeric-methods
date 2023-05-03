@@ -199,6 +199,65 @@
           }
         });
 
+        if (window.DeviceOrientationEvent) {
+          window.addEventListener('deviceorientation', (event) => {
+            let _event = event;
+
+            // First, center the map on the device position
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(function (position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                var point = this.project([longitude, latitude]);
+                var canvasCenterX = canvas.width / 2;
+                var canvasCenterY = canvas.height / 2;
+                var deltaX = canvasCenterX - point.x;
+                var deltaY = canvasCenterY - point.y;
+                this.pan(deltaX, deltaY);
+              });
+            }
+
+            if (_event.alpha !== null && _event.beta !== null && _event.gamma !== null) {
+              // Convert degrees to radians
+              const alpha = _event.alpha * (Math.PI / 180); // orientación del dispositivo con respecto al norte magnético, ángulo en el plano horizontal entre el eje x del dispositivo y el norte magnético.
+              const beta = _event.beta * (Math.PI / 180); // inclinación del dispositivo de adelante hacia atrás, ángulo en el plano vertical entre el eje x del dispositivo y el plano horizontal.
+              const gamma = _event.gamma * (Math.PI / 180); // inclinación del dispositivo de izquierda a derecha, ángulo en el plano vertical entre el eje y del dispositivo y el plano horizontal.
+
+              // Calculate the necessary transformations based on the device orientation
+              const scale = window.innerWidth / this.options.mapSize;
+              const x = window.innerWidth / 2;
+              const y = window.innerHeight / 2;
+              const tiltX = beta;
+              const tiltY = gamma;
+              const rotateZ = alpha;
+
+              // Calculate the transformation matrix for perspective
+              const depth = 500; // Distance from the observer to the canvas plane
+              const point = this.project([longitude, latitude]);
+              const canvasCenterX = canvas.width / 2;
+              const canvasCenterY = canvas.height / 2;
+              const deltaX = canvasCenterX - point.x;
+              const deltaY = canvasCenterY - point.y;
+              const z = (depth - point.y) / depth; // Profundidad normalizada entre 0 y 1
+              const m21 = -deltaX * z; // Seso en el eje x
+              const m22 = -deltaY * z; // Seso en el eje y
+
+              // Apply the transformations to the canvas
+              this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+              this.ctx.setTransform(scale, 0, 0, scale, x, y);
+              this.ctx.transform(1, 0, m21, 1, 0, 0);
+              this.ctx.transform(1, m22, 0, 1, 0, 0);
+              this.ctx.transform(1, 0, Math.tan(tiltY), 1, 0, 0);
+              this.ctx.transform(1, Math.tan(tiltX), 0, 1, 0, 0);
+              this.ctx.transform(Math.cos(rotateZ), Math.sin(rotateZ), -Math.sin(rotateZ), Math.cos(rotateZ), 0, 0);
+              this.lastTransform = this.ctx.getTransform();
+
+              // Render the map
+              this.render();
+            }
+          });
+        }
+
         // Inicializar el render, debe arreglarse luego para que utilice drawShape y no lo haga el mismo directamente
         this.render = (ctx = this.ctx, obj = this.geoJsonData) => {
           if (obj.type === 'Feature') {
@@ -240,6 +299,7 @@
 
       // Transformaciones de los puntos 
 
+      // obtener la inversa de la transformación (canvas original)
       originalPoint(clicked) {
         let { x, y } = clicked;
         const inverseTransform = this.lastTransform.invertSelf();
