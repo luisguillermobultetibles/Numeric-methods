@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="ie=edge" http-equiv="X-UA-Compatible">
+  <title>Mercator projection example</title>
+  <script src="world_data.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      display: block;
+      margin: auto;
+      cursor: grab;
+      touch-action: none;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    class GeoJsonViewer {
+      constructor(canvas, geoJsonData) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.geoJsonData = geoJsonData;
+
+        // Used to generate colors
+        this.colorIndex = 0;
+
+        // Default options
+        this.options = {
+          projection: 'Webmercator',
+          colorScheme: 'default',
+          heightRatio: 0.7,
+          transform: { x: 0, y: 0, k: 1 }
+        };
+
+        // Adjust the map size to the window size
+        this.options.mapSize = Math.min(window.parent.window.innerHeight, window.parent.window.innerWidth);
+
+        // Set the projection Radius, force the diameter to be equal to map size.
+        this.options.projectionRadius = this.options.mapSize / (2 * Math.PI);
+
+        // Diameter of the globe
+        this.options.globeDiameter = this.options.projectionRadius * 2 * Math.PI;
+
+        // Set canvas size
+        canvas.width = this.options.mapSize;
+        canvas.height = this.options.mapSize * this.options.heightRatio;
+
+        // Inicializar el controlador de eventos 
+        let isDragging = false;
+        let lastX = 0;
+        let lastY = 0;
+        this.lastTransform = this.ctx.getTransform();
+
+        this.scale = 1;
+        this.delta = 0;
+
+        this.scale = 1.2;
+        this.delta = 0;
+
+        this.zoom = (delta) => {
+          const scaleFactor = delta > 0 ? 1 / 1.2 : 1.2;
+          this.scale *= scaleFactor;
+
+          if (this.scale > 1) {
+            this.canvas.style.cursor = 'zoom-in';
+          } else if (this.scale < 1) {
+            this.canvas.style.cursor = 'zoom-out';
+          }
+
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.ctx.scale(scaleFactor, scaleFactor);
+          this.lastTransform = this.ctx.getTransform();
+          this.render();
+        };
+
+        this.pan = (deltaX, deltaY) => {
+          this.canvas.style.cursor = 'grabbing';
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          const mousePos = this.getMousePosition({ clientX: deltaX, clientY: deltaY });
+          this.ctx.setTransform(this.lastTransform);
+          this.ctx.translate(mousePos.x, mousePos.y);
+          this.ctx.translate(-deltaX, -deltaY);
+          this.ctx.translate(-mousePos.x, -mousePos.y);
+          this.render();
+        };
+
+        this.canvas.addEventListener('mousedown', e => {
+          e.preventDefault();
+          isDragging = true;
+          lastX = e.clientX;
+          lastY = e.clientY;
+          this.lastTransform = this.ctx.getTransform();
+        });
+
+        this.canvas.addEventListener('mousemove', e => {
+          e.preventDefault();
+          if (isDragging) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            const deltaX = lastX - e.clientX;
+            const deltaY = lastY - e.clientY;
+            const mousePos = this.getMousePosition(e);
+            this.ctx.setTransform(this.lastTransform);
+            this.ctx.translate(mousePos.x, mousePos.y);
+            this.ctx.translate(-deltaX, -deltaY);
+            this.ctx.translate(-mousePos.x, -mousePos.y);
+            this.render();
+          }
+        });
+        // this.canvas.addEventListener('mousemove', e => {
+        //   e.preventDefault();
+        //   if (isDragging) {
+        //     const deltaX = lastX - e.clientX;
+        //     const deltaY = lastY - e.clientY;
+        //     this.pan(deltaX, deltaY);
+        //   }
+        // });
+
+        this.canvas.addEventListener('mouseup', e => {
+          e.preventDefault();
+          isDragging = false;
+          this.canvas.style.cursor = 'grab';
+        });
+
+        this.canvas.addEventListener('wheel', e => {
+          e.preventDefault();
+
+          // Obtenemos la cantidad de desplazamiento vertical del ratón y la almacenamos en una variable
+          const delta = e.deltaY;
+
+          // Calculamos la nueva escala del mapa a partir del desplazamiento vertical del ratón
+          const scaleFactor = delta > 0 ? 1 / 1.2 : 1.2; // Si se desplaza hacia arriba, se hace zoom in (escala más grande), si se desplaza hacia abajo, se hace zoom out (escala más pequeña)
+          this.scale *= scaleFactor;
+
+          if (this.scale > 1) {
+            this.canvas.style.cursor = 'zoom-in';
+          } else if (this.scale < 1) {
+            this.canvas.style.cursor = 'zoom-out';
+          }
+
+          // Aplicamos la transformación de escala y renderizamos el mapa
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          this.ctx.scale(scaleFactor, scaleFactor);
+          this.lastTransform = this.ctx.getTransform();
+          this.render();
+        });
+        // this.canvas.addEventListener('wheel', e => {
+        //   e.preventDefault();
+        //   const delta = e.deltaY;
+        //   this.zoom(delta);
+        // });
+
+        this.touchStart = null;
+        this.touchEnd = null;
+        this.canvas.addEventListener('touchstart', e => {
+          this.touchStart = e.touches[0];
+        });
+        // this.canvas.addEventListener('touchmove', e => {
+        //   e.preventDefault();
+        //   const touchMove = e.touches[0];
+        //   const deltaX = touchMove.clientX - this.touchStart.clientX;
+        //   const deltaY = touchMove.clientY - this.touchStart.clientY;
+        //   this.pan(deltaX, deltaY);
+        // });
+        this.canvas.addEventListener('touchend', e => {
+          this.touchEnd = e.changedTouches[0];
+
+          // Calcular la distancia recorrida por los dedos
+          const distX = this.touchEnd.clientX - this.touchStart.clientX;
+          const distY = this.touchEnd.clientY - this.touchStart.clientY;
+
+          // Si la distancia recorrida es mayor a 50px, consideramos que se ha realizado un gesto de paneo
+          if (Math.abs(distX) > 50 || Math.abs(distY) > 50) {
+            // Aplicar la transformación de paneo y renderizar el mapa
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.translate(distX, distY);
+            this.lastTransform = this.ctx.getTransform();
+            this.render();
+          } else {
+            // Si la distancia recorrida es menor o igual a 50px, consideramos que se ha realizado un gesto de zoom
+            // Calculamos la nueva escala del mapa a partir de la distancia recorrida por los dedos
+            const dist = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
+            const scaleFactor = dist > 0 ? 1 / 1.2 : 1.2; // Si se alejan los dedos, se hace zoom out (escala más pequeña), si se acercan, se hace zoom in (escala más grande)
+            this.scale *= scaleFactor;
+
+            // Aplicamos la transformación de escala y renderizamos el mapa
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.scale(scaleFactor, scaleFactor);
+            this.lastTransform = this.ctx.getTransform();
+            this.render();
+          }
+        });
+
+        // Inicializar el render, debe arreglarse luego para que utilice drawShape y no lo haga el mismo directamente
+        this.render = (ctx = this.ctx, obj = this.geoJsonData) => {
+          if (obj.type === 'Feature') {
+            return this.render(ctx, obj.geometry);
+          } else if (obj.type === 'FeatureCollection') {
+            return obj.features.forEach((o) => this.render(ctx, o));
+          } else if (obj.type === 'GeometryCollection') {
+            obj.geometries.forEach((o) => this.render(ctx, o));
+          } else if (obj.type === 'Polygon') {
+            return this.drawPolygon(ctx, obj.coordinates[0]);
+          } else if (obj.type === 'MultiPolygon') {
+            return obj.coordinates.forEach(coords => this.drawPolygon(ctx, coords[0]));
+          } else if (obj.type === 'LineString') {
+            return this.drawLineString(ctx, obj.coordinates);
+          } else if (obj.type === 'MultiLineString') {
+            return obj.coordinates.forEach(coords => this.drawLineString(ctx, coords));
+          } else if (obj.type === 'Point') {
+            const point = this.project(obj.coordinates);
+            if (obj.label) { // Los puntos pueden incluir rotulados (opcional incluida).
+              ctx.fillStyle = "black";
+              ctx.font = "12px Arial";
+              ctx.textAlign = "center";
+              ctx.fillText(obj.properties.label, point.x, point.y);
+            }
+            if (obj.marker) {
+              const marker = new Image();
+              marker.src = obj.properties.marker; // eg:. "path/to/marker.png";              
+              this.ctx.drawImage(marker, point.x - marker.width / 2, point.y - marker.height);
+            }
+            return this.drawPoint(ctx, obj.coordinates);
+          } else if (obj.type === 'MultiPoint') {
+            return obj.coordinates.forEach(coord => this.drawPoint(ctx, coord));
+          } else {
+            throw new Error(`Unknown geojson: ${JSON.stringify(obj)}`);
+          }
+        }
+        this.render = this.render.bind(this);
+      }
+
+      // Transformaciones de los puntos 
+
+      originalPoint(clicked) {
+        let { x, y } = clicked;
+        const inverseTransform = this.lastTransform.invertSelf();
+        const xo = (inverseTransform.a * x) + (inverseTransform.c * y) + inverseTransform.e;
+        const yo = (inverseTransform.b * x) + (inverseTransform.d * y) + inverseTransform.f;
+        return { x: xo, y: yo };
+      }
+
+      getMousePosition(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = rect.left - e.clientX;
+        const y = rect.top - e.clientY;
+        return { x, y };
+      }
+
+      project(point) {
+        let [lon, lat] = point ? point : [0, 0];
+        const sinlat = Math.sin(lat * Math.PI / 180.0);
+        const x = this.options.globeDiameter * lon / 360.0;
+        const y = this.options.projectionRadius / 2 * Math.log((1 + sinlat) / (1 - sinlat));
+        return { x: (this.options.globeDiameter / 2 + x), y: (this.options.globeDiameter - (this.options.globeDiameter / 2 + y)) };
+      }
+
+      unproject(point) {
+        const x_norm = (point.x - this.options.globeDiameter / 2) / this.options.globeDiameter;
+        const y_norm = (this.options.globeDiameter - point.y) / this.options.globeDiameter;
+        const transform = this.ctx.getTransform();
+        this.ctx.resetTransform();
+        const lat = 180 / Math.PI * (2 * Math.atan(Math.exp(y_norm * 2 * Math.PI / this.options.projectionRadius)) - Math.PI / 2);
+        const lon = x_norm * 360 / this.options.globeDiameter;
+        this.ctx.setTransform(transform);
+        return [lon, lat];
+      }
+
+      // Detectar si se hace clic o el mouse está en contacto con un objeto GeoJSON
+      isPointInFeature(feature, point) {
+        const ctx = this.ctx;
+        ctx.beginPath();
+        this.render(ctx);
+        return ctx.isPointInPath(point.x, point.y);
+      }
+
+      checkCollision(obj1, obj2) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Dibujar el primer objeto
+        ctx.beginPath();
+        this.render(ctx, obj1);
+        ctx.closePath();
+
+        // Recortar el área del primer objeto con el área del segundo objeto
+        ctx.save();
+        ctx.beginPath();
+        this.render(ctx, obj2);
+        ctx.clip();
+
+        // Comprobar si hay algún punto en común entre ambos objetos
+        const isCollision = ctx.isPointInPath(obj1.x, obj1.y);
+        ctx.restore();
+
+        return isCollision;
+      }
+
+      // Flechas
+
+      renderTopology(ctx, topology) {
+
+        // Verificar si la topología tiene una transformación
+        if (topology.transform) {
+          // Aplicar la transformación al contexto de dibujo
+          ctx.translate(...topology.transform.translate);
+          ctx.scale(...topology.transform.scale);
+          this.lastTransform = this.ctx.getTransform();
+        }
+
+        // Recorrer todos los objetos en la topología
+        for (const key in topology.objects) {
+          const obj = topology.objects[key];
+          if (obj.type === 'LineString') {
+            // Recorrer todos los arcos de la línea y dibujar flechas al final de cada arco
+            for (let i = 0; i < obj.arcs.length; i++) {
+              const arcIndex = obj.arcs[i];
+              const arc = topology.arcs[arcIndex < 0 ? ~arcIndex : arcIndex];
+
+              for (let j = 1; j < arc.length; j++) {
+                const [x1, y1] = arc[j - 1];
+                const [x2, y2] = arc[j];
+                this.drawLine(this.ctx, x1, y1, x2, y2);
+                this.drawArrowHead(this.ctx, x1, y1, x2, y2);
+              }
+            }
+          } else if (obj.type === 'MultiLineString') {
+            // Recorrer todos los arcos de las líneas y dibujar flechas al final de cada arco
+            for (let i = 0; i < obj.arcs.length; i++) {
+              const arcIndex = obj.arcs[i];
+              const arc = topology.arcs[arcIndex < 0 ? ~arcIndex : arcIndex];
+
+              for (let j = 1; j < arc.length; j++) {
+                const [x1, y1] = arc[j - 1];
+                const [x2, y2] = arc[j];
+                this.drawLine(this.ctx, x1, y1, x2, y2);
+                this.drawArrowHead(this.ctx, x1, y1, x2, y2);
+              }
+            }
+          } else {
+            this.render(ctx, obj);
+          }
+        }
+      }
+
+      // Proyecciones
+
+      // Proyectar coordenadas en la proyección Mercator
+      projectMercator(coords) {
+        const [lng, lat] = coords;
+        const x = (this.options.mapSize * (lng + 180)) / 360;
+        const y = (this.options.mapSize * (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI)) / 2;
+        return { x, y };
+      }
+
+      // Desproyectar coordenadas de la proyección Mercator
+      unprojectMercator(point) {
+        const lng = (point.x / this.options.mapSize) * 360 - 180;
+        const lat = (2 * Math.atan(Math.exp((1 - point.y / this.options.mapSize) * 2 * Math.PI)) - Math.PI / 2) * 180 / Math.PI;
+        return [lng, lat];
+      }
+
+      // Proyectar coordenadas en la proyección de Robinson
+      projectRobinson(coords) {
+        const [lng, lat] = coords;
+        const lam = lng * Math.PI / 180;
+        const phi = lat * Math.PI / 180;
+        const k = Math.sqrt(2 / (1 + Math.cos(phi) * Math.cos(lam / 2)));
+        const x = (this.options.mapSize / 2) * k * (1 + lam / Math.PI);
+        const y = (this.options.mapSize / 2) * k * (phi + Math.sin(phi));
+        return { x, y };
+      }
+
+      // Desproyectar coordenadas de la proyección de Robinson
+      unprojectRobinson(point) {
+        const lam = (point.x / this.options.mapSize - 0.5) * Math.PI;
+        const phi = (point.y / this.options.mapSize - 0.5) * Math.PI;
+        const k = Math.sqrt(2 / (1 + Math.cos(phi) * Math.cos(lam / 2)));
+        const lng = lam * 180 / Math.PI;
+        const lat = phi * 180 / Math.PI - Math.sin(phi) * k * Math.PI / 2;
+        return [lng, lat];
+      }
+
+      // Proyectar coordenadas en la proyección de Albers
+      projectAlbers(coords) {
+        const [lng, lat] = coords;
+        const phi1 = this.options.projectionParams.phi1 * Math.PI / 180;
+        const phi2 = this.options.projectionParams.phi2 * Math.PI / 180;
+        const n = 0.5 * (Math.sin(phi1) + Math.sin(phi2));
+        const c = Math.pow(Math.cos(phi1), 2) + 2 * n * Math.sin(phi1);
+        const rho0 = Math.sqrt(c - 2 * n * Math.sin(lat * Math.PI / 180)) / n;
+        const theta = n * (lng * Math.PI / 180 - this.options.projectionParams.lambda0);
+        const x = rho0 * Math.sin(theta) * this.options.mapSize / 2 + this.options.mapSize / 2;
+        const y = this.options.mapSize / 2 - rho0 * Math.cos(theta) * this.options.mapSize / 2;
+        return { x, y };
+      }
+
+      // Desproyectar coordenadas de la proyección de Albers
+      unprojectAlbers(point) {
+        const phi1 = this.options.projectionParams.phi1 * Math.PI / 180;
+        const phi2 = this.options.projectionParams.phi2 * Math.PI / 180;
+        const n = 0.5 * (Math.sin(phi1) + Math.sin(phi2));
+        const c = Math.pow(Math.cos(phi1), 2) + 2 * n * Math.sin(phi1);
+        const rho = Math.sqrt(Math.pow(point.x - this.options.mapSize / 2, 2) + Math.pow(this.options.mapSize / 2 - point.y, 2)) * 2 / this.options.mapSize;
+        const theta = Math.atan2(point.x - this.options.mapSize / 2, this.options.mapSize / 2 - point.y) / n;
+        const lng = theta + this.options.projectionParams.lambda0 * Math.PI / 180;
+        const lat = Math.asin((c - Math.pow(rho * n, 2)) / (2 * n));
+        return [lng * 180 / Math.PI, lat * 180 / Math.PI];
+      }
+
+      /**
+      * Proyecta coordenadas geográficas en la proyección cónica conforme de Lambert.
+      * @param {Array} coords - Coordenadas geográficas en formato [lng, lat].
+      * @returns {Object} Coordenadas proyectadas en formato {x, y}.
+      */
+      projectLambert(coords) {
+        const [lng, lat] = coords;
+        const phi1 = this.options.projectionParams.phi1 * Math.PI / 180;
+        const phi2 = this.options.projectionParams.phi2 * Math.PI / 180;
+        const n = (Math.log(Math.cos(phi1)) - Math.log(Math.cos(phi2))) / (Math.log(Math.tan(Math.PI / 4 + phi2 / 2)) - Math.log(Math.tan(Math.PI / 4 + phi1 / 2)));
+        const F = Math.cos(phi1) * Math.pow(Math.tan(Math.PI / 4 + phi1 / 2), n) / n;
+        const rho = F * Math.pow(Math.tan(Math.PI / 4 + lat / 2), -n);
+        const theta = n * (lng * Math.PI / 180 - this.options.projectionParams.lambda0);
+        const x = rho * Math.sin(theta) * this.options.mapSize / 2 + this.options.mapSize / 2;
+        const y = this.options.mapSize / 2 - rho * Math.cos(theta) * this.options.mapSize / 2;
+        return { x, y };
+      }
+
+      /**
+      * Desproyecta coordenadas proyectadas en la proyección cónica conforme de Lambert en coordenadas geográficas.
+      * @param {Object} point - Coordenadas proyectadas en formato {x, y}.
+      * @returns {Array} Coordenadas geográficas en formato [lng, lat].
+      */
+      unprojectLambert(point) {
+        const phi1 = this.options.projectionParams.phi1 * Math.PI / 180;
+        const phi2 = this.options.projectionParams.phi2 * Math.PI / 180;
+        const n = (Math.log(Math.cos(phi1)) - Math.log(Math.cos(phi2))) / (Math.log(Math.tan(Math.PI / 4 + phi2 / 2)) - Math.log(Math.tan(Math.PI / 4 + phi1 / 2)));
+        const F = Math.cos(phi1) * Math.pow(Math.tan(Math.PI / 4 + phi1 / 2), n) / n;
+        const rho = Math.sqrt(Math.pow(point.x - this.options.mapSize / 2, 2) + Math.pow(this.options.mapSize / 2 - point.y, 2)) * 2 / this.options.mapSize;
+        const theta = Math.atan2(point.x - this.options.mapSize / 2, this.options.mapSize / 2 - point.y) / n;
+        const lng = theta + this.options.projectionParams.lambda0 * Math.PI / 180;
+        const lat = 2 * Math.atan(Math.pow(F / rho, 1 / n)) - Math.PI / 2;
+        return [lng * 180 / Math.PI, lat * 180 / Math.PI];
+      }
+
+      // Proyectar coordenadas en la proyección estereográfica
+      projectStereo(coords) {
+        const [lng, lat] = coords;
+        const phi0 = this.options.projectionParams.phi0 * Math.PI / 180;
+        const lambda0 = this.options.projectionParams.lambda0 * Math.PI / 180;
+        const phi = lat * Math.PI / 180;
+        const lambda = lng * Math.PI / 180;
+        const k = 2 / (1 + Math.sin(phi0) * Math.sin(phi) + Math.cos(phi0) * Math.cos(phi) * Math.cos(lambda - lambda0));
+        const x = k * Math.cos(phi) * Math.sin(lambda - lambda0) * this.options.mapSize / 2 + this.options.mapSize / 2;
+        const y = k * (Math.cos(phi0) * Math.sin(phi) - Math.sin(phi0) * Math.cos(phi) * Math.cos(lambda - lambda0)) * this.options.mapSize / 2 + this.options.mapSize / 2;
+        return { x, y };
+      }
+
+      // Desproyectar coordenadas de la proyección estereográfica
+      unprojectStereo(point) {
+        const phi0 = this.options.projectionParams.phi0 * Math.PI / 180;
+        const lambda0 = this.options.projectionParams.lambda0 * Math.PI / 180;
+        const x = point.x;
+        const y = point.y;
+        const rho = Math.sqrt(Math.pow(x - this.options.mapSize / 2, 2) + Math.pow(y - this.options.mapSize / 2, 2)) * 2 / this.options.mapSize;
+        const c = 2 * Math.atan(rho);
+        const phi = Math.asin(Math.cos(c) * Math.sin(phi0) + (y - this.options.mapSize / 2) * Math.sin(c) * Math.cos(phi0) / (this.options.mapSize * rho));
+        const lambda = lambda0 + Math.atan((x - this.options.mapSize / 2) * Math.sin(c) / (rho * this.options.mapSize * Math.cos(phi0) * Math.cos(c) - (y - this.options.mapSize / 2) * Math.sin(phi0) * Math.sin(c)));
+        return [lambda * 180 / Math.PI, phi * 180 / Math.PI];
+      }
+
+      setProjection(projection) {
+        this.options.projection = projection;
+      }
+
+      setColorScheme(scheme) {
+        this.options.colorScheme = scheme;
+      }
+
+      setHeightRatio(ratio) {
+        this.options.heightRatio = ratio;
+      }
+
+
+      // Dibuja un polígono en el canvas
+      drawPolygon(ctx, coords) {
+        ctx.fillStyle = this.getColor();
+        ctx.beginPath();
+        const initialPoint = this.project(coords.shift());
+        ctx.moveTo(initialPoint.x, initialPoint.y);
+        coords.map(this.project.bind(this)).forEach(point => ctx.lineTo(point.x, point.y));
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Dibuja un conjunto de polígonos en el canvas
+      drawMultiPolygon(ctx, coordsArray) {
+        coordsArray.forEach(coords => this.drawPolygon(ctx, coords[0]));
+      }
+
+      // Dibuja una línea en el canvas
+      drawLineString(ctx, coords) {
+        ctx.strokeStyle = this.getColor();
+        ctx.lineWidth = this.options.lineWidth;
+        ctx.beginPath();
+        this.project(coords.shift());
+        coords.map(this.project.bind(this)).forEach(point => ctx.lineTo(point.x, point.y));
+        ctx.stroke();
+      }
+
+      // Dibuja un conjunto de líneas en el canvas
+      drawMultiLineString(ctx, coordsArray) {
+        coordsArray.forEach(coords => this.drawLineString(ctx, coords));
+      }
+
+      // Dibuja un punto en el canvas
+      drawPoint(ctx, coord) {
+        ctx.fillStyle = this.getColor();
+        const point = this.project(coord);
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, this.options.pointSize, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+
+      // Dibuja un conjunto de puntos en el canvas
+      drawMultiPoint(ctx, coordsArray) {
+        coordsArray.forEach(coord => this.drawPoint(ctx, coord));
+      }
+
+      drawLine(ctx, x1, y1, x2, y2) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+
+      drawArrowHead(ctx, x1, y1, x2, y2) {
+        const angle = Math.atan2(y2 - y1, x2 - x1);
+        const headLength = 10;
+        const [x3, y3] = [
+          x2 - headLength * Math.cos(angle - Math.PI / 6),
+          y2 - headLength * Math.sin(angle - Math.PI / 6)
+        ];
+        const [x4, y4] = [
+          x2 - headLength * Math.cos(angle + Math.PI / 6),
+          y2 - headLength * Math.sin(angle + Math.PI / 6)
+        ];
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x3, y3);
+        ctx.lineTo(x4, y4);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      drawDimension(ctx, x1, y1, x2, y2, text) {
+        // Calcula la distancia y el ángulo entre los dos puntos
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx);
+
+        // Calcula la posición del texto
+        const textWidth = ctx.measureText(text).width;
+        const textHeight = 12; // Altura de línea asumida de 12 píxeles
+        const textDistance = distance > textWidth + 20 ? 10 : -10 - textWidth;
+
+        // Calcula la distancia mínima necesaria para dibujar las cabezas de flecha dentro del espacio de la línea
+        const headSize = 10;
+        const minDistance = headSize * 2 + textWidth + 40;
+        const adjustedDistance = Math.max(distance, minDistance);
+
+        // Calcula las coordenadas de los puntos de intersección de las flechas con los segmentos perpendiculares
+        const perpendicularDistance = Math.min(20, distance / 2);
+        const perpendicularX1 = x1 - Math.sin(angle) * perpendicularDistance;
+        const perpendicularY1 = y1 + Math.cos(angle) * perpendicularDistance;
+        const perpendicularX2 = x2 + Math.sin(angle) * perpendicularDistance;
+        const perpendicularY2 = y2 - Math.cos(angle) * perpendicularDistance;
+
+        // Calcula la posición de los puntos de la línea y las cabezas de flecha
+        const lineX1 = perpendicularX1 + Math.cos(angle) * headSize;
+        const lineY1 = perpendicularY1 + Math.sin(angle) * headSize;
+        const lineX2 = perpendicularX2 - Math.cos(angle) * headSize;
+        const lineY2 = perpendicularY2 - Math.sin(angle) * headSize;
+        const arrowX1 = perpendicularX2 - headSize * Math.cos(angle - Math.PI / 6);
+        const arrowY1 = perpendicularY2 - headSize * Math.sin(angle - Math.PI / 6);
+        const arrowX2 = perpendicularX2 - headSize * Math.cos(angle + Math.PI / 6);
+        const arrowY2 = perpendicularY2 - headSize * Math.sin(angle + Math.PI / 6);
+        const arrowX3 = perpendicularX1 + headSize * Math.cos(angle - Math.PI / 6);
+        const arrowY3 = perpendicularY1 + headSize * Math.sin(angle - Math.PI / 6);
+        const arrowX4 = perpendicularX1 + headSize * Math.cos(angle + Math.PI / 6);
+        const arrowY4 = perpendicularY1 + headSize * Math.sin(angle + Math.PI / 6);
+
+        // Dibuja los segmentos perpendiculares
+        ctx.beginPath();
+        ctx.moveTo(perpendicularX1, perpendicularY1);
+        ctx.lineTo(x1, y1);
+        ctx.lineTo(perpendicularX2, perpendicularY2);
+        ctx.stroke();
+
+        // Dibuja la línea y las cabezas de flecha
+        ctx.beginPath();
+        ctx.moveTo(lineX1, lineY1);
+        ctx.lineTo(lineX2, lineY2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        if (distance >= minDistance) {
+          ctx.moveTo(arrowX1, arrowY1);
+          ctx.lineTo(perpendicularX2, perpendicularY2);
+          ctx.lineTo(arrowX2, arrowY2);
+        } else {
+          const adjustedArrowX1 = x2 - Math.cos(angle) * adjustedDistance;
+          const adjustedArrowY1 = y2 - Math.sin(angle) * adjustedDistance;
+          ctx.moveTo(arrowX1, arrowY1);
+          ctx.lineTo(adjustedArrowX1, adjustedArrowY1);
+          ctx.lineTo(arrowX2, arrowY2);
+        }
+        ctx.stroke();
+
+        ctx.beginPath();
+        if (distance >= minDistance) {
+          ctx.moveTo(arrowX3, arrowY3);
+          ctx.lineTo(perpendicularX1, perpendicularY1);
+          ctx.lineTo(arrowX4, arrowY4);
+        } else {
+          const adjustedArrowX2 = x1 + Math.cos(angle) * adjustedDistance;
+          const adjustedArrowY2 = y1 + Math.sin(angle) * adjustedDistance;
+          ctx.moveTo(arrowX3, arrowY3);
+          ctx.lineTo(adjustedArrowX2, adjustedArrowY2);
+          ctx.lineTo(arrowX4, arrowY4);
+        }
+        ctx.stroke();
+
+        // Dibuja el texto
+        ctx.save();
+        ctx.translate(x1 + Math.cos(angle) * textDistance, y1 + Math.sin(angle) * textDistance);
+        if (angle > Math.PI / 2 || angle < -Math.PI / 2) {
+          ctx.rotate(Math.PI);
+          ctx.translate(-textWidth, -textHeight);
+        }
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+      }
+
+
+      getColor() {
+        let color;
+        if (this.options.colorScheme === 'default') {
+          color = `rgb(${this.colorIndex++ % 255}, ${180}, ${255})`;
+        } else if (this.options.colorScheme === 'red') {
+          color = `rgb(${255}, ${this.colorIndex++ % 255}, ${this.colorIndex++ % 255})`;
+        } else if (this.options.colorScheme === 'green') {
+          color = `rgb(${this.colorIndex++ % 255}, ${255}, ${this.colorIndex++ % 255})`;
+        } else if (this.options.colorScheme === 'blue') {
+          color = `rgb(${this.colorIndex++ % 255}, ${this.colorIndex++ % 255}, ${255})`;
+        }
+        return color;
+      }
+
+
+      drawShape(ctx, shape) { // unused
+        ctx.fillStyle = this.getColor();
+        ctx.beginPath();
+        if (shape.type === 'Circle') {
+          ctx.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI);
+        } else if (shape.type === 'Rectangle') {
+          ctx.rect(shape.x, shape.y, shape.width, shape.height);
+        } else if (shape.type === 'Polygon') {
+          ctx.moveTo(shape.points[0].x, shape.points[0].y);
+          shape.points.forEach(p => ctx.lineTo(p.x, p.y));
+          ctx.closePath();
+        }
+        ctx.fill();
+      }
+
+      // y puede utilizarse de la siguiente forma:
+      testDrawShape(ctx = this.ctx) {
+        this.drawShape(ctx, {
+          type: 'Circle', x: 100, y: 200, radius: 50
+        });
+
+        this.drawShape(ctx, {
+          type: 'Rectangle', x: 150, y: 150, width: 100, height: 50
+        });
+
+        this.drawShape(ctx, {
+          type: 'Polygon', points: [{ x: 200, y: 200 }, { x: 250, y: 250 }, { x: 300, y: 200 }]
+        });
+      }
+
+
+    }
+
+    // Variables para el zoom y el pan
+    let isDragging = false;
+    let lastX, lastY;
+    let scale = 1;
+
+    // Configuración del mapa
+    const canvas = document.createElement('canvas');
+    document.body.appendChild(canvas);
+
+    const geoJsonData = world_data;
+    const viewer = new GeoJsonViewer(canvas, geoJsonData);
+    viewer.setProjection('Webmercator');
+    viewer.setColorScheme('default');
+    viewer.setHeightRatio(0.7);
+    viewer.render();
+
+  </script>
+</body>
+
+</html>
