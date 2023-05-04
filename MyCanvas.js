@@ -104,10 +104,10 @@ class MyCanvas extends WebSystemObject {
     this.RENDER_GLOBALSX = 1.0;
     this.RENDER_GLOBALSY = 1.0;
     // we are basing on the width, not the height....
-    if(w!=0) {
+    if (w != 0) {
       this.RENDER_GLOBALSX = w / this.SW;
       this.RENDER_GLOBALSY = w / this.SW;
-      if(this.SH*this.RENDER_GLOBALSY>h) {
+      if (this.SH * this.RENDER_GLOBALSY > h) {
         this.RENDER_GLOBALSX = h / this.SH;
         this.RENDER_GLOBALSY = h / this.SH;
       }
@@ -177,10 +177,6 @@ class MyCanvas extends WebSystemObject {
     } else {
       if (!p) this.stop();
     }
-  }
-
-  paused() {
-    return !!this.#handle;
   }
 
   // Se opone a la inyección, toma la imagen de un elemento del DOM, no la dibuja
@@ -296,6 +292,7 @@ class MyCanvas extends WebSystemObject {
 
   // Para lograr el efecto...
 
+
   putImageDemo() {
     /*
         Warning: Due to the lossy nature of converting to and from premultiplied
@@ -376,6 +373,8 @@ class MyCanvas extends WebSystemObject {
     Para el canvas transition de colores rotaciones etc.
 
     Solamente para idiotas ridículos superdotados
+
+
       1._ Cuando la velocidad del objeto es menor a la frecuencia de actualización, se hace un fade in-out en secuencia en el tiempo establecido,
           esto es, una suma (mezcla) aditiva, a la distancia de dos píxeles consecutivos a un tiempo = a c/v cada una (la última iguala), a donde c = fps;
           Las imágenes se superponen a desplazamiento de un píxel, La suma de intensidades de ambas debe ser = a 1, la anterior descendente y la posterior ascendente.
@@ -762,48 +761,388 @@ class MyCanvas extends WebSystemObject {
     this.endPath();
   }
 
-  // PARE DIBUJAR LINEAS CON O SIN GRADACIONES
-  line(x1, y1, x2, y2, startColor = this.options.stroke, endColor = this.options.stroke, lineWidthlineWidth = this.options['stroke-width'], lineJoin = this.options.lineJoin, lineCaplineCap = this.options.lineCap, dash = []) {
-    this.beginPath();
-    this.ctx.lineWidth = lineWidth;
-    if (endColor && (startColor !== endColor)) {
-      var gradacion = this.ctx.createLinearGradient(x1, y1, x2, y2); // Desde un punto a otro, en realidad hace un rectángulo.
+  // Algunos tipos especiales de líneas utilizadas en ingeniería y arquitectura
+  LINE_TYPES = {
+    SOLID: {
+      name: 'Solid',
+      dash: [],
+    },
+    // DASHED: {
+    //   name: 'Dashed',
+    //   dash: [10, 5],
+    // },
+    DOTTED: {
+      name: 'Dotted',
+      dash: [2, 5],
+    },
+    //
+    BORDER: {
+      name: 'Border',
+      dash: [0, 12.7, -6.35],
+    },
+    BORDER_2X: {
+      name: 'Border (2x)',
+      dash: [0, 25.4, -12.7],
+    },
+    BORDER_05X: {
+      name: 'Border (.5x)',
+      dash: [0, 6.35, -3.175],
+    },
+    CENTER: {
+      name: 'Center',
+      dash: [31.75, -6.35],
+    },
+    CENTER_2X: {
+      name: 'Center (2x)',
+      dash: [63.5, -12.7],
+    },
+    CENTER_05X: {
+      name: 'Center (.5x)',
+      dash: [19.05, -3.175],
+    },
+    DASH_DOT: {
+      name: 'Dash dot',
+      dash: [12.7, -6.35, 0, -6.35],
+    },
+    DASH_DOT_2X: {
+      name: 'Dash dot (2x)',
+      dash: [25.4, -12.7, 0, -12.7],
+    },
+    DASH_DOT_05X: {
+      name: 'Dash dot (.5x)',
+      dash: [6.35, -3.175, 0, -3.175],
+    },
+    DASHED: {
+      name: 'Dashed',
+      dash: [12.7, -6.35],
+    },
+    DASHED_2X: {
+      name: 'Dashed (2x)',
+      dash: [25.4, -12.7],
+    },
+    DASHED_05X: {
+      name: 'Dashed (.5x)',
+      dash: [6.35, -3.175],
+    },
+    DIVIDE: {
+      name: 'Divide',
+      dash: [12.7, -6.35, 0, -6.35],
+    },
+    DIVIDE_2X: {
+      name: 'Divide (2x)',
+      dash: [25.4, -12.7, 0, -12.7],
+    },
+    DIVIDE_05X: {
+      name: 'Divide (.5x)',
+      dash: [6.35, -3.175, 0, -3.175],
+    },
+    DOT: {
+      name: 'Dot',
+      dash: [0, 6.35],
+    },
+    DOT_2X: {
+      name: 'Dot (2x)',
+      dash: [0, 12.7],
+    },
+    DOT_05X: {
+      name: 'Dot (.5x)',
+      dash: [0, 3.175],
+    },
+    HIDDEN: {
+      name: 'Hidden',
+      dash: [0, 12.7],
+    },
+    HIDDEN_2X: {
+      name: 'Hidden (2x)',
+      dash: [0, 25.4],
+    },
+    HIDDEN_05X: {
+      name: 'Hidden (.5x)',
+      dash: [0, 6.35],
+    },
+    PHANTOM: {
+      name: 'Phantom',
+      dash: [12.7, 12.7],
+    },
+    PHANTOM_2X: {
+      name: 'Phantom (2x)',
+      dash: [25.4, 25.4],
+    },
+    PHANTOM_05X: {
+      name: 'Phantom (.5x)',
+      dash: [6.35, 6.35],
+    },
+    ISO_DASH: {
+      name: 'ISO dash',
+      dash: [30, -15],
+    },
+    ISO_DASH_SPACE: {
+      name: 'ISO dash space',
+      dash: [30, -15, 0, -15],
+    },
+    ISO_LONG_DASH_DOT: {
+      name: 'ISO long-dash dot',
+      dash: [90, -15, 0, -15],
+    },
+    ISO_LONG_DASH_DOUBLE_DOT: {
+      name: 'ISO long-dash double-dot',
+      dash: [90, -15, 0, -15, 0, -15],
+    },
+    ISO_LONG_DASH_TRIPLE_DOT: {
+      name: 'ISO long-dash triple-dot',
+      dash: [90, -15, 0, -15, 0, -15, 0, -15],
+    },
+    ISO_DOT: {
+      name: 'ISO dot',
+      dash: [0, 15],
+    },
+    ISO_LONG_DASH_SHORT_DASH: {
+      name: 'ISO long-dash short-dash',
+      dash: [60, -15, 0, -15, 0, -15],
+    },
+    ISO_LONG_DASH_DOUBLE_SHORT_DASH: {
+      name: 'ISO long-dash double-short-dash',
+      dash: [60, -15, 0, -15, 0, -15, 0, -15],
+    },
+    ISO_DASH_DOT: {
+      name: 'ISO dash dot',
+      dash: [30, -15, 0, -15, 0, -15],
+    },
+    ISO_DOUBLE_DASH_DOT: {
+      name: 'ISO double-dash dot',
+      dash: [60, -15, 0, -15, 0, -15, 0, -15],
+    },
+    ISO_DASH_DOUBLE_DOT: {
+      name: 'ISO dash double-dot',
+      dash: [30, -15, 0, -15, 0, -15, 0, -15, 0, -15],
+    },
+    ISO_DOUBLE_DASH_DOUBLE_DOT: {
+      name: 'ISO double-dash double-dot',
+      dash: [60, -15, 0, -15, 0, -15, 0, -15, 0, -15, 0, -15],
+    },
+    ISO_DASH_TRIPLE_DOT: {
+      name: 'ISO dash triple-dot',
+      dash: [30, -15, 0, -15, 0, -15, 0, -15, 0, -15, 0, -15],
+    },
+    ISO_DOUBLE_DASH_TRIPLE_DOT: {
+      name: 'ISO double-dash triple-dot',
+      dash: [60, -15, 0, -15, 0, -15, 0, -15, 0, -15, 0, -15, 0, -15],
+    },
+  };
 
-      gradacion.addColorStop(0, startColor);
-      gradacion.addColorStop(1, endColor);
-      // Y hay que decirle que dibuje la gradacion
-      this.ctx.strokeStyle = gradacion;
-      // Y esa es la máscara que se utiliza para dibujar las figuras.. súperok...
-      // claro que no puedes sustituir el fillStyle...
-    } else {
-      this.ctx.strokeStyle = startColor;
-    }
+
+  // PARE DIBUJAR LINEAS CON O SIN GRADACIONES
+  line(x1, y1, x2, y2, startColor = this.options.stroke, endColor = this.options.stroke, lineWidth = this.options['stroke-width'], lineJoin = this.options.lineJoin, lineCap = this.options.lineCap, dash = [], lineType = '') {
+    this.ctx.lineWidth = lineWidth;
     this.ctx.lineJoin = lineJoin;
     this.ctx.lineCap = lineCap;
 
-    if (dash) {
-      this.ctx.setLineDash(dash); // /* dashes are 5px and spaces are 3px */
-      /*
-
-      Please test and consider to use the following architectural and enginering dashes, from:
-      https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/setLineDash
-
-      drawDashedLine([]);
-      drawDashedLine([1, 1]);
-      drawDashedLine([10, 10]);
-      drawDashedLine([20, 5]);
-      drawDashedLine([15, 3, 3, 3]);
-      drawDashedLine([20, 3, 3, 3, 3, 3, 3, 3]);
-      drawDashedLine([12, 3, 3]); // Equals [12, 3, 3, 12, 3, 3]
-
-      */
-    } else { // N o - o n e
-      this.ctx.setLineDash([]);
+    // Crear gradiente si se especifican colores de inicio y fin
+    if (endColor && (startColor !== endColor)) {
+      if (!this.gradientCache) {
+        this.gradientCache = {}; // Objeto para almacenar los gradientes reutilizables
+      }
+      const gradientId = `${startColor}-${endColor}`; // Identificador único para este gradiente
+      let grad = this.gradientCache[gradientId];
+      if (!grad) {
+        grad = this.ctx.createLinearGradient(x1, y1, x2, y2);
+        grad.addColorStop(0, startColor);
+        grad.addColorStop(1, endColor);
+        this.gradientCache[gradientId] = grad;
+      }
+      this.ctx.strokeStyle = grad;
+    } else {
+      this.ctx.strokeStyle = startColor;
     }
 
-    this.ctx.moveTo(Math.round(x1), Math.round(y1));
-    this.ctx.lineTo(Math.round(x2), Math.round(y2));
-    this.endPath();
+    // Seleccionar el patrón de línea en función del tipo de línea
+    if (dash) {
+      this.ctx.setLineDash(dash);
+    } else {
+      let gh = this.LINE_TYPES.find((lt) => lt.name === lineType);
+      if (gh) {
+        this.ctx.setLineDash(gh.dash);
+      } else {
+        switch (lineType) {
+          case 'Fenceline circle': {
+            const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) / 2;
+            const centerX = (x1 + x2) / 2;
+            const centerY = (y1 + y2) / 2;
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            this.ctx.stroke();
+            break;
+          }
+          case 'Fenceline square': {
+            const sideLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const centerX = (x1 + x2) / 2;
+            const centerY = (y1 + y2) / 2;
+            this.ctx.beginPath();
+            this.ctx.rect(centerX - sideLength / 2, centerY - sideLength / 2, sideLength, sideLength);
+            this.ctx.stroke();
+            break;
+          }
+          case 'Tracks': {
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            this.ctx.save();
+            this.ctx.translate(x1, y1);
+            this.ctx.rotate(angle);
+            this.ctx.fillRect(0, -2.5, length, 5);
+            this.ctx.restore();
+            break;
+          }
+          case 'Batting': {
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            this.ctx.save();
+            this.ctx.translate(x1, y1);
+            this.ctx.rotate(angle);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, -2.5);
+            this.ctx.lineTo(length / 2, -2.5);
+            this.ctx.lineTo(length / 2, -7.5);
+            this.ctx.lineTo(0, -7.5);
+            this.ctx.closePath();
+            this.ctx.stroke();
+            this.ctx.fill();
+            this.ctx.restore();
+            break;
+          }
+          case 'Hot water supply': {
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            this.ctx.save();
+            this.ctx.translate(x1, y1);
+            this.ctx.rotate(angle);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, -2.5);
+            this.ctx.lineTo(length / 2, -2.5);
+            this.ctx.lineTo(length / 2, -7.5);
+            this.ctx.lineTo(0, -7.5);
+            this.ctx.closePath();
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(length / 2 - 2.5, -5);
+            this.ctx.lineTo(length / 2 + 2.5, -5);
+            this.ctx.lineTo(length / 2 + 2.5, -10);
+            this.ctx.lineTo(length / 2 - 2.5, -10);
+            this.ctx.closePath();
+            this.ctx.fill();
+            this.ctx.restore();
+            break;
+          }
+          case 'Gas line 1': {
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            this.ctx.save();
+            this.ctx.translate(x1, y1);
+            this.ctx.rotate(angle);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, 0);
+            this.ctx.lineTo(length / 4, 0);
+            this.ctx.lineTo(length / 4, -5);
+            this.ctx.lineTo(length / 2, -5);
+            this.ctx.lineTo(length / 2, -10);
+            this.ctx.lineTo(3 * length / 4, -10);
+            this.ctx.lineTo(3 * length / 4, -5);
+            this.ctx.lineTo(length, -5);
+            this.ctx.lineTo(length, -10);
+            this.ctx.stroke();
+            this.ctx.restore();
+            break;
+          }
+          case 'Gas line 2': {// codeword galileo: tomar el modelo para generalizar textos en la línea
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            this.ctx.save();
+            this.ctx.translate(x1, y1);
+            this.ctx.rotate(angle);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, -2.5);
+            this.ctx.lineTo(length / 2, -2.5);
+            this.ctx.lineTo(length / 2, -7.5);
+            this.ctx.lineTo(0, -7.5);
+            this.ctx.closePath();
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.arc(length / 4, -5, 2.5, 0, 2 * Math.PI);
+            this.ctx.closePath();
+            this.ctx.fill();
+            this.ctx.fillText('GAS', length / 2 + 5, -5);
+            this.ctx.restore();
+            break;
+          }
+          case 'Zig zag': {
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+
+            this.ctx.save();
+            this.ctx.translate(x1, y1);
+            this.ctx.rotate(angle);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, 0);
+            this.ctx.lineTo(length / 4, 0);
+            this.ctx.lineTo(length / 4, -5);
+            this.ctx.lineTo(length / 2, -5);
+            this.ctx.lineTo(length / 2, -10);
+            this.ctx.lineTo(3 * length / 4, -10);
+            this.ctx.lineTo(3 * length / 4, -5);
+            this.ctx.lineTo(length, -5);
+            this.ctx.lineTo(length, -10);
+            this.ctx.stroke();
+            this.ctx.restore();
+            break;
+          }
+          case 'Drainage': {
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+
+            this.ctx.save();
+            this.ctx.translate(x1, y1);
+            this.ctx.rotate(angle);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, -2.5);
+            this.ctx.lineTo(length, -2.5);
+            this.ctx.lineTo(length, -7.5);
+            this.ctx.lineTo(0, -7.5);
+            this.ctx.closePath();
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(length / 2, -2.5);
+            this.ctx.lineTo(length / 2, -10);
+            this.ctx.stroke();
+            this.ctx.restore();
+            break;
+          }
+          case 'Drainage reversed': {
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            this.ctx.save();
+            this.ctx.translate(x1, y1);
+            this.ctx.rotate(angle);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, -7.5);
+            this.ctx.lineTo(length, -7.5);
+            this.ctx.lineTo(length, -2.5);
+            this.ctx.lineTo(0, -2.5);
+            this.ctx.closePath();
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(length / 2, -2.5);
+            this.ctx.lineTo(length / 2, -10);
+            this.ctx.stroke();
+            this.ctx.restore();
+            break;
+          }
+          default: {
+            this.ctx.moveTo(Math.round(x1), Math.round(y1));
+            this.ctx.lineTo(Math.round(x2), Math.round(y2));
+            this.endPath();
+          }
+        }
+      }
+    }
   }
 
   polygon(coords, startColor = this.options.stroke, pathMethod = this.options.pathMethod, endColor = this.options.stroke, lineWidth = this.options['stroke-width'], lineJoin = this.options.lineJoin, lineCap = this.options.lineCap, closePath = false) {
@@ -1748,7 +2087,7 @@ class MyCanvas extends WebSystemObject {
 
   //The ColorCode() will give the code every time.
   generateRandomColore() {
-    return '#'+Math.floor(Math.random()*16777215).toString(16);
+    return '#' + Math.floor(Math.random() * 16777215).toString(16);
   }
 
   /**
@@ -1762,26 +2101,26 @@ class MyCanvas extends WebSystemObject {
    * @param   {number}  l       The lightness
    * @return  {Array}           The RGB representation
    */
-  hslToRgb(h, s, l){
+  hslToRgb(h, s, l) {
     var r, g, b;
 
-    if(s == 0){
+    if (s == 0) {
       r = g = b = l; // achromatic
-    }else{
-      var hue2rgb = function hue2rgb(p, q, t){
-        if(t < 0) t += 1;
-        if(t > 1) t -= 1;
-        if(t < 1/6) return p + (q - p) * 6 * t;
-        if(t < 1/2) return q;
-        if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    } else {
+      var hue2rgb = function hue2rgb(p, q, t) {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
         return p;
-      }
+      };
 
       var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
       var p = 2 * l - q;
-      r = hue2rgb(p, q, h + 1/3);
+      r = hue2rgb(p, q, h + 1 / 3);
       g = hue2rgb(p, q, h);
-      b = hue2rgb(p, q, h - 1/3);
+      b = hue2rgb(p, q, h - 1 / 3);
     }
 
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
@@ -1798,20 +2137,26 @@ class MyCanvas extends WebSystemObject {
    * @param   {number}  b       The blue color value
    * @return  {Array}           The HSL representation
    */
-  rgbToHsl(r, g, b){
+  rgbToHsl(r, g, b) {
     r /= 255, g /= 255, b /= 255;
     var max = Math.max(r, g, b), min = Math.min(r, g, b);
     var h, s, l = (max + min) / 2;
 
-    if(max == min){
+    if (max == min) {
       h = s = 0; // achromatic
-    }else{
+    } else {
       var d = max - min;
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-      switch(max){
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
+      switch (max) {
+        case r:
+          h = (g - b) / d + (g < b ? 6 : 0);
+          break;
+        case g:
+          h = (b - r) / d + 2;
+          break;
+        case b:
+          h = (r - g) / d + 4;
+          break;
       }
       h /= 6;
     }
@@ -1824,7 +2169,7 @@ class MyCanvas extends WebSystemObject {
   // }
 
   get Diameter() {
-      return Math.sqrt(Math.pow(this.width, 2) + Math.pow(this.height, 2));
+    return Math.sqrt(Math.pow(this.width, 2) + Math.pow(this.height, 2));
   }
 
   // Ya otro
@@ -1837,7 +2182,10 @@ class MyCanvas extends WebSystemObject {
       const sinlat = Math.sin(lat * Math.PI / 180.0);
       const x = this.Diameter * lon / 360.0;
       const y = R / 2 * Math.log((1 + sinlat) / (1 - sinlat));
-      return {x: (this.Diameter / 2 + x), y: (this.Diameter - (this.Diameter / 2 + y))};
+      return {
+        x: (this.Diameter / 2 + x),
+        y: (this.Diameter - (this.Diameter / 2 + y)),
+      };
     },
 
     /**
@@ -2089,6 +2437,59 @@ class MyCanvas extends WebSystemObject {
   }
 
 
+}
 
+/*
 
+muestras de cómo invocar eventos manualmente ...
+
+var event = new MouseEvent("click", {
+  bubbles: true,
+  cancelable: true,
+  view: window
+});
+myButton.dispatchEvent(event);
+
+var event = new InputEvent("input", {
+  bubbles: true,
+  cancelable: true,
+  data: "Hola mundo"
+});
+myTextarea.dispatchEvent(event);
+
+*/
+
+// Simular un segmento en un canvas (click abajo movimiento click arriba).
+function simularDrag(canvas = document.getElementById('myCanvas'),
+  x1 = 100,
+  y1 = 100,
+  x2 = 200,
+  y2 = 200) {
+
+  const rect = canvas.getBoundingClientRect();
+  const event1 = new MouseEvent('mousedown', {
+    clientX: rect.left + x1,
+    clientY: rect.top + y1,
+    button: 0,
+    bubbles: true,
+  });
+
+  const event2 = new MouseEvent('mousemove', {
+    clientX: rect.left + x2,
+    clientY: rect.top + y2,
+    button: 0,
+    bubbles: true,
+  });
+
+  const event3 = new MouseEvent('mouseup', {
+    clientX: rect.left + x2,
+    clientY: rect.top + y2,
+    button: 0,
+    bubbles: true,
+  });
+
+  canvas.dispatchEvent(event1);
+  canvas.dispatchEvent(event2);
+  canvas.dispatchEvent(event3);
+  return;
 }
