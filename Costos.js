@@ -230,3 +230,45 @@ class Costos {
     return this.getCosteTotal() / produccionTotal;
   }
 }
+
+class FichaCosto {
+  /* Copyright Luis Guillermo Bultet Ibles using Sage/ChatGPT Character, folllowing recommends:
+     Empresa Provincial de Farmacias y Ópticas de Guantánamo. (2012).
+     Fichas de costos. Recuperado de https://www.eumed.net/cursecon/ecolat/cu/2012a/empresa-provincial-farmacias-opticas-guantanamo.pdf
+  */
+  constructor(nombreProducto, costoUnitario, cantidadProduccion, porcentajeGastoIndirecto) {
+    this.nombreProducto = nombreProducto;
+    this.costoUnitario = costoUnitario;
+    this.cantidadProduccion = cantidadProduccion;
+    this.porcentajeGastoIndirecto = porcentajeGastoIndirecto;
+  }
+
+  // Calcula el costo de producción total
+  get costoProduccionTotal() {
+    return this.costoUnitario * this.cantidadProduccion;
+  }
+
+  // Calcula el gasto indirecto
+  get gastoIndirecto() {
+    return this.costoProduccionTotal * (this.porcentajeGastoIndirecto / 100);
+  }
+
+  // Calcula el costo de producción unitario
+  get costoProduccionUnitario() {
+    return this.costoUnitario + (this.gastoIndirecto / this.cantidadProduccion);
+  }
+
+  // Calcula el precio de venta sugerido
+  get precioVentaSugerido() {
+    const precioVenta = this.costoProduccionUnitario * 2; // Se utiliza un factor de 2 para obtener una ganancia del 100%
+    return Math.round(precioVenta * 100) / 100; // Se redondea a dos decimales
+  }
+
+  unitaryTest() {
+    const fichaCosto = new FichaCosto('Producto A', 10, 1000, 20);
+    console.log(fichaCosto.costoProduccionTotal); // 10000
+    console.log(fichaCosto.gastoIndirecto); // 2000
+    console.log(fichaCosto.costoProduccionUnitario); // 12
+    console.log(fichaCosto.precioVentaSugerido); // 24
+  }
+}
