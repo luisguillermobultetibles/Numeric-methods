@@ -232,7 +232,7 @@ class Costos {
 }
 
 class FichaCosto {
-  /* Copyright Luis Guillermo Bultet Ibles using Sage/ChatGPT Character, folllowing recommends:
+  /* Copyright Luis Guillermo Bultet Ibles using Sage/ChatGPT Character, following recommends:
      Empresa Provincial de Farmacias y Ópticas de Guantánamo. (2012).
      Fichas de costos. Recuperado de https://www.eumed.net/cursecon/ecolat/cu/2012a/empresa-provincial-farmacias-opticas-guantanamo.pdf
   */
@@ -263,7 +263,6 @@ class FichaCosto {
     const precioVenta = this.costoProduccionUnitario * 2; // Se utiliza un factor de 2 para obtener una ganancia del 100%
     return Math.round(precioVenta * 100) / 100; // Se redondea a dos decimales
   }
-
   unitaryTest() {
     const fichaCosto = new FichaCosto('Producto A', 10, 1000, 20);
     console.log(fichaCosto.costoProduccionTotal); // 10000
