@@ -3,9 +3,8 @@
 // En el siguiente modelo de tienda, incluye una clasificación de productos por categoría, ubicación y fecha de vencimiento, en cierre diario incluye las salidas por dependientes, las mismas pueden ser de tres tipos: venta, alquiler y subasta, implementa una lógica diferente para cada uno de los casos. Debes incluir además, los compronbantes con las ventas, los dependientes y productos que mas se venden, u aviso a tiempo para los quee están apunto de vencerse, implementa un horario para limpieza e inventario:
 
 class Tienda {
-
   static Producto = class {
-    constructor(tienda, nombre, categoria, ubicacion, fechaVencimiento, precio, foto, disponibleSubasta, disponiblePrestamo, disponibleAlquiler) {
+    constructor(tienda, nombre, categoria, ubicacion, fechaVencimiento, precio, foto, cantidad, disponibleSubasta = false, disponiblePrestamo = false, disponibleAlquiler = false) {
       this.tienda = tienda;
       this.nombre = nombre;
       this.categoria = categoria;
@@ -13,6 +12,7 @@ class Tienda {
       this.fechaVencimiento = fechaVencimiento;
       this.precio = precio;
       this.foto = foto;
+      this.cantidad = cantidad;
       this.disponibleSubasta = disponibleSubasta;
       this.disponiblePrestamo = disponiblePrestamo;
       this.disponibleAlquiler = disponibleAlquiler;
@@ -25,10 +25,19 @@ class Tienda {
       return this.tienda.productos;
     }
 
-    agregarProducto(producto, cantidad) {
-      const productoEnInventario = this.inventario.find(p => p.nombre === producto.nombre);
+    agregarProducto(producto) {
+      if (!producto.nombre || typeof producto.nombre !== 'string') {
+        throw new Error('El producto debe tener un nombre válido');
+      }
+      if (!producto.precio || typeof producto.precio !== 'number' || producto.precio <= 0) {
+        throw new Error('El producto debe tener un precio válido');
+      }
+      if (!producto.cantidad || typeof producto.cantidad !== 'number' || producto.cantidad <= 0) {
+        throw new Error('El producto debe tener una cantidad válida');
+      }
+      const productoEnInventario = this.inventario.find((p) => p.nombre === producto.nombre);
       if (productoEnInventario) {
-        productoEnInventario.cantidad += cantidad;
+        productoEnInventario.cantidad += producto.cantidad;
       } else {
         this.inventario.push({
           ...producto,
@@ -37,56 +46,142 @@ class Tienda {
       }
     }
 
+    buscarProducto(propiedad, valor) {
+      for (const nombreProducto in this.inventario) {
+        if (this.inventario.hasOwnProperty(nombreProducto)) {
+          const producto = this.inventario[nombreProducto];
+          if (producto[propiedad] === valor) {
+            return producto;
+          }
+        }
+      }
+      return null; // si no se encuentra el producto
+    }
+
+
+    cancelarCompra(nombre, cantidad) {
+      const producto = this.buscarProducto('nombre', nombre);
+      if (!producto) {
+        throw new Error(`El producto '${nombre}' no está disponible`);
+      }
+      producto.cantidad += cantidad;
+      const transaccionIndex = this.transacciones.findIndex((t) => t.nombreProducto === nombre && t.cantidad === cantidad);
+      if (transaccionIndex !== -1) {
+        this.transacciones.splice(transaccionIndex, 1);
+      }
+    }
+
+    listarTransacciones() {
+      for (const transaccion of this.transacciones) {
+        console.log(`${transaccion.nombreProducto} - ${transaccion.cantidad} unidades - $${transaccion.precio} cada una - Fecha: ${transaccion.fecha}`);
+      }
+    }
+
+    cantidadTotalVendida() {
+      let cantidadTotal = 0;
+      for (const transaccion of this.transacciones) {
+        cantidadTotal += transaccion.cantidad;
+      }
+      return cantidadTotal;
+    }
+
+    listarInventario() {
+      for (const nombreProducto in this.inventario) {
+        if (this.inventario.hasOwnProperty(nombreProducto)) {
+          const producto = this.inventario[nombreProducto];
+          console.log(`${producto.nombre} - $${producto.precio} - ${producto.cantidad} en stock`);
+        }
+      }
+    }
+
+    productosAgotados() {
+      const productosAgotados = [];
+      for (const nombreProducto in this.inventario) {
+        if (this.inventario.hasOwnProperty(nombreProducto)) {
+          const producto = this.inventario[nombreProducto];
+          if (producto.cantidad === 0) {
+            productosAgotados.push(producto.nombre);
+          }
+        }
+      }
+      return productosAgotados;
+    }
+
+    eliminarProducto(nombre) {
+      if (!this.inventario[nombre]) {
+        throw new Error(`El producto '${nombre}' no está en el inventario.`);
+      }
+      delete this.inventario[nombre];
+    }
+
+    actualizarProducto(nombre, propiedad, valor) {
+      const producto = this.buscarProducto('nombre', nombre);
+      if (!producto) {
+        throw new Error(`El producto '${nombre}' no está en el inventario`);
+      }
+      producto[propiedad] = valor;
+    }
+
     revisarProducto(producto) {
       // Lógica para revisar si el producto está disponible en el almacén
       // y actualizar las existencias si es necesario
     }
 
-    venderProducto(producto, cantidad, esPagoConTarjeta, montoRecibido) {
-      const productoEnInventario = this.inventario.find((p) => p.nombre === producto.nombre);
-      if (!productoEnInventario) {
-        console.error(`El producto ${producto.nombre} no está en el inventario.`);
-        return;
+    // Lógica de una venta de un producto.
+    async comprarProducto(nombre, cantidad, montoEntregado, esPagoConTarjeta = false) {
+      const producto = this.buscarProducto('nombre', nombre);
+      if (!producto) {
+        throw new Error(`El producto '${nombre}' no está disponible`);
       }
-      if (productoEnInventario.cantidad < cantidad) {
-        console.error(`No hay suficientes unidades de ${producto.nombre} en el inventario.`);
-        return;
+      if (producto.cantidad < cantidad) {
+        throw new Error(`No hay suficiente cantidad de '${nombre}' en el inventario`);
       }
-      productoEnInventario.cantidad -= cantidad;
+
+      //  productoEnInventario.cantidad -= cantidad;
       const venta = {
         producto,
         cantidad,
         precio: producto.precio,
-        esPagoConTarjeta,
-        montoRecibido,
+        pago: 'En efectivo',
+        montoRecibido: montoEntregado,
         vuelto: 0,
       };
+      const montoTotal = venta.precio * venta.cantidad;
       if (esPagoConTarjeta) {
         if (!this.paypal) {
           this.paypal = Tienda.CobrosPagos('apikey', 'id', 'secret');
         }
-        this.paypal.pagarConTarjeta(venta.precio * venta.cantidad);
-
+        await this.paypal.pagarConTarjeta(venta.precio * venta.cantidad);
+        venta.pago = `A crédito: ${this.nombreTarjeta}-${this.numeroTarjeta}`;
         this.ventas.push(venta);
-
       } else {
-        const montoTotal = venta.precio * venta.cantidad;
-        if (montoRecibido < montoTotal) {
-          console.error(`El monto recibido (${montoRecibido}) es menor al monto total de la venta (${montoTotal}).`);
+        venta.pago = `Al cash, (${montoEntregado} en efectivo)`;
+        if (montoEntregado < montoTotal) {
+          console.error(`El monto recibido (${montoEntregado}) es menor al monto total de la venta (${montoTotal}).`);
           return;
         }
-        venta.vuelto = montoRecibido - montoTotal;
-        this.efectivo += montoTotal;
-        this.ventas.push(venta);
+        venta.vuelto = montoEntregado - montoTotal;
+        producto.cantidad -= cantidad;
+        this.tienda.efectivo += producto.precio * cantidad; // agregar el ingreso al total de ventas
       }
+
+      this.transacciones.push({
+        nombreProducto: nombre,
+        cantidad: cantidad,
+        precio: producto.precio,
+        importe: montoTotal,
+        fecha: new Date().toISOString(),
+        vuelto: venta.vuelto,
+        pago: 'En efectivo',
+      });
+      this.efectivo += montoTotal;
+      this.ventas.push(venta);
     }
 
     devolverProducto(producto, cantidad) {
       // Lógica para procesar la devolución de un producto debido a una inconformidad
       // dentro de la garantía y actualizar las existencias y las cuentas correspondientes
     }
-
-
   };
 
   static Dependiente = class {
@@ -106,7 +201,7 @@ class Tienda {
     }
 
     agregarProducto(producto, cantidad) {
-      const productoEnMostrador = this.productos.find(p => p.producto.nombre === producto.nombre);
+      const productoEnMostrador = this.productos.find((p) => p.producto.nombre === producto.nombre);
       if (productoEnMostrador) {
         productoEnMostrador.cantidad += cantidad;
       } else {
@@ -115,7 +210,7 @@ class Tienda {
     }
 
     eliminarProducto(producto) {
-      const index = this.productos.findIndex(p => p.producto.nombre === producto.nombre);
+      const index = this.productos.findIndex((p) => p.producto.nombre === producto.nombre);
       if (index !== -1) {
         this.productos.splice(index, 1);
       }
@@ -216,13 +311,13 @@ class Tienda {
         const checkboxes = form.querySelectorAll('input[type="checkbox"]');
         checkboxes.forEach((checkbox) => {
           if (checkbox.checked) {
-            const producto = this.productos.find(p => p.producto.nombre === checkbox.value);
+            const producto = this.productos.find((p) => p.producto.nombre === checkbox.value);
             this.eliminarProducto(producto.producto);
           }
         });
         const sliders = form.querySelectorAll('.slider');
         sliders.forEach((slider) => {
-          const producto = this.productos.find(p => p.producto.nombre === slider.parentElement.previousElementSibling.previousElementSibling.textContent);
+          const producto = this.productos.find((p) => p.producto.nombre === slider.parentElement.previousElementSibling.previousElementSibling.textContent);
           producto.cantidad = parseFloat(slider.value);
         });
         this.mostrarMostrador();
@@ -423,7 +518,6 @@ class Tienda {
   };
 
   static Probador = class {
-
     static Prenda = class {
       constructor(probador, nombre, imagen, transform, rotacion) {
         this.probabor = probador;
@@ -444,7 +538,7 @@ class Tienda {
     }
 
     quitarPrenda(prenda) {
-      const index = this.prendas.findIndex(p => p.nombre === prenda.nombre);
+      const index = this.prendas.findIndex((p) => p.nombre === prenda.nombre);
       if (index !== -1) {
         this.prendas.splice(index, 1);
       }
@@ -579,7 +673,7 @@ class Tienda {
     // Procesar un pago a tu cuenta de paypal con tarjeta de crédito
     static async procesarPagoConTarjeta(nombreTarjeta, numeroTarjeta, fechaExpiracion, codigoSeguridad, monto) {
       // Validar los datos de la tarjeta
-      if (!CobrosPagos.validarTarjeta(numeroTarjeta)) {
+      if (!await CobrosPagos.validarTarjeta(numeroTarjeta)) {
         console.error('Número de tarjeta inválido');
         alert('Número de tarjeta inválido');
         throw new Error('Número de tarjeta inválido');
@@ -597,20 +691,21 @@ class Tienda {
 
       // Configurar la petición a la API de PayPal
       const url = 'https://api.paypal.com/v1/payments/payment';
+      const credit_card_data = {
+        number: numeroTarjeta,
+        type: CobrosPagos.obtenerTipoTarjeta(numeroTarjeta),
+        expire_month: fechaExpiracion.substring(0, 2),
+        expire_year: fechaExpiracion.substring(3, 5),
+        cvv2: codigoSeguridad,
+        first_name: nombreTarjeta.split(' ')[0],
+        last_name: nombreTarjeta.split(' ')[1],
+      };
       const data = {
         intent: 'sale',
         payer: {
           payment_method: 'credit_card',
           funding_instruments: [{
-            credit_card: {
-              number: numeroTarjeta,
-              type: CobrosPagos.obtenerTipoTarjeta(numeroTarjeta),
-              expire_month: fechaExpiracion.substring(0, 2),
-              expire_year: fechaExpiracion.substring(3, 5),
-              cvv2: codigoSeguridad,
-              first_name: nombreTarjeta.split(' ')[0],
-              last_name: nombreTarjeta.split(' ')[1],
-            },
+            credit_card: credit_card_data,
           }],
         },
         transactions: [{
@@ -624,7 +719,7 @@ class Tienda {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${CobrosPagos.obtenerTokenPayPal()}`,
+          'Authorization': `Bearer ${CobrosPagos.PaypalAccessToken()}`,
         },
         body: JSON.stringify(data),
       };
@@ -689,7 +784,7 @@ class Tienda {
     }
 
     // Validar tarjeta de crédito
-    static validarTarjeta(numeroTarjeta) {
+    static async validarTarjeta(numeroTarjeta) {
       if (/[^0-9-\s]+/.test(numeroTarjeta)) return false;
 
       // Eliminar espacios en blanco y guiones
@@ -716,6 +811,65 @@ class Tienda {
       }
       return suma % 10 === 0;
     }
+
+    static async #determinarSaldos(card_id, accessToken) {
+      let availableBalance = 0;
+      let balance = 0;
+
+      const paypalCardsUrl = `https://api.sandbox.paypal.com/v1/vault/credit-cards/${card_id}`; // cambiar a 'https://api.paypal.com/v1/vault/credit-cards/${cardId}' para producción
+
+      await fetch(paypalCardsUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          availableBalance = data.available_balance.value; // el saldo disponible de la tarjeta
+          balance = data.balance.value; // el saldo total de la tarjeta
+          console.log(`Saldo disponible: ${availableBalance}`);
+          console.log(`Saldo total: ${balance}`);
+        })
+        .catch((error) => console.log(error));
+
+      return {
+        availableBalance: Number(availableBalance),
+        balance: Number(balance),
+      };
+    }
+
+    // Saldo
+    static async saldoTarjetaCredito(tarjeta) {
+      let saldotarjeta = 0;
+      const paypalAuthUrl = 'https://api.sandbox.paypal.com/v1/oauth2/token'; // cambiar a 'https://api.paypal.com/v1/oauth2/token' para producción
+
+      const clientId = CobrosPagos.#id;
+      const clientSecret = CobrosPagos.#secret;
+
+      const authString = `${clientId}:${clientSecret}`;
+      const base64AuthString = btoa(authString);
+
+      fetch(paypalAuthUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${base64AuthString}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'grant_type=client_credentials',
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const accessToken = data.access_token;
+          // aquí puedes utilizar el token de acceso para hacer solicitudes a la API de PayPal
+          // por ejemplo:
+          saldotarjeta = CobrosPagos.#determinarSaldos(tarjeta, token);
+        })
+        .catch((error) => console.log(error));
+      return saldotarjeta.availableBalance;
+    }
+
 
     // Ventana para pagar
     static async pagarConTarjeta(suma) {
@@ -746,12 +900,13 @@ class Tienda {
       const form = modal.querySelector('form');
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const nombreTarjeta = form.querySelector('#nombre-tarjeta').value;
-        const numeroTarjeta = form.querySelector('#numero-tarjeta').value;
-        const fechaExpiracion = form.querySelector('#fecha-expiracion').value;
-        const codigoSeguridad = form.querySelector('#codigo-seguridad').value;
+        this.nombreTarjeta = form.querySelector('#nombre-tarjeta').value;
+        this.numeroTarjeta = form.querySelector('#numero-tarjeta').value;
+
+        this.fechaExpiracion = form.querySelector('#fecha-expiracion').value;
+        this.codigoSeguridad = form.querySelector('#codigo-seguridad').value;
         const monto = parseFloat(form.querySelector('#monto').value);
-        const respuesta = await CobrosPagos.procesarPagoConTarjeta(nombreTarjeta, numeroTarjeta, fechaExpiracion, codigoSeguridad, monto);
+        const respuesta = await CobrosPagos.procesarPagoConTarjeta(this.nombreTarjeta, this.numeroTarjeta, this.fechaExpiracion, this.codigoSeguridad, monto);
         if (respuesta.ok) {
           result = true;
           console.log('Pago procesado exitosamente');
@@ -767,7 +922,6 @@ class Tienda {
 
       return result;
     }
-
   };
 
   // Constructor de la tienda
@@ -778,7 +932,7 @@ class Tienda {
     this.existencias = 0;
     // Actualizamos los productos disponibles en el mostrador
     this.productos = [];
-    // Iniciamos la caja
+    // Iniciamos la caja (Ventas, vueltos por devolver y propinas)
     this.efectivo = 0;
     // Iniciamos las las ventas
     this.ventasDiarias = 0;
@@ -805,15 +959,15 @@ class Tienda {
   }
 
   obtenerProductosPorCategoria(categoria) {
-    return this.productos.filter(producto => producto.categoria === categoria);
+    return this.productos.filter((producto) => producto.categoria === categoria);
   }
 
   obtenerProductosPorUbicacion(ubicacion) {
-    return this.productos.filter(producto => producto.ubicacion === ubicacion);
+    return this.productos.filter((producto) => producto.ubicacion === ubicacion);
   }
 
   obtenerProductosPorFechaVencimiento(fechaVencimiento) {
-    return this.productos.filter(producto => producto.fechaVencimiento === fechaVencimiento);
+    return this.productos.filter((producto) => producto.fechaVencimiento === fechaVencimiento);
   }
 
   obtenerProductosMasVendidos() {
@@ -827,7 +981,7 @@ class Tienda {
   agregarSalidaDependiente(tipoSalida, nombreDependiente, producto, cantidad) {
     // Lógica para agregar una salida de producto por parte de un dependiente
     // según el tipo de salida (venta, alquiler o subasta)
-    const dependiente = this.dependientes.find(dep => dep.nombre === nombreDependiente);
+    const dependiente = this.dependientes.find((dep) => dep.nombre === nombreDependiente);
     if (!dependiente) {
       throw new Error(`El dependiente ${nombreDependiente} no existe.`);
     }
@@ -892,8 +1046,6 @@ class Tienda {
   establecerHorarioLimpiezaInventario(horario) {
     // Lógica para establecer el horario de limpieza e inventario de la tienda
   }
-
-
 }
 
 // Esto es una tienda con todas las de la ley. 🌺
