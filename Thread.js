@@ -1,33 +1,22 @@
-export class SimpleThread { // Multitask motor
-
+export class SimpleThread {
   static #taskData = [];
+  static #taskId = 1;
 
-  constructor(defaultFunc = () => {
-  }) {
+  constructor(defaultFunc = () => {}) {
     if (defaultFunc instanceof Function) {
       this.#addTask(defaultFunc);
     } else {
-      this.#addTask(() => {
-      });
+      this.#addTask(() => {});
     }
   }
 
   #addTask(func) {
-    function autonum(array) {
-      // Función para generar un número único a cada tarea
-      let id = 1;
-      while (array.some((task) => task.id === id)) {
-        id++;
-      }
-      return id;
-    }
-
     const code = func.toString();
     const workerURL = URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
     const worker = new SharedWorker(workerURL);
-    this.id = autonum(SimpleThread.#taskData);
+    const id = SimpleThread.#taskId++;
     const data = {
-      id: this.id,
+      id: id,
       code: code,
       workerURL: workerURL,
       worker: worker,
@@ -67,12 +56,14 @@ export class SimpleThread { // Multitask motor
       task.status = 'ended';
     }
   }
+
   postMessage(message) {
     const task = SimpleThread.#taskData.find((task) => task.id === this.id);
     if (task) {
       task.worker.port.postMessage(message);
     }
   }
+
   async getResults() {
     const task = SimpleThread.#taskData.find((task) => task.id === this.id);
     if (task && task.status === null) {
@@ -82,12 +73,11 @@ export class SimpleThread { // Multitask motor
         };
       });
     }
-    return null;
+    throw new Error('Resultados no disponibles');
   }
+
   static unitaryTest() {
-    // Crea dos instancias de la clase Thread
-    const thread1 = new Thread(async () => {
-      // Función que se ejecutará en el primer hilo
+    const thread1 = new SimpleThread(() => {
       let result = 0;
       for (let i = 0; i < 1000000000; i++) {
         result += i;
@@ -95,8 +85,7 @@ export class SimpleThread { // Multitask motor
       this.postMessage(result);
     });
 
-    const thread2 = new Thread(async () => {
-      // Función que se ejecutará en el segundo hilo
+    const thread2 = new SimpleThread(() => {
       let result = 0;
       for (let i = 1000000000; i < 2000000000; i++) {
         result += i;
@@ -104,18 +93,17 @@ export class SimpleThread { // Multitask motor
       this.postMessage(result);
     });
 
-    // Lanza las dos tareas en paralelo y espera a que terminen
     Promise.all([thread1.getResults(), thread2.getResults()]).then((results) => {
-      // Combina los resultados de las dos tareas
-      const total = results.reduce(async (acc, val) => acc + val, 0);
-      console.log(total); // Output: 1999999999000000000
-    }).finally(() => {
-      // Cierra los hilos web
+      const total = results.reduce((acc, val) => acc + val, 0);
+      console.log(total);
+      thread1.end();
+      thread2.end();
+    }).catch((error) => {
+      console.error(error);
       thread1.end();
       thread2.end();
     });
   }
-
 }
 
 export class PauseableThread {
