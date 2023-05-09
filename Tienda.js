@@ -1,15 +1,87 @@
-// 🌺
-
-// En el siguiente modelo de tienda, incluye una clasificación de productos por categoría, ubicación y fecha de vencimiento, en cierre diario incluye las salidas por dependientes, las mismas pueden ser de tres tipos: venta, alquiler y subasta, implementa una lógica diferente para cada uno de los casos. Debes incluir además, los compronbantes con las ventas, los dependientes y productos que mas se venden, u aviso a tiempo para los quee están apunto de vencerse, implementa un horario para limpieza e inventario:
-
+// 🌺 Ecmascript Store, Tienda (spanish version): B & U "Limited Time Edition"
 class Tienda {
+
   static Producto = class {
-    constructor(tienda, nombre, categoria, ubicacion, fechaVencimiento, precio, foto, cantidad, disponibleSubasta = false, disponiblePrestamo = false, disponibleAlquiler = false) {
+    static categories = {
+      clothingAndAccessories: 'Ropa y accesorios',
+      beautyAndPersonalCare: 'Belleza y cuidado personal',
+      homeAndDecor: 'Hogar y decoración',
+      electronics: 'Electrónica',
+      sportsAndOutdoors: 'Deportes y actividades al aire libre',
+      toysAndEntertainment: 'Juguetes y entretenimiento',
+      foodAndBeverages: 'Alimentos y bebidas',
+      automotive: 'Automóvil y motocicleta',
+      pets: 'Mascotas',
+      healthAndWellness: 'Salud y bienestar',
+    };
+
+    // // Muestra
+    static productsData = {
+      clothingAndAccessories: [
+        {name: 'Camiseta', contact: 'proveedorA', cost: 10, price: 20},
+        {name: 'Pantalón', contact: 'proveedorB', cost: 20, price: 40},
+        // otros productos de ropa y accesorios
+      ],
+      beautyAndPersonalCare: [
+        {name: 'Cepillo de dientes', contact: 'proveedorC', cost: 2, price: 4},
+        {name: 'Champú', contact: 'proveedorD', cost: 5, price: 10},
+        // otros productos de belleza y cuidado personal
+      ],
+      homeAndDecor: [
+        {name: 'Mesa de centro', contact: 'proveedorE', cost: 50, price: 100},
+        {name: 'Lámpara', contact: 'proveedorF', cost: 20, price: 40},
+        // otros productos de hogar y decoración
+      ],
+      electronics: [
+        {name: 'Televisor', contact: 'proveedorG', cost: 300, price: 400},
+        {name: 'Laptop', contact: 'proveedorH', cost: 600, price: 800},
+        // otros productos de electrónica
+      ],
+      sportsAndOutdoors: [
+        {name: 'Bicicleta', contact: 'proveedorI', cost: 200, price: 300},
+        {name: 'Raqueta de tenis', contact: 'proveedorJ', cost: 50, price: 80},
+        // otros productos de deportes y actividades al aire libre
+      ],
+      toysAndEntertainment: [
+        {name: 'Juguete', contact: 'proveedorK', cost: 5, price: 10},
+        {name: 'Videojuego', contact: 'proveedorL', cost: 30, price: 50},
+        // otros productos de juguetes y entretenimiento
+      ],
+      foodAndBeverages: [
+        {name: 'Café', contact: 'proveedorM', cost: 5, price: 8},
+        {name: 'Té', contact: 'proveedorN', cost: 3, price: 6},
+        // otros productos de alimentos y bebidas
+      ],
+      automotive: [
+        {name: 'Aceite de motor', contact: 'proveedorO', cost: 5, price: 10},
+        {name: 'Neumático', contact: 'proveedorP', cost: 50, price: 80},
+        // otros productos de automóvil y motocicleta
+      ],
+      pets: [
+        {name: 'Comida para perros', contact: 'proveedorQ', cost: 8, price: 15},
+        {name: 'Comida para gatos', contact: 'proveedorR', cost: 8, price: 15},
+        // otros productos de mascotas
+      ],
+      healthAndWellness: [
+        {
+          name: 'Suplemento vitamínico',
+          contact: 'proveedorS',
+          cost: 20,
+          price: 30,
+        },
+        {name: 'Crema hidratante', contact: 'proveedorT', cost: 10, price: 20},
+        // otros productos de salud y bienestar
+      ],
+    };
+
+    constructor(tienda, nombre, categoria, ubicacion, fechaVencimiento, contact, cost, precio, foto, cantidad, disponibleSubasta = false, disponiblePrestamo = false, disponibleAlquiler = false) {
       this.tienda = tienda;
       this.nombre = nombre;
       this.categoria = categoria;
       this.ubicacion = ubicacion;
       this.fechaVencimiento = fechaVencimiento;
+      this.contact = contact;
+      this.costo = cost;
       this.precio = precio;
       this.foto = foto;
       this.cantidad = cantidad;
@@ -17,8 +89,24 @@ class Tienda {
       this.disponiblePrestamo = disponiblePrestamo;
       this.disponibleAlquiler = disponibleAlquiler;
       this.aptoParaLaVenta = true; // ¿Ha pasado todas las inspecciones?
-
       this.agregarProducto(this);
+    }
+
+    agregarProductoData() { // demo sobre la muestra
+      for (const category in productsData) {
+        for (const productData of productsData[category]) {
+          const product = new Product(this.tienda, productData.name, category, '', '', productData.contact, productData.cost, productData.price);
+          products.push(product);
+        }
+      }
+      // Mostrar información de los productos
+      for (const product of products) {
+        console.log(product.getInfo());
+      }
+    }
+
+    getInfo() { // demo
+      return `${this.name} (${Product.categories[this.category]}) - Precio de compra: $${this.cost} USD, Precio de venta: $${this.price} USD, Contacto: ${this.contact}`;
     }
 
     get inventario() {
@@ -737,6 +825,220 @@ class Tienda {
       }
     }
 
+    // Las siguientes dos funciones asumen que tienes una cuenta bancaria asociada a la tarjeta
+
+    // Función para transferir saldo a una cuenta bancaria
+    transferirSaldoACuentaBancaria(cuentaBancaria, monto) {
+      // Configurar la petición a la API de PayPal
+      const url = 'https://api.paypal.com/v1/payments/payouts';
+      const data = {
+        sender_batch_header: {
+          email_subject: 'Transferencia de saldo de PayPal',
+        },
+        items: [{
+          recipient_type: 'EMAIL',
+          amount: {
+            value: monto,
+            currency: 'USD',
+          },
+          note: 'Transferencia de saldo de PayPal',
+          receiver: cuentaBancaria,
+        }],
+      };
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${CobrosPagos.PaypalAccessToken()}`,
+        },
+        body: JSON.stringify(data),
+      };
+
+      // Realizar la transferencia de saldo a la cuenta bancaria
+      return fetch(url, options)
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+          if (resultado.batch_header.batch_status === 'COMPLETED') {
+            return resultado;
+          } else {
+            throw new Error('Error al transferir el saldo a la cuenta bancaria');
+          }
+        });
+    }
+
+    // Función para transferir saldo a una tarjeta de débito o crédito
+    transferirSaldoATarjeta(tarjeta, monto) {
+      // Configurar la petición a la API de PayPal
+      const url = 'https://api.paypal.com/v1/payments/payouts';
+      const data = {
+        sender_batch_header: {
+          email_subject: 'Transferencia de saldo de PayPal',
+        },
+        items: [{
+          recipient_type: 'BANK_ACCOUNT',
+          amount: {
+            value: monto,
+            currency: 'USD',
+          },
+          note: 'Transferencia de saldo de PayPal',
+          receiver: tarjeta,
+        }],
+      };
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${CobrosPagos.PaypalAccessToken()}`,
+        },
+        body: JSON.stringify(data),
+      };
+
+      // Realizar la transferencia de saldo a la tarjeta de débito o crédito
+      return fetch(url, options)
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+          if (resultado.batch_header.batch_status === 'COMPLETED') {
+            return resultado;
+          } else {
+            throw new Error('Error al transferir el saldo a la tarjeta');
+          }
+        });
+    }
+
+    // Aquí te muestro las funciones para asociar y desasociar las tarjetas paypal
+
+// Función para asociar una cuenta bancaria a la cuenta de PayPal
+    function;
+
+    asociarCuentaBancaria(cuentaBancaria) {
+      // Configurar la petición a la API de PayPal
+      const url = 'https://api.paypal.com/v1/user/payments/paypal-accounts';
+      const data = {
+        account_number: cuentaBancaria.numeroCuenta,
+        account_type: cuentaBancaria.tipoCuenta,
+        bank_name: cuentaBancaria.nombreBanco,
+        country_code: cuentaBancaria.codigoPais,
+        email_address: cuentaBancaria.correoElectronico,
+        account_holder_name: cuentaBancaria.nombreTitular,
+      };
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${CobrosPagos.PaypalAccessToken()}`,
+        },
+        body: JSON.stringify(data),
+      };
+
+      // Realizar la asociación de la cuenta bancaria a la cuenta de PayPal
+      return fetch(url, options)
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+          if (resultado.status === 'ACTIVE') {
+            return resultado;
+          } else {
+            throw new Error('Error al asociar la cuenta bancaria a la cuenta de PayPal');
+          }
+        });
+    }
+
+// Función para desasociar una cuenta bancaria de la cuenta de PayPal
+    function;
+
+    desasociarCuentaBancaria(idCuentaBancaria) {
+      // Configurar la petición a la API de PayPal
+      const url = `https://api.paypal.com/v1/user/payments/paypal-accounts/${idCuentaBancaria}`;
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${CobrosPagos.PaypalAccessToken()}`,
+        },
+      };
+
+      // Realizar la desasociación de la cuenta bancaria de la cuenta de PayPal
+      return fetch(url, options)
+        .then(respuesta => {
+          if (respuesta.status === 204) {
+            return 'Cuenta bancaria desasociada de la cuenta de PayPal';
+          } else {
+            throw new Error('Error al desasociar la cuenta bancaria de la cuenta de PayPal');
+          }
+        });
+    }
+
+// Función para asociar una tarjeta de débito o crédito a la cuenta de PayPal
+    function;
+
+    asociarTarjeta(tarjeta) {
+      // Configurar la petición a la API de PayPal
+      const url = 'https://api.paypal.com/v1/vault/credit-cards';
+      const data = {
+        number: tarjeta.numero,
+        type: tarjeta.tipo,
+        expire_month: tarjeta.mesExpiracion,
+        expire_year: tarjeta.anioExpiracion,
+        billing_address: {
+          line1: tarjeta.direccion.linea1,
+          line2: tarjeta.direccion.linea2,
+          city: tarjeta.direccion.ciudad,
+          state: tarjeta.direccion.estado,
+          postal_code: tarjeta.direccion.codigoPostal,
+          country_code: tarjeta.direccion.codigoPais,
+        },
+      };
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${CobrosPagos.PaypalAccessToken()}`,
+        },
+        body: JSON.stringify(data),
+      };
+
+      // Realizar la asociación de la tarjeta de débito o crédito a la cuenta de PayPal
+      return fetch(url, options)
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+          if (resultado.state === 'ok') {
+            return resultado;
+          } else {
+            throw new Error('Error al asociar la tarjeta de débito o crédito a la cuenta de PayPal');
+          }
+        });
+    }
+
+// Función para desasociar una tarjeta de débito o crédito de la cuenta de PayPal
+    function;
+
+    desasociarTarjeta(idTarjeta) {
+      // Configurar la petición a la API de PayPal
+      const url = `https://api.paypal.com/v1/vault/credit-cards/${idTarjeta}`;
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${CobrosPagos.PaypalAccessToken()}`,
+        },
+      };
+
+      // Realizar la desasociación de la tarjeta de débito o crédito de la cuenta de PayPal
+      return fetch(url, options)
+        .then(respuesta => {
+          if (respuesta.status === 204) {
+            return 'Tarjeta de débito o crédito desasociada de la cuenta de PayPal';
+          } else {
+            throw new Error('Error al desasociar la tarjeta de débito o crédito de la cuenta de PayPal');
+          }
+        });
+    }
+
+    /*
+
+    La función asociarCuentaBancaria toma como parámetro un objeto cuentaBancaria que debe contener los campos necesarios para asociar una cuenta bancaria a tu cuenta de PayPal, como el número de cuenta, el tipo de cuenta, el nombre del banco, el correo electrónico asociado a la cuenta bancaria, el nombre del titular de la cuenta y el código del país. La función devuelve una promesa que resuelve con el resultado de la asociación de la cuenta bancaria a la cuenta de PayPal.
+    La función desasociarCuentaBancaria toma como parámetro el ID de la cuenta bancaria que deseas desasociar de tu cuenta de PayPal. La función devuelve una promesa que resuelve con un mensaje indicando que la cuenta bancaria ha sido desasociada de la cuenta de PayPal.
+    La función asociarTarjeta toma como parámetro un objeto tarjeta que debe contener los campos necesarios para asociar una tarjeta de débito o crédito a tu cuenta de PayPal, como el número de tarjeta, el tipo de tarjeta, la fecha de expiración, la dirección de facturación de la tarjeta y el código del país. La función devuelve una promesa que resuelve con el resultado de la asociación de la tarjeta de débito o crédito a la cuenta de PayPal.
+    La función desasociarTarjeta toma como parámetro el ID de la tarjeta de débito o crédito que deseas desasociar de tu cuenta de PayPal. La función devuelve una promesa que resuelve con un mensaje indicando que la tarjeta de débito o crédito ha sido desasociada de la cuenta de PayPal.
+
+    */
 
     // Para obtener tu API Key (tanto live como sandbox), sigue estos pasos:
     // Inicia sesión en tu cuenta de desarrollador de Paypal (developer.paypal.com)
