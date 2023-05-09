@@ -215,6 +215,73 @@ class Tienda {
       // y actualizar las existencias si es necesario
     }
 
+    // Método para registrar una compra
+    registrarCompra(producto, precio) {
+      this.inventario.push(producto);
+      this.ganancias -= precio;
+    }
+
+
+    // Método para realizar un trueque
+// Método para realizar un trueque
+    realizarTrueque(producto1, producto2, valoracion1, valoracion2, efectivo = 0) {
+      const index1 = this.inventario.indexOf(producto1);
+      const index2 = this.inventario.indexOf(producto2);
+      if (index1 !== -1 && index2 !== -1) {
+        const valorTotal = producto1.precio * valoracion1 + producto2.precio * valoracion2;
+        const comision = 0.1 * valorTotal;
+        const tarifaFija = 5;
+        const cambio = efectivo - valorTotal - comision - tarifaFija;
+        if (cambio >= 0) {
+          this.inventario.splice(index1, 1, producto2);
+          this.inventario.splice(index2, 1, producto1);
+          if (!this.trueques) {
+            this.trueques = [];
+          }
+          this.trueques.push({producto1, producto2, valoracion1, valoracion2});
+          this.tienda.ventas.push({
+            nombre: 'Comisión',
+            precio: comision,
+            importe: comision,
+          });
+          this.tienda.ventas.push({
+            nombre: 'Tarifa de trueque',
+            precio: tarifaFija,
+            importe: tarifaFija,
+          });
+          this.registrarCompra(producto1, producto1.precio * valoracion2);
+          this.registrarCompra(producto2, producto2.precio * valoracion1);
+          return cambio;
+        }
+      }
+      return false;
+    }
+
+    // Método para establecer las políticas de préstamo y valores para los productos
+    establecerPoliticas(politicas) {
+      this.politicas = politicas;
+    }
+
+    // Método para verificar si un producto ha sido devuelto a tiempo
+    verificarDevolucion(producto) {
+      const politicas = this.politicas || {
+        tiempoPrestamo: 7,
+        valorProducto: 100,
+      };
+      const index = this.ventas.findIndex(venta => venta.producto === producto);
+      if (index !== -1) {
+        const fechaVenta = this.ventas[index].fecha;
+        const fechaDevolucion = new Date();
+        const diasPrestamo = (fechaDevolucion - fechaVenta) / (1000 * 60 * 60 * 24);
+        const valorProducto = politicas.valorProducto || 100;
+        if (diasPrestamo > politicas.tiempoPrestamo) {
+          this.ganancias += 0.1 * valorProducto;
+          console.log(`Se ha cobrado una multa del 10% por devolución tardía de ${producto}`);
+        }
+        this.ventas.splice(index, 1);
+      }
+    }
+
     // Lógica de una venta de un producto.
     async comprarProducto(nombre, cantidad, montoEntregado, esPagoConTarjeta = false) {
       const producto = this.buscarProducto('nombre', nombre);
@@ -908,7 +975,6 @@ class Tienda {
     // Aquí te muestro las funciones para asociar y desasociar las tarjetas paypal
 
 // Función para asociar una cuenta bancaria a la cuenta de PayPal
-    function;
 
     asociarCuentaBancaria(cuentaBancaria) {
       // Configurar la petición a la API de PayPal
@@ -943,7 +1009,6 @@ class Tienda {
     }
 
 // Función para desasociar una cuenta bancaria de la cuenta de PayPal
-    function;
 
     desasociarCuentaBancaria(idCuentaBancaria) {
       // Configurar la petición a la API de PayPal
@@ -967,7 +1032,6 @@ class Tienda {
     }
 
 // Función para asociar una tarjeta de débito o crédito a la cuenta de PayPal
-    function;
 
     asociarTarjeta(tarjeta) {
       // Configurar la petición a la API de PayPal
@@ -1008,7 +1072,6 @@ class Tienda {
     }
 
 // Función para desasociar una tarjeta de débito o crédito de la cuenta de PayPal
-    function;
 
     desasociarTarjeta(idTarjeta) {
       // Configurar la petición a la API de PayPal
@@ -1033,12 +1096,75 @@ class Tienda {
 
     /*
 
+    Las anteriores:
     La función asociarCuentaBancaria toma como parámetro un objeto cuentaBancaria que debe contener los campos necesarios para asociar una cuenta bancaria a tu cuenta de PayPal, como el número de cuenta, el tipo de cuenta, el nombre del banco, el correo electrónico asociado a la cuenta bancaria, el nombre del titular de la cuenta y el código del país. La función devuelve una promesa que resuelve con el resultado de la asociación de la cuenta bancaria a la cuenta de PayPal.
     La función desasociarCuentaBancaria toma como parámetro el ID de la cuenta bancaria que deseas desasociar de tu cuenta de PayPal. La función devuelve una promesa que resuelve con un mensaje indicando que la cuenta bancaria ha sido desasociada de la cuenta de PayPal.
     La función asociarTarjeta toma como parámetro un objeto tarjeta que debe contener los campos necesarios para asociar una tarjeta de débito o crédito a tu cuenta de PayPal, como el número de tarjeta, el tipo de tarjeta, la fecha de expiración, la dirección de facturación de la tarjeta y el código del país. La función devuelve una promesa que resuelve con el resultado de la asociación de la tarjeta de débito o crédito a la cuenta de PayPal.
     La función desasociarTarjeta toma como parámetro el ID de la tarjeta de débito o crédito que deseas desasociar de tu cuenta de PayPal. La función devuelve una promesa que resuelve con un mensaje indicando que la tarjeta de débito o crédito ha sido desasociada de la cuenta de PayPal.
 
+    Y las siguientes por si pudiera servir de algo:
+
     */
+
+    obtenerCuentasAsociadasATarjeta(idTarjeta) {
+      // Obtener el token de acceso de PayPal
+      const accessToken = CobrosPagos.PaypalAccessToken();
+
+      // Configurar la petición a la API de PayPal
+      const url = 'https://api.paypal.com/v1/user/payments/paypal-accounts';
+      const options = {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      };
+
+      // Realizar la petición a la API de PayPal
+      return fetch(url, options)
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+          // Filtrar las cuentas asociadas a la tarjeta
+          const cuentas = resultado.accounts.filter(cuenta => cuenta.funding_instruments.some(instrumento => instrumento.credit_card.id === idTarjeta));
+          return cuentas;
+        });
+    }
+
+    obtenerTarjetasAsociadasACuenta() {
+      // Obtener el token de acceso de PayPal
+      const accessToken = CobrosPagos.PaypalAccessToken();
+
+      // Configurar la petición a la API de PayPal
+      const url = 'https://api.paypal.com/v1/vault/credit-cards';
+      const options = {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      };
+
+      // Realizar la petición a la API de PayPal
+      return fetch(url, options)
+        .then(respuesta => respuesta.json())
+        .then(resultado => {
+          // Mapear la información de las tarjetas
+          const tarjetas = resultado.credit_cards.map(tarjeta => ({
+            id: tarjeta.id,
+            numero: tarjeta.number,
+            tipo: tarjeta.type,
+            mesExpiracion: tarjeta.expire_month,
+            anioExpiracion: tarjeta.expire_year,
+            direccion: {
+              linea1: tarjeta.billing_address.line1,
+              linea2: tarjeta.billing_address.line2,
+              ciudad: tarjeta.billing_address.city,
+              estado: tarjeta.billing_address.state,
+              codigoPostal: tarjeta.billing_address.postal_code,
+              codigoPais: tarjeta.billing_address.country_code,
+            },
+          }));
+          return tarjetas;
+        });
+    }
 
     // Para obtener tu API Key (tanto live como sandbox), sigue estos pasos:
     // Inicia sesión en tu cuenta de desarrollador de Paypal (developer.paypal.com)
