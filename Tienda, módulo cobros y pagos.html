@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tienda</title>
+</head>
+<body>
+<h1>Tienda</h1>
+<button id="actualizar-btn">Actualizar información</button>
+<button id="cobros-pagos-btn">Cobros y pagos</button>
+<button id="crear-orden-btn">Crear orden</button>
+<button id="asociar-cuenta-btn">Asociar cuenta</button>
+<button id="desasociar-cuenta-btn">Desasociar cuenta</button>
+<button id="mostrar-cuentas-asociadas-btn">Mostrar cuentas asociadas</button>
+<div id="submayor-container"></div>
+<div id="cuentas-asociadas-container"></div>
+<script>
+
+  console.log('Este es prototipo de cobros y pagoq ue utilizo en la clase Tienda.');
+  console.log('Pipo.');
+
+  class CobrosPagos {
+    /*
+        Una cuenta payee es una cuenta bancaria o de otro tipo que se utiliza para recibir pagos de otras personas o entidades.
+        En general, el término "payee" se refiere a la persona o entidad que recibe un pago, mientras que "payer" se refiere a
+        la persona o entidad que realiza el pago. Por lo tanto, una cuenta payee es la cuenta que se utiliza para recibir pagos
+        de un payer.
+     */
+
+
+    static #paypalApiKey = '';
+    static #id = '';
+    static #secret = '';
+    static #cuentasAsociadas = [];
+
+    // Submayor detallado con facturas
+    #facturas = [];
+    #formasDePago = [];
+    #registrosDePagos = [];
+
+    constructor() {
+      CobrosPagos.authToken = null;
+    }
+
+    static setup(paypalApiKey, id, secret) {
+      CobrosPagos.#paypalApiKey = paypalApiKey;
+      CobrosPagos.#id = id;
+      CobrosPagos.#secret = secret;
+    }
+
+    // Facturas
+
+    // Obtener el submayor de las transacciones de PayPal con Cuentas por pagar y cobrar, por clientes y facturas.
+    static async obtenerSubmayorDetallado() {
+      const url = 'https://api.sandbox.paypal.com/v2/reporting/transactions';
+      const authToken = await CobrosPagos.#getAuthToken();
+      const headers = {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      };
+      const body = {
+        'fields': ['transaction_info', 'payer_info', 'amount'],
+        'transaction_type': ['SALE', 'REFUND'],
+        'transaction_status': ['COMPLETED'],
+      };
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      const submayor = data.transactions.map(transaction => {
+        const fecha = new Date(transaction.transaction_info.transaction_initiation_date);
+        const tipo = transaction.amount.value < 0 ? 'Pago' : 'Cobro';
+        const importe = Math.abs(transaction.amount.value);
+        const payerId = transaction.payer_info.payer_id;
+        const payerNombre = `${transaction.payer_info.first_name} ${transaction.payer_info.last_name}`;
+        const payerCuenta = transaction.payer_info.email_address;
+        const facturaId = transaction.transaction_info.invoice_id;
+        return {fecha, tipo, importe, payerId, payerNombre, payerCuenta, facturaId};
+      });
+      const submayorContainer = document.getElementById('submayor-container');
+      submayorContainer.innerHTML = '';
+      const table = document.createElement('table');
+      const headerRow = table.insertRow();
+      const fechaHeader = headerRow.insertCell();
+      fechaHeader.textContent = 'Fecha';
+      const tipoHeader = headerRow.insertCell();
+      tipoHeader.textContent = 'Tipo';
+      const importeHeader = headerRow.insertCell();
+      importeHeader.textContent = 'Importe';
+      const clienteHeader = headerRow.insertCell();
+      clienteHeader.textContent = 'Cliente';
+      const facturaHeader = headerRow.insertCell();
+      facturaHeader.textContent = 'Factura';
+      submayor.forEach(item => {
+        const row = table.insertRow();
+        const fechaCell = row.insertCell();
+        fechaCell.textContent = item.fecha.toLocaleDateString();
+        const tipoCell = row.insertCell();
+        tipoCell.textContent = item.tipo;
+        const importeCell = row.insertCell();
+        importeCell.textContent = item.importe.toFixed(2);
+        const clienteCell = row.insertCell();
+        clienteCell.textContent = `${item.payerNombre} (${item.payerCuenta})`;
+        const facturaCell = row.insertCell();
+        facturaCell.textContent = item.facturaId;
+        if (item.tipo === 'Cobro') {
+          const pagada = this.facturaCompletamentePagada(item.facturaId);
+          if (pagada) {
+            row.classList.add('pagada');
+          } else if (this.facturaParcialmentePagada(item.facturaId)) {
+            row.classList.add('parcialmente-pagada');
+          }
+        } else if (item.tipo === 'Pago') {
+          const pagada = this.clienteHaPagado(item.payerId, item.facturaId);
+          if (pagada) {
+            row.classList.add('pagada');
+          }
+        }
+      });
+      submayorContainer.appendChild(table);
+    }
+
+    // Obtener el submayor de las transacciones de PayPal
+    static async obtenerSubmayor() {
+      const url = 'https://api.sandbox.paypal.com/v2/reporting/transactions';
+      const authToken = await CobrosPagos.#getAuthToken();
+      const data = {
+        start_date: '2022-01-01T00:00:00-0700',
+        end_date: '2022-01-31T23:59:59-0700',
+      };
+      const headers = {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      };
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data),
+      });
+      const transactions = await response.json();
+      const submayorHtml = CobrosPagos.#formatSubmayor(transactions);
+      const submayorContainer = document.querySelector('#submayor-container');
+      submayorContainer.innerHTML = submayorHtml;
+    }
+
+    static async asociarCuenta(cuenta) {
+      CobrosPagos.#cuentasAsociadas.push(cuenta);
+      alert(`La cuenta ${cuenta} se ha asociado correctamente.`);
+    }
+
+    static async desasociarCuenta(cuenta) {
+      const index = CobrosPagos.#cuentasAsociadas.indexOf(cuenta);
+      if (index !== -1) {
+        CobrosPagos.#cuentasAsociadas.splice(index, 1);
+        alert(`La cuenta ${cuenta} se ha desasociado correctamente.`);
+      } else {
+        alert(`La cuenta ${cuenta} no está asociada.`);
+      }
+    }
+
+    static async mostrarCuentasAsociadas() {
+      const tienda = new CobrosPagos();
+      const paypalApiKey = 'paypalApiKey';
+      const clientId = 'clientId';
+      const secret = 'secret';
+      await CobrosPagos.setup(paypalApiKey, clientId, secret);
+      const cuentasAsociadasHtml = await CobrosPagos.formatCuentasAsociadas();
+      const cuentasAsociadasContainer = document.querySelector('#cuentas-asociadas-container');
+      cuentasAsociadasContainer.innerHTML = cuentasAsociadasHtml;
+    }
+
+    // }
+    static async crearOrden(cliente, monto) {
+      const url = 'https://api.sandbox.paypal.com/v2/checkout/orders';
+      const authToken = await CobrosPagos.#getAuthToken();
+      const data = {
+        intent: 'CAPTURE',
+        purchase_units: [{
+          amount: {
+            currency_code: 'USD',
+            value: monto,
+          },
+          payee: {
+            email_address: CobrosPagos.#cuentasAsociadas[0],
+          },
+        }],
+        application_context: {
+          brand_name: 'Tienda, módulo cobros y pagos.html',
+          user_action: 'PAY_NOW',
+          return_url: 'https://www.example.com/return',
+          cancel_url: 'https://www.example.com/cancel',
+        },
+      };
+      const headers = {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      };
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(data),
+      });
+      const order = await response.json();
+      return order.id;
+    }
+
+    static #formatSubmayor(transactions) {
+      let html = '<h2>Submayor de cobros y pagos</h2>';
+      html += '<table>';
+      html += '<tr><th>Fecha</th><th>Descripción</th><th>Cantidad</th></tr>';
+      for (const transaction of transactions.transaction_details) {
+        const fecha = new Date(transaction.transaction_info.transaction_initiation_date).toLocaleDateString();
+        const descripcion = transaction.transaction_info.transaction_event_type;
+        const cantidad = transaction.transaction_info.transaction_amount.value;
+        html += `<tr><td>${fecha}</td><td>${descripcion}</td><td>${cantidad}</td></tr>`;
+      }
+      html += '</table>';
+      return html;
+    }
+
+    static async #getAuthToken() {
+      if (CobrosPagos.authToken && new Date().getTime() < CobrosPagos.authTokenExpiration) {
+        return CobrosPagos.authToken;
+      }
+      const url = 'https://api.sandbox.paypal.com/v1/oauth2/token';
+      const headers = {
+        'Authorization': `Basic ${btoa(`${CobrosPagos.#id}:${CobrosPagos.#secret}`)}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      };
+      const body = 'grant_type=client_credentials';
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: headers,
+        body: body,
+      });
+      const data = await response.json();
+      CobrosPagos.authToken = data.access_token;
+      CobrosPagos.authTokenExpiration = new Date().getTime() + (data.expires_in * 1000);
+      return CobrosPagos.authToken;
+    }
+
+    static async getCuentasAsociadas() {
+      const url = 'https://api.sandbox.paypal.com/v1/customer/partners/merchant-integrations';
+      const headers = {
+        'Authorization': `Bearer ${CobrosPagos.authToken}`,
+        'Content-Type': 'application/json',
+      };
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: headers,
+      });
+      const integrations = await response.json();
+      const cuentasAsociadas = integrations.merchant_integrations.map(integration => integration.paypal_account.email_address);
+      return cuentasAsociadas ? cuentasAsociadas : [];
+    }
+
+    static async formatCuentasAsociadas() {
+      const cuentasAsociadas = await CobrosPagos.getCuentasAsociadas();
+      let html = '<h2>Cuentas asociadas</h2>';
+      html += '<ul>';
+      for (const cuenta of cuentasAsociadas) {
+        html += `<li>${cuenta}</li>`;
+      }
+      html += '</ul>';
+      return html;
+    }
+
+    // Agregar una factura a la lista de facturas
+    agregarFactura(factura) {
+      this.#facturas.push(factura);
+    }
+
+    // Agregar una forma de pago a la lista de formas de pago
+    agregarFormaDePago(formaDePago) {
+      this.#formasDePago.push(formaDePago);
+    }
+
+    // Conciliar una factura con una forma de pago y registrar el pago
+    conciliar(facturaId, formaDePagoId, monto, payerId, payerNombre, payerCuenta) {
+      const factura = this.#facturas.find(f => f.id === facturaId);
+      const formaDePago = this.#formasDePago.find(fp => fp.id === formaDePagoId);
+
+      if (factura && formaDePago) {
+        factura.conciliar(formaDePagoId, monto);
+        formaDePago.conciliar(facturaId, monto);
+
+        // Registra el pago en un objeto de pago
+        const pago = {facturaId, formaDePagoId, monto, payerId, payerNombre, payerCuenta};
+        this.#registrosDePagos.push(pago);
+      }
+    }
+
+    // Chequear si una factura ha sido completamente pagada
+    facturaCompletamentePagada(facturaId) {
+      const factura = this.#facturas.find(f => f.id === facturaId);
+
+      if (factura) {
+        const totalPagado = this.#registrosDePagos.reduce((total, pago) => {
+          if (pago.facturaId === facturaId) {
+            return total + pago.monto;
+          }
+          return total;
+        }, 0);
+        return totalPagado >= factura.total;
+      }
+
+      return false;
+    }
+
+    // Chequear si una factura ha sido parcialmente pagada
+    facturaParcialmentePagada(facturaId) {
+      const factura = this.#facturas.find(f => f.id === facturaId);
+
+      if (factura) {
+        const totalPagado = this.#registrosDePagos.reduce((total, pago) => {
+          if (pago.facturaId === facturaId) {
+            return total + pago.monto;
+          }
+          return total;
+        }, 0);
+        return totalPagado > 0 && totalPagado < factura.total;
+      }
+
+      return false;
+    }
+
+    // async crearOrden(cliente, monto, cuentaPayee, clientId, secret) {
+    //   const authToken = await this.#getAuthToken(clientId, secret);
+    //   const url = 'https://api.sandbox.paypal.com/v2/checkout/orders';
+    //   const data = {
+    //     intent: 'CAPTURE',
+    //     purchase_units: [{
+    //       amount: {
+    //         currency_code: 'USD',
+    //         value: parseFloat(monto),
+    //       },
+    //       payee: {
+    //         email_address: cuentaPayee,
+    //       },
+    //     }],
+    //     application_context: {
+    //       brand_name: 'Tienda',
+    //       user_action: 'PAY_NOW',
+    //       return_url: 'https://www.example.com/return',
+    //       cancel_url: 'https://www.example.com/cancel',
+    //     },
+    //   };
+    //   const headers = {
+    //     'Authorization': `Bearer ${authToken}`,
+    //     'Content-Type': 'application/json',
+    //   };
+    //   const response = await fetch(url, {
+    //     method: 'POST',
+    //     headers: headers,
+    //     body: JSON.stringify(data),
+    //   });
+    //   const order = await response.json();
+    //   return order.id;
+
+
+    // async #getAuthToken(paypalApiKey, clientId, secret) {
+    //   const url = 'https://api.sandbox.paypal.com/v1/oauth2/token';
+    //   const headers = {
+    //     'Authorization': `Basic ${btoa(`${clientId}:${secret}`)}`,
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //   };
+    //   const data = 'grant_type=client_credentials';
+    //   const response = await fetch(url, {
+    //     method: 'POST',
+    //     headers: headers,
+    //     body: data,
+    //   });
+    //   const token = await response.json();
+    //   return token.access_token;
+    // }
+
+
+  }
+
+  const actualizarBtn = document.querySelector('#actualizar-btn');
+  actualizarBtn.addEventListener('click', () => {
+    const actualizarVentana = window.open('', 'Actualizar información', 'width=500,height=500');
+    actualizarVentana.document.write(`
+    <h2>Actualizar información</h2>
+    <form id="actualizar-form">
+      <label for="paypal-api-key">API Key de PayPal:</label>
+      <input type="text" id="paypal-api-key" name="paypal-api-key"><br><br>
+      <label for="id">ID de cliente:</label>
+      <input type="text" id="id" name="id"><br><br>
+      <label for="secret">Secreto:</label>
+      <input type="password" id="secret" name="secret"><br><br>
+      <input type="submit" value="Actualizar">
+    </form>
+  `);
+    const actualizarForm = actualizarVentana.document.querySelector('#actualizar-form');
+    actualizarForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const paypalApiKey = actualizarForm.querySelector('#paypal-api-key').value;
+      const id = actualizarForm.querySelector('#id').value;
+      const secret = actualizarForm.querySelector('#secret').value;
+      CobrosPagos.setup(paypalApiKey, id, secret);
+      alert('La información se ha actualizado correctamente.');
+      actualizarVentana.close();
+    });
+  });
+
+  const cobrosPagosBtn = document.querySelector('#cobros-pagos-btn');
+  cobrosPagosBtn.addEventListener('click', () => {
+    const cobrosPagosVentana = window.open('', 'Cobros y pagos', 'width=500,height=500');
+    cobrosPagosVentana.document.write(`
+    <h2>Cobros y pagos</h2>
+    <form id="cobros-pagos-form">
+      <label for="cliente">Cliente:</label>
+      <input type="text" id="cliente" name="cliente"><br><br>
+      <label for="monto">Monto:</label>
+      <input type="number" id="monto" name="monto"><br><br>
+      <input type="submit" value="Cobrar">
+    </form>
+  `);
+    const cobrosPagosForm = cobrosPagosVentana.document.querySelector('#cobros-pagos-form');
+    cobrosPagosForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const cliente = cobrosPagosForm.querySelector('#cliente').value;
+      const monto = cobrosPagosForm.querySelector('#monto').value;
+      const orderId = await CobrosPagos.crearOrden(cliente, monto);
+      const approvalUrl = `https://www.sandbox.paypal.com/checkoutnow?token=${orderId}`;
+      const nuevaVentana = window.open(approvalUrl, 'PayPal Checkout', 'width=500,height=500');
+      cobrosPagosVentana.close();
+    });
+  });
+
+  document.querySelector('#crear-orden-btn').addEventListener('click', async () => {
+    const cliente = prompt('Introduce el nombre del cliente:');
+    const monto = prompt('Introduce el monto de la orden:');
+    const orderId = await CobrosPagos.crearOrden(cliente, monto);
+    alert(`La orden con ID ${orderId} se ha creado correctamente.`);
+  });
+
+  const asociarCuentaBtn = document.querySelector('#asociar-cuenta-btn');
+  asociarCuentaBtn.addEventListener('click', () => {
+    const cuenta = prompt('Ingresa la cuenta a asociar:');
+    if (cuenta) {
+      CobrosPagos.asociarCuenta(cuenta);
+    }
+  });
+
+  const desasociarCuentaBtn = document.querySelector('#desasociar-cuenta-btn');
+  desasociarCuentaBtn.addEventListener('click', () => {
+    const cuenta = prompt('Ingresa la cuenta a desasociar:');
+    if (cuenta) {
+      CobrosPagos.desasociarCuenta(cuenta);
+    }
+  });
+
+  document.querySelector('#mostrar-cuentas-asociadas-btn').addEventListener('click', () => {
+    CobrosPagos.mostrarCuentasAsociadas();
+  });
+
+  CobrosPagos.obtenerSubmayor();
+</script>
+</body>
+</html>
