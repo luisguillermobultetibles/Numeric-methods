@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Televisión</title>
+    <style>
+        #tv {
+            width: 640px;
+            height: 480px;
+            border: 10px solid black;
+            background-color: black;
+            position: relative;
+        }
+
+        #screen {
+            width: 580px;
+            height: 360px;
+            background-color: gray;
+            position: absolute;
+            top: 50px;
+            left: 30px;
+        }
+
+        #controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #volume {
+            display: flex;
+            align-items: center;
+        }
+
+        #volume-label {
+            margin-right: 10px;
+        }
+
+        #volume-slider {
+            width: 100px;
+            margin-right: 10px;
+        }
+
+        #buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 150px;
+        }
+
+        .button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #record {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+<div id="tv">
+    <div id="screen">Sintonizando 87.5 MHz</div>
+    <div id="controls">
+        <div id="volume">
+            <label id="volumeLabel">Vol:</label>
+            <input id="volumeSlider" max="100" min="0" type="range" value="50">
+        </div>
+        <div id="buttons">
+            <div class="button" id="mute">M</div>
+            <div class="button" id="record">R</div>
+            <div class="button" id="program">P</div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <label>Tipo de señal</label>
+    <select id="signalType">
+        <option value="analog">Analógica</option>
+        <option value="digital">Digital</option>
+        <option value="am">Onda media (AM)</option>
+        <option value="fm">Frecuencia modulada (FM)</option>
+    </select>
+</div>
+<div>
+    <label>Sintonizador</label>
+    <input id="tuner" max="108" min="87.5" step="0.01" type="range" value="87.5">
+    <label id="frequencyLabel">87.5 MHz</label>
+    <button id="search">Buscar canales</button>
+</div>
+<script src="tv.js"></script>
+<script>
+
+
+  let decoder;
+  // Obtener elementos del DOM
+  let screen;
+  let signalType;
+  let tuner;
+  let frequencyLabel;
+  let searchButton;
+  let volumeSlider;
+  let muteButton;
+  let recordButton;
+  let programButton;
+  let isRecording;
+
+  let type;
+  let frequency;
+  let volume;
+
+  window.addEventListener('load', function() {
+    // Crear decodificador por defecto
+    decoder = new AnalogDecoder();
+
+    // Obtener elementos del DOM
+    screen = document.getElementById('screen');
+    signalType = document.getElementById('signalType');
+    tuner = document.getElementById('tuner');
+    frequencyLabel = document.getElementById('frequencyLabel');
+    searchButton = document.getElementById('search');
+    volumeSlider = document.getElementById('volumeSlider');
+    muteButton = document.getElementById('mute');
+    recordButton = document.getElementById('record');
+    programButton = document.getElementById('program');
+
+    isRecording = false;
+
+    // Actualizar el decodificador según el tipo de señal seleccionado
+    signalType.addEventListener('change', function() {
+      console.log('Se ha cambiado la selección del tipo de señal ', signalType.value);
+      type = signalType.value;
+
+
+      switch (type) {
+        case 'analog':
+          tuner.setAttribute('min', '87.5');
+          tuner.setAttribute('max', '108');
+          tuner.setAttribute('step', '0.01');
+          tuner.value = '87.5';
+          frequencyLabel.innerText = '87.5 MHz';
+          screen.innerText = 'Sintonizando 87.5 MHz';
+          break;
+        case 'digital':
+          tuner.setAttribute('min', '470');
+          tuner.setAttribute('max', '862');
+          tuner.setAttribute('step', '1');
+          tuner.value = '470';
+          frequencyLabel.innerText = '470 MHz';
+          screen.innerText = 'Sintonizando 470 MHz';
+          break;
+        case 'am':
+          tuner.setAttribute('min', '540');
+          tuner.setAttribute('max', '1600');
+          tuner.setAttribute('step', '10');
+          tuner.value = '540';
+          frequencyLabel.innerText = '540 kHz';
+          screen.innerText = 'Sintonizando 540 kHz';
+          break;
+        case 'fm':
+          tuner.setAttribute('min', '87.5');
+          tuner.setAttribute('max', '108');
+          tuner.setAttribute('step', '0.1');
+          tuner.value = '87.5';
+          frequencyLabel.innerText = '87.5 MHz';
+          screen.innerText = 'Sintonizando 87.5 MHz';
+          break;
+        default:
+          tuner.setAttribute('min', '87.5');
+          tuner.setAttribute('max', '108');
+          tuner.setAttribute('step', '0.01');
+          tuner.value = '87.5';
+          frequencyLabel.innerText = '87.5 MHz';
+          screen.innerText = 'Sintonizando 87.5 MHz';
+      }
+      if (type === 'analog') {
+        decoder = new AnalogDecoder();
+        tuner.min = 87.5;
+        tuner.max = 108;
+        tuner.step = 0.01;
+      } else if (type === 'digital') {
+        decoder = new DigitalDecoder();
+        tuner.min = 470;
+        tuner.max = 862;
+        tuner.step = 1;
+      } else if (type === 'am') {
+        decoder = new AMDecoder();
+        tuner.min = 530;
+        tuner.max = 1700;
+        tuner.step = 0.1;
+      } else if (type === 'fm') {
+        decoder = new FMDecoder();
+        tuner.min = 88;
+        tuner.max = 108;
+        tuner.step = 0.1;
+      }
+    });
+
+    // Actualizar la frecuencia en el decodificador cuando se cambia el valor del sintonizador
+    tuner.addEventListener('input', function() {
+      frequency = parseFloat(tuner.value);
+      decoder.setFrequency(frequency);
+      frequencyLabel.innerHTML = frequency.toFixed(1) + ' MHz';
+      screen.innerHTML = 'Sintonizando ' + frequency.toFixed(1) + ' MHz';
+    });
+
+    // Actualizar el valor del volumen en la etiqueta de la pantalla cuando se cambia el control deslizante
+    volumeSlider.addEventListener('input', function() {
+      volume = volumeSlider.value;
+      screen.innerHTML = 'Vol: ' + volume + '<br>Sintonizando ' + tuner.value + ' MHz';
+    });
+
+    // Silenciar la televisión cuando se hace clic en el botón de silencio
+    muteButton.addEventListener('click', function() {
+      volumeSlider.value = 0;
+      screen.innerHTML = 'MUTE<br>Sintonizando ' + tuner.value + ' MHz';
+    });
+
+    // Iniciar o detener la grabación cuando se hace clic en el botón de grabación
+    recordButton.addEventListener('click', function() {
+      isRecording = !isRecording;
+      if (isRecording) {
+        recordButton.style.backgroundColor = 'green';
+        screen.innerHTML += '<br>GRABANDO';
+      } else {
+        recordButton.style.backgroundColor = 'white';
+        screen.innerHTML = screen.innerHTML.replace('<br>GRABANDO', '');
+      }
+    });
+
+    // Mostrar el menú de programación cuando se hace clic en el botón de programación
+    programButton.addEventListener('click', function() {
+      alert('Programación no disponible');
+    });
+
+    // Buscar canales disponibles cuando se hace clic en el botón de búsqueda
+    searchButton.addEventListener('click', function() {
+      alert('Búsqueda de canales no disponible');
+    });
+  });
+
+</script>
+</body>
+</html>
