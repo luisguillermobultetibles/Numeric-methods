@@ -162,7 +162,114 @@ export class Graph extends WebSystemObject {
     }
 
     return this.nodes.map((node) => {
-      return {name: node, dependencies: this.nodosConsecuentes(node)}
+      return {name: node, dependencies: this.nodosConsecuentes(node)};
     });
   }
 }
+
+
+// Clase para representar un grafo con nudos y lazos, revisar
+class KnotAndLoopGraph extends Graph {
+  static Knot = class {
+    constructor(id) {
+      this.id = id;
+      this.incidentLoops = [];
+    }
+
+    addIncidentLoop(loop) {
+      this.incidentLoops.push(loop);
+    }
+
+    removeIncidentLoop(loop) {
+      const index = this.incidentLoops.indexOf(loop);
+      if (index !== -1) {
+        this.incidentLoops.splice(index, 1);
+      }
+    }
+
+    getIncidentLoops() {
+      return this.incidentLoops;
+    }
+
+    determineKnotType(knot = this) {
+      const numTurns = knot.incidentLoops.length;
+      if (numTurns === 1) {
+        return 'Lazo';
+      } else if (numTurns === 2) {
+        return 'Nudo simple';
+      } else if (numTurns === 3) {
+        return 'Trébol';
+      } else if (numTurns === 4) {
+        return 'Cuadrifolio';
+      } else {
+        return 'Nudo con más de 4 vueltas';
+      }
+    }
+
+  };
+
+  static  Loop = class {
+    constructor(id, startNode, endNode) {
+      this.id = id;
+      this.startNode = startNode;
+      this.endNode = endNode;
+      startNode.addIncidentLoop(this);
+      endNode.addIncidentLoop(this);
+    }
+
+    getStartNode() {
+      return this.startNode;
+    }
+
+    getEndNode() {
+      return this.endNode;
+    }
+  };
+
+  constructor(nodos, arcos = [], loops = []) {
+    super(nodos, arcos);
+    this.knots = [];
+    this.loops = loops;
+  }
+
+  addKnot(knot) {
+    if (!this.existNode(knot)) {
+      this.createNode(knot);
+      this.knots.push(new KnotAndLoopGraph.Knot(knot));
+    }
+  }
+
+  removeKnot(knot) {
+    if (this.existNode(knot)) {
+      const index = this.knots.findIndex(k => k.id === knot);
+      const knotToRemove = this.knots[index];
+      const incidentLoops = knotToRemove.getIncidentLoops();
+      incidentLoops.forEach(loop => this.removeLoop(loop.id));
+      super.destroyNode(knot);
+      this.knots.splice(index, 1);
+    }
+  }
+
+  addLoop(id, startNode, endNode) {
+    if (this.existNode(startNode) && this.existNode(endNode)) {
+      const loop = new KnotAndLoopGraph.Loop(id, startNode, endNode);
+      this.loops.push(loop);
+      super.createArc(startNode, endNode);
+    }
+  }
+
+  removeLoop(id) {
+    const index = this.loops.findIndex(loop => loop.id === id);
+    if (index !== -1) {
+      const loopToRemove = this.loops[index];
+      const startNode = loopToRemove.getStartNode();
+      const endNode = loopToRemove.getEndNode();
+      startNode.removeIncidentLoop(loopToRemove);
+      endNode.removeIncidentLoop(loopToRemove);
+      super.desctroyArc(startNode.id, endNode.id);
+      this.loops.splice(index, 1);
+    }
+  }
+}
+
+
