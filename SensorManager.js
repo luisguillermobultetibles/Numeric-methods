@@ -1,3 +1,4 @@
+// (c) Pipo
 class CustomSensor {
   constructor() {
     this.listeners = [];
@@ -732,8 +733,188 @@ class GeoLocationSensor extends CustomSensor {
   }
 }
 
+class MagnetometerSensor extends CustomSensor {
+  constructor() {
+    super();
+    this.sensorType = 'magnetometer';
+    this.magneticField = {x: null, y: null, z: null};
+    this.calibrationField = {x: null, y: null, z: null};
+    this.eulerAngle = {alpha: null, beta: null, gamma: null};
+    this.quaternion = {w: null, x: null, y: null, z: null};
+    this.sensor = null;
+    this.declination = 0;
+  }
 
-// Simplemente ignora esta clase
+  _sensorReadingHandler = (event) => {
+    if (this.isRunning) {
+      const {x, y, z} = event.target.magneticField;
+      this.magneticField = {x, y, z};
+      console.log(`Cambio en el campo magnético, x = ${x}, y = ${y}, z = ${z}`);
+
+      // Aplicación de la declinación magnética
+      const {
+        x: declinationX,
+        y: declinationY,
+      } = this.applyDeclination(this.magneticField.x, this.magneticField.y, this.declination);
+      this.magneticField = {
+        x: declinationX,
+        y: declinationY,
+        z: this.magneticField.z,
+      };
+
+      // Calibración del campo magnético
+      if (this.calibrationField.x === null || this.calibrationField.y === null || this.calibrationField.z === null) {
+        this.calibrationField = {
+          x: this.magneticField.x,
+          y: this.magneticField.y,
+          z: this.magneticField.z,
+        };
+      } else {
+        const {
+          x: calibratedX,
+          y: calibratedY,
+          z: calibratedZ,
+        } = this.zeroAdjust(this.magneticField.x, this.magneticField.y, this.magneticField.z, this.calibrationField.x, this.calibrationField.y, this.calibrationField.z);
+        this.magneticField = {x: calibratedX, y: calibratedY, z: calibratedZ};
+      }
+
+      // Cálculo de los ángulos de Euler
+      const {alpha, beta, gamma} = this.calculateEulerAngle(event.target);
+      this.eulerAngle = {alpha, beta, gamma};
+
+      // Cálculo del cuaternión
+      const {
+        w,
+        x: qx,
+        y: qy,
+        z: qz,
+      } = this.calculateQuaternion(alpha, beta, gamma);
+      this.quaternion = {w, x: qx, y: qy, z: qz};
+
+      this.notifyListeners({
+        magneticField: this.magneticField,
+        eulerAngle: this.eulerAngle,
+        quaternion: this.quaternion,
+      });
+    }
+  };
+
+  start() {
+    this.isRunning = true;
+    this.sensor = new Magnetometer();
+    this.sensor.addEventListener('reading', this._sensorReadingHandler);
+    this.sensor.start();
+  }
+
+  stop() {
+    this.isRunning = false;
+    this.sensor.stop();
+    this.sensor.removeEventListener('reading', this._sensorReadingHandler);
+  }
+
+  setDeclination(value) {
+    this.declination = value;
+  }
+
+  applyDeclination(x, y, declination) {
+    const degToRad = Math.PI / 180;
+    const radToDeg = 180 / Math.PI;
+
+    const phi = -declination * degToRad;
+    const cosPhi = Math.cos(phi);
+    const sinPhi = Math.sin(phi);
+
+    const newX = x * cosPhi - y * sinPhi;
+    const newY = x * sinPhi + y * cosPhi;
+
+    return {x: newX, y: newY};
+  }
+
+  async calibrate() {
+    console.log('Coloca el dispositivo en una superficie plana y presiona Enter.');
+    await new Promise(resolve => {
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          resolve();
+        }
+      });
+    });
+
+    console.log('Calibrando magnetómetro...');
+
+    const readings = await Promise.all([this._readReading(), this._readReading(), this._readReading(), this._readReading(), this._readReading(), this._readReading()]);
+
+    const xOffset = (readings[0].x + readings[1].x + readings[2].x + readings[3].x + readings[4].x + readings[5].x) / 6;
+    const yOffset = (readings[0].y + readings[1].y + readings[2].y + readings[3].y + readings[4].y + readings[5].y) / 6;
+    const zOffset = (readings[0].z + readings[1].z + readings[2].z + readings[3].z + readings[4].z + readings[5].z) / 6;
+
+    this.xBias = xOffset;
+    this.yBias = yOffset;
+    this.zBias = zOffset;
+
+    this.calibrationField = {x: this.xBias, y: this.yBias, z: this.zBias};
+
+    console.log('Magnetómetro calibrado. Desvíos: ', xOffset, yOffset, zOffset);
+  }
+
+
+  zeroAdjust(x, y, z, cx, cy, cz) {
+    const k = Math.sqrt((cx * cx) + (cy * cy) + (cz * cz));
+    const normX = x / k;
+    const normY = y / k;
+    const normZ = z / k;
+
+    const dotProduct = (cx * normX) + (cy * normY) + (cz * normZ);
+    const crossProductX = cy * normZ - cz * normY;
+    const crossProductY = cz * normX - cx * normZ;
+    const crossProductZ = cx * normY - cy * normX;
+
+    const newX = x - (2 * dotProduct * normX) + (2 * crossProductX);
+    const newY = y - (2 * dotProduct * normY) + (2 * crossProductY);
+    const newZ = z - (2 * dotProduct * normZ) + (2 * crossProductZ);
+
+    return {x: newX, y: newY, z: newZ};
+  }
+
+  calculateEulerAngle(sensor) {
+    const {x, y, z} = sensor.magneticField;
+    const degToRad = Math.PI / 180;
+
+    const phi = Math.atan2(y, x);
+    const theta = Math.atan2(z, Math.sqrt(x * x + y * y));
+    const psi = 0;
+
+    const heading = phi * radToDeg;
+    const attitude = theta * radToDeg;
+    const bank = psi * radToDeg;
+
+    return {alpha: heading, beta: attitude, gamma: bank};
+  }
+
+  calculateQuaternion(alpha, beta, gamma) {
+    const degToRad = Math.PI / 180;
+
+    const phi = alpha * degToRad;
+    const theta = beta * degToRad;
+    const psi = gamma * degToRad;
+
+    const cosPhi = Math.cos(phi / 2);
+    const sinPhi = Math.sin(phi / 2);
+    const cosTheta = Math.cos(theta / 2);
+    const sinTheta = Math.sin(theta / 2);
+    const cosPsi = Math.cos(psi / 2);
+    const sinPsi = Math.sin(psi / 2);
+
+    const w = (cosPhi * cosTheta * cosPsi) + (sinPhi * sinTheta * sinPsi);
+    const x = (sinPhi * cosTheta * cosPsi) - (cosPhi * sinTheta * sinPsi);
+    const y = (cosPhi * sinTheta * cosPsi) + (sinPhi * cosTheta * sinPsi);
+    const z = (cosPhi * cosTheta * sinPsi) - (sinPhi * sinTheta * cosPsi);
+
+    return {w, x, y, z};
+  }
+}
+
+// Ignore this
 export class SensorManager {
   constructor() {
     this.sensors = new Map();
