@@ -68,6 +68,44 @@ class CustomSensor {
   }
 }
 
+class LightSensor extends CustomSensor {
+  constructor() {
+    super();
+    this.sensorType = 'ambient-light';
+    this.ambientLightValue = null;
+    this._beforeAmbientLightValue = -1;
+    this.data = {};
+    this._deviceLightHandler = this._deviceLightHandler.bind(this);
+  }
+
+  _deviceLightHandler(event) {
+    if (this.isRunning) {
+      this.ambientLightValue = event.value; // in lux.
+      console.log(`Cambio en la intensidad de la luz ambiental a ${this.ambientLightValue} lux.`);
+      if (this._beforeAmbientLightValue !== -1 && this._beforeAmbientLightValue !== this.ambientLightValue) {
+        if (this._beforeAmbientLightValue > this.ambientLightValue) {
+          console.log(`La luz ambiental está oscureciéndose en ${this._beforeAmbientLightValue - this.ambientLightValue} lux.`);
+        } else {
+          console.log(`La luz ambiental está aclarándose en ${this.ambientLightValue - this._beforeAmbientLightValue} lux.`);
+        }
+      }
+      this._beforeAmbientLightValue = this.ambientLightValue;
+      this.data = {value: this.ambientLightValue, unit: 'lux'};
+      this.notifyListeners(this.data);
+    }
+  }
+
+  start() {
+    this.isRunning = true;
+    window.addEventListener('devicelight', this._deviceLightHandler);
+  }
+
+  stop() {
+    this.isRunning = false;
+    window.removeEventListener('devicelight', this._deviceLightHandler);
+  }
+}
+
 class TemperatureSensor extends CustomSensor {
   constructor() {
     super();
@@ -270,12 +308,12 @@ class AbsoluteOrientationSensor extends CustomSensor {
 
   _updateOrientation() {
     this._quaternion.setFromEuler(
-      this._euler.set(
-        this._beta * Math.PI / 180,
-        this._alpha * Math.PI / 180,
-        -this._gamma * Math.PI / 180,
-        'ZYX',
-      ),
+        this._euler.set(
+            this._beta * Math.PI / 180,
+            this._alpha * Math.PI / 180,
+            -this._gamma * Math.PI / 180,
+            'ZYX',
+        ),
     );
   }
 
@@ -353,9 +391,9 @@ class OrientationSensor extends CustomSensor {
       zenithAngle,
     } = this.getAxisAngles(this.sensor.quaternionToEuler().y * 180 / Math.PI, this.sensor.quaternionToEuler().x * 180 / Math.PI);
 
-    let alpha = this.sensor.quaternion[3] * 180 / Math.PI;
-    let beta = this.sensor.quaternion[1] * 180 / Math.PI;
-    let gamma = this.sensor.quaternion[2] * 180 / Math.PI;
+    const alpha = this.sensor.quaternion[3] * 180 / Math.PI;
+    const beta = this.sensor.quaternion[1] * 180 / Math.PI;
+    const gamma = this.sensor.quaternion[2] * 180 / Math.PI;
 
     if (northAngle < 0) {
       northAngle += 360;
@@ -364,8 +402,8 @@ class OrientationSensor extends CustomSensor {
       zenithAngle += 360;
     }
 
-    let azimuth = this.calculateAzimuth(alpha, northAngle, this.deviceOrientation.screenOrientation);
-    let altitude = this.calculateAltitude(zenithAngle, this.deviceOrientation.screenOrientation);
+    const azimuth = this.calculateAzimuth(alpha, northAngle, this.deviceOrientation.screenOrientation)[0];
+    const altitude = this.calculateAltitude(zenithAngle, this.deviceOrientation.screenOrientation);
 
     this.deviceOrientation.alpha = alpha;
     this.deviceOrientation.beta = beta;
@@ -429,7 +467,27 @@ class OrientationSensor extends CustomSensor {
       azimuth += 360;
     }
 
-    return azimuth;
+    // Calcula la dirección a partir del ángulo de azimut
+    let direction = '';
+    if (azimuth >= 22.5 && azimuth < 67.5) {
+      direction = 'Noreste';
+    } else if (azimuth >= 67.5 && azimuth < 112.5) {
+      direction = 'Este';
+    } else if (azimuth >= 112.5 && azimuth < 157.5) {
+      direction = 'Sureste';
+    } else if (azimuth >= 157.5 && azimuth < 202.5) {
+      direction = 'Sur';
+    } else if (azimuth >= 202.5 && azimuth < 247.5) {
+      direction = 'Suroeste';
+    } else if (azimuth >= 247.5 && azimuth < 292.5) {
+      direction = 'Oeste';
+    } else if (azimuth >= 292.5 && azimuth < 337.5) {
+      direction = 'Noroeste';
+    } else {
+      direction = 'Norte';
+    }
+
+    return {azimuth, direction};
   }
 
   calculateAltitude(zenithAngle, screenOrientation) {
@@ -482,7 +540,6 @@ class CompassSensor extends CustomSensor {
     window.addEventListener('compassneedscalibration', () => {
       throw new Error('Compass needs calibration! Wave your device in a figure-eight motion !?');
     }, true);
-
   }
 
   get heading() {
@@ -589,19 +646,19 @@ class GeoLocationSensor extends CustomSensor {
   #getCurrentLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const {latitude, longitude} = position.coords;
-          const data = {latitude, longitude};
-          this._currentLocation = data;
-        },
-        (error) => {
-          throw new Error(`Error getting location: ${error.message}`);
-        },
-        {
-          enableHighAccuracy: true,
-          maximumAge: 0,
-          timeout: 5000,
-        },
+          (position) => {
+            const {latitude, longitude} = position.coords;
+            const data = {latitude, longitude};
+            this._currentLocation = data;
+          },
+          (error) => {
+            throw new Error(`Error getting location: ${error.message}`);
+          },
+          {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 5000,
+          },
       );
     } else {
       throw new Error('Geolocation API not supported');
@@ -609,51 +666,51 @@ class GeoLocationSensor extends CustomSensor {
   }
 
   getMagneticVariation() {
-    let magneticDeclination = (latitude, longitude, altitude) => {
+    const magneticDeclination = (latitude, longitude, altitude) => {
       function toRadians(degrees) {
         return degrees * (Math.PI / 180);
       }
 
-      var phi = toRadians(latitude);
-      var lambda = toRadians(longitude);
-      var h = altitude / 1000; // convert altitude to km
-      var r = 6371.2 + h;
+      const phi = toRadians(latitude);
+      const lambda = toRadians(longitude);
+      const h = altitude / 1000; // convert altitude to km
+      const r = 6371.2 + h;
 
-      var cos_phi = Math.cos(phi);
-      var sin_phi = Math.sin(phi);
-      var cos_lambda = Math.cos(lambda);
-      var sin_lambda = Math.sin(lambda);
+      const cos_phi = Math.cos(phi);
+      const sin_phi = Math.sin(phi);
+      const cos_lambda = Math.cos(lambda);
+      const sin_lambda = Math.sin(lambda);
 
-      var x = r * cos_phi * cos_lambda;
-      var y = r * cos_phi * sin_lambda;
-      var z = r * sin_phi;
+      const x = r * cos_phi * cos_lambda;
+      const y = r * cos_phi * sin_lambda;
+      const z = r * sin_phi;
 
-      var a = 6371.2;
-      var b = 6356.9;
-      var f = (a - b) / a;
-      var e = Math.sqrt(2 * f - f * f);
+      const a = 6371.2;
+      const b = 6356.9;
+      const f = (a - b) / a;
+      const e = Math.sqrt(2 * f - f * f);
 
-      var p = Math.sqrt(x * x + y * y);
-      var theta = Math.atan2(z * a, p * b);
+      const p = Math.sqrt(x * x + y * y);
+      const theta = Math.atan2(z * a, p * b);
 
-      var declination = Math.atan2(y, x);
-      var inclination = Math.atan2(z, p);
+      const declination = Math.atan2(y, x);
+      const inclination = Math.atan2(z, p);
 
-      var bh = Math.sqrt(x * x + y * y + z * z) - 6371.2; // convert back to meters
+      const bh = Math.sqrt(x * x + y * y + z * z) - 6371.2; // convert back to meters
 
-      var g = 9.80665;
-      var gamma = Math.atan2(z, p);
-      var dip = toRadians(11.45);
+      const g = 9.80665;
+      const gamma = Math.atan2(z, p);
+      const dip = toRadians(11.45);
 
-      var B = (3 * g * a * a * z) / (2 * (a * a * z * z + b * b * p * p) ^ (3 / 2));
-      var C = (3 * g * b * b * p) / (2 * (a * a * z * z + b * b * p * p) ^ (3 / 2));
-      var D = -2 * gamma - dip;
+      const B = (3 * g * a * a * z) / (2 * (a * a * z * z + b * b * p * p) ^ (3 / 2));
+      const C = (3 * g * b * b * p) / (2 * (a * a * z * z + b * b * p * p) ^ (3 / 2));
+      const D = -2 * gamma - dip;
 
-      var H = B * sin(D);
-      var Z = C * cos(D);
+      const H = B * sin(D);
+      const Z = C * cos(D);
 
-      var H0 = H * cos_theta + Z * sin_theta;
-      var Z0 = Z * cos_theta - H * sin_theta;
+      const H0 = H * cos_theta + Z * sin_theta;
+      const Z0 = Z * cos_theta - H * sin_theta;
 
       return toDegrees(declination - H0);
     };
@@ -702,19 +759,19 @@ class GeoLocationSensor extends CustomSensor {
   start() {
     if (navigator.geolocation) {
       this._watchId = navigator.geolocation.watchPosition(
-        (position) => {
-          const {latitude, longitude} = position.coords;
-          const data = {latitude, longitude};
-          this.notifyListeners(data);
-        },
-        (error) => {
-          throw new Error(`Error getting location: ${error.message}`);
-        },
-        {
-          enableHighAccuracy: true, // para obtener una ubicación más precisa
-          maximumAge: this._frequency, // para usar datos de ubicación en caché si están disponibles
-          timeout: this._frequency, // para establecer el tiempo máximo de espera para obtener una ubicación
-        },
+          (position) => {
+            const {latitude, longitude} = position.coords;
+            const data = {latitude, longitude};
+            this.notifyListeners(data);
+          },
+          (error) => {
+            throw new Error(`Error getting location: ${error.message}`);
+          },
+          {
+            enableHighAccuracy: true, // para obtener una ubicación más precisa
+            maximumAge: this._frequency, // para usar datos de ubicación en caché si están disponibles
+            timeout: this._frequency, // para establecer el tiempo máximo de espera para obtener una ubicación
+          },
       );
     } else {
       throw new Error('Geolocation API not supported');
@@ -734,7 +791,20 @@ class GeoLocationSensor extends CustomSensor {
 }
 
 class MagnetometerSensor extends CustomSensor {
-  constructor() {
+  /*
+      En resumen, el rango mínimo es de -2 a 2 Gauss en cada eje, con al menos
+      4096 valores discreteos posibles en ese rango, y una precisión
+      de 0.1 microTesla o mejor.
+      Por lo tanto, el número total de vectores de campo magnético únicos posible
+      es 4096 * 4096 * 4096 = 2^36 - 1 = 64 millones (68 719 476 735 en base 10)
+
+      Es más probable que el rango de valores esté en el rango de -1000 a 1000 microteslas (µT) en lugar de -1 a 1 Gauss.
+
+      La frecuencia puede ser de hasta 100 Hz.
+
+      Ahora dice que -1000 µT a 1000 µT ( microteslas (µT).)
+  */
+  constructor(frequency = 60, minRange = -1000, maxRange = 1000) {
     super();
     this.sensorType = 'magnetometer';
     this.magneticField = {x: null, y: null, z: null};
@@ -743,6 +813,86 @@ class MagnetometerSensor extends CustomSensor {
     this.quaternion = {w: null, x: null, y: null, z: null};
     this.sensor = null;
     this.declination = 0;
+    // La frecuencia de muestreo del magnetómetro en este ejemplo se establece en 60Hz porque es la frecuencia máxima que admite el API de Web Sensor.
+    this.frequency = frequency;
+    this.minRange = minRange;
+    this.maxRange = maxRange;
+    this.previousReading = {x: 0, y: 0, z: 0};
+  }
+
+  get _radioModule() {
+    const result = Math.sqrt((this.magneticField.x - this.previousReading.x) ** 2 + (this.magneticField.y - this.previousReading.y) ** 2 + (this.magneticField.z - this.previousReading.z) ** 2);
+    return result / Math.sqrt(3 * (this.maxRange ** 2));
+  }
+
+  // falta poco para la prueba, bueno a mí me falta un poco bastante: como por ejemplo el teléfono para empezar.
+
+  // Calcular la exponencial.
+  bigIntExp(exp, outputFormat) {
+    let n = 1n;
+    let f = 1n;
+    let C = f;
+    let D = 0n;
+    let delta;
+    let result = 0n;
+    while (true) {
+      if (n > 100n) {
+        throw new Error('Series failed to converge');
+      }
+      delta = (exp * f) / n;
+      C = 1n + delta / C;
+      D = 1n + delta * D;
+      f *= -exp;
+      n += 1n;
+      if (D === 0n) {
+        D = 1n;
+      }
+      delta = C / D;
+      result += delta;
+      if (delta === 0n) {
+        break;
+      }
+    }
+    result += 1n;
+    //
+    if (outputFormat === 'bytes') {
+      const byteLength = Math.ceil(result.toString(2).length / 8);
+      const resultBytes = new Uint8Array(byteLength);
+      let i = byteLength - 1;
+      while (result > 0n) {
+        resultBytes[i] = Number(result & 0xffn);
+        result >>= 8n;
+        i--;
+      }
+      return resultBytes;
+    } else if (outputFormat === 'words') {
+      const wordLength = Math.ceil(result.toString(2).length / 16);
+      const resultWords = new Uint16Array(wordLength);
+      let i = wordLength - 1;
+      while (result > 0n) {
+        resultWords[i] = Number(result & 0xffffn);
+        result >>= 16n;
+        i--;
+      }
+      return resultWords;
+    } else if (outputFormat === 'longs') {
+      const longLength = Math.ceil(result.toString(2).length / 32);
+      const resultLongs = new Uint32Array(longLength);
+      let i = longLength - 1;
+      while (result > 0n) {
+        resultLongs[i] = Number(result & 0xffffffffn);
+        result >>= 32n;
+        i--;
+      }
+      return resultLongs;
+    } else {
+      throw new Error('Invalid output format specified');
+    }
+  }
+
+  // Generar un arreglo de... ya sabes (el arreglo de la exponencial de la recepción a 100 Hz yo apuersto a que sontoniza la radio)
+  soundBlaster() {
+    // Ecuación 20Khz = 20 000 = Math.Exp( this._radioModule * Math.ln(2^longitudmuestra)) // simplificar
   }
 
   _sensorReadingHandler = (event) => {
@@ -799,9 +949,50 @@ class MagnetometerSensor extends CustomSensor {
     }
   };
 
+  _quaternionToRotationMatrix(q) {
+    const [w, x, y, z] = q;
+    const xx = x * x;
+    const xy = x * y;
+    const xz = x * z;
+    const xw = x * w;
+    const yy = y * y;
+    const yz = y * z;
+    const yw = y * w;
+    const zz = z * z;
+    const zw = z * w;
+    return [
+      [1 - 2 * (yy + zz), 2 * (xy - zw), 2 * (xz + yw)],
+      [2 * (xy + zw), 1 - 2 * (xx + zz), 2 * (yz - xw)],
+      [2 * (xz - yw), 2 * (yz + xw), 1 - 2 * (xx + yy)],
+    ];
+  }
+
+  _quaternionToRotationMatrixOld(q) {
+    const q0 = q[0];
+    const q1 = q[1];
+    const q2 = q[2];
+    const q3 = q[3];
+    const xx = q0 * q0;
+    const xy = q0 * q1;
+    const xz = q0 * q2;
+    const xw = q0 * q3;
+    const yy = q1 * q1;
+    const yz = q1 * q2;
+    const yw = q1 * q3;
+    const zz = q2 * q2;
+    const zw = q2 * q3;
+    const w2 = q3 * q3 - 0.5;
+    const m = [
+      [1 - 2 * (yy + zz), 2 * (xy - zw), 2 * (xz + yw)],
+      [2 * (xy + zw), 1 - 2 * (xx + zz), 2 * (yz - xw)],
+      [2 * (xz - yw), 2 * (yz + xw), 1 - 2 * (xx + yy)],
+    ];
+    return m;
+  }
+
   start() {
     this.isRunning = true;
-    this.sensor = new Magnetometer();
+    this.sensor = new Magnetometer({frequency: this.frequency});
     this.sensor.addEventListener('reading', this._sensorReadingHandler);
     this.sensor.start();
   }
@@ -832,8 +1023,8 @@ class MagnetometerSensor extends CustomSensor {
 
   async calibrate() {
     console.log('Coloca el dispositivo en una superficie plana y presiona Enter.');
-    await new Promise(resolve => {
-      document.addEventListener('keydown', event => {
+    await new Promise((resolve) => {
+      document.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
           resolve();
         }
@@ -911,6 +1102,17 @@ class MagnetometerSensor extends CustomSensor {
     const z = (cosPhi * cosTheta * sinPsi) - (sinPhi * sinTheta * cosPsi);
 
     return {w, x, y, z};
+  }
+
+  async getDirection() {
+    const [x, y, z] = await this.getReading();
+    const heading = Math.atan2(y, x);
+    const declination = 0.045; // declinación magnética para Buenos Aires
+    const trueHeading = heading + declination;
+    const directionX = Math.cos(trueHeading);
+    const directionY = Math.sin(trueHeading);
+    const directionZ = z;
+    return [directionX, directionY, directionZ];
   }
 }
 
@@ -1032,4 +1234,202 @@ export class SensorManager {
       this.removeSensor(sensor, category, type);
     }
   }
+}
+
+// Revisar esta última es una especie de fusión
+class SensorFusion {
+  constructor() {
+    // Inicializamos las variables del estado interno
+    this.position = [0, 0, 0]; // posición [x, y, z]
+    this.orientation = [0, 0, 0]; // orientación [yaw, pitch, roll]
+    this.velocity = [0, 0, 0]; // velocidad [vx, vy, vz]
+    this.acceleration = [0, 0, 0]; // aceleración [ax, ay, az]
+    this.timestamp = 0; // tiempo de la última actualización
+  }
+
+  update(data) {
+    // Calculamos el intervalo de tiempo desde la última actualización
+    let dt = (data.timestamp - this.timestamp) / 1000.0; // tiempo en segundos
+    this.timestamp = data.timestamp;
+
+    // Actualizamos la posición y velocidad usando los datos de geolocalización
+    let lat = data.latitude;
+    let lon = data.longitude;
+    let alt = data.altitude;
+    this.position = [lon, lat, alt];
+    this.velocity = [data.speed * Math.cos(data.heading), data.speed * Math.sin(data.heading), 0];
+
+    // Actualizamos la orientación usando los datos del magnetómetro y el giroscopio
+    let yaw = data.magneticHeading * Math.PI / 180.0; // conversión a radianes
+    let pitch = data.pitch * Math.PI / 180.0;
+    let roll = data.roll * Math.PI / 180.0;
+    this.orientation = [yaw, pitch, roll];
+
+    // Actualizamos la aceleración usando los datos del acelerómetro
+    let ax = data.accelerationIncludingGravity.x;
+    let ay = data.accelerationIncludingGravity.y;
+    let az = data.accelerationIncludingGravity.z;
+    this.acceleration = [ax, ay, az];
+
+    // Aplicamos el algoritmo de fusión de sensores para mejorar la precisión
+    if (dt > 0) {
+      let alpha = 0.9; // factor de corrección
+      let gravity = [0, 0, -9.81]; // gravedad en m/s^2
+      let R = this.rotationMatrix(this.orientation);
+      let acc = this.rotateVector(this.acceleration, R);
+      let acc_corrected = [acc[0], acc[1], acc[2] - gravity[2]]; // corregimos la componente de la gravedad
+      let vel = [this.velocity[0] + acc_corrected[0] * dt, this.velocity[1] + acc_corrected[1] * dt, this.velocity[2] + acc_corrected[2] * dt];
+      let pos = [this.position[0] + vel[0] * dt, this.position[1] + vel[1] * dt, this.position[2] + vel[2] * dt];
+      this.velocity = [alpha * vel[0] + (1 - alpha) * this.velocity[0], alpha * vel[1] + (1 - alpha) * this.velocity[1], alpha * vel[2] + (1 - alpha) * this.velocity[2]];
+      this.position = [alpha * pos[0] + (1 - alpha) * this.position[0], alpha * pos[1] + (1 - alpha) * this.position[1], alpha * pos[2] + (1 - alpha) * this.position[2]];
+    }
+  }
+
+  // Función auxiliar para calcular la matriz de rotación a partir de los ángulos de Euler
+  rotationMatrix(angles) {
+    let cy = Math.cos(angles[0]);
+    let sy = Math.sin(angles[0]);
+    let cp = Math.cos(angles[1]);
+    let sp = Math.sin(angles[1]);
+    let cr = Math.cos(angles[2]);
+    let sr = Math.sin(angles[2]);
+    return [
+      [cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr],
+      [sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr],
+      [-sp, cp * sr, cp * cr],
+    ];
+  }
+
+  // Función auxiliar para rotar un vector por una matriz de rotación
+  rotateVector(vector, matrix) {
+    let result = [0, 0, 0];
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        result[i] += matrix[i][j] * vector[j];
+      }
+    }
+    return result;
+  }
+
+  unitaryTest() {
+    function distanceAndAzimuthBetweenTwoPoints(lat1, lon1, alt1, lat2, lon2, alt2, ellipsoid = {
+      a: 6378137,
+      b: 6356752.3142,
+    }) {
+      // Convertimos las coordenadas geográficas a radianes
+      lat1 = lat1 * Math.PI / 180;
+      lon1 = lon1 * Math.PI / 180;
+      lat2 = lat2 * Math.PI / 180;
+      lon2 = lon2 * Math.PI / 180;
+
+      // Calculamos la distancia entre los dos puntos
+      let dLat = lat2 - lat1;
+      let dLon = lon2 - lon1;
+      let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      let distance = ellipsoid.a * c;
+
+      // Calculamos el achatamiento del elipsoide a partir de b
+      let f = (ellipsoid.a - ellipsoid.b) / ellipsoid.a;
+
+      // Calculamos el radio de curvatura en el primer punto
+      let N1 = ellipsoid.a / Math.sqrt(1 - f * f * Math.sin(lat1) * Math.sin(lat1));
+
+      // Calculamos el acimut y la elevación entre los dos puntos
+      let y = Math.sin(lon2 - lon1) * Math.cos(lat2);
+      let x = Math.cos(lat1) * Math.sin(lat2) -
+        Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
+      let azimuth = Math.atan2(y, x) * 180 / Math.PI;
+      let elevation = Math.atan2(alt2 - alt1, Math.sqrt(x * x + y * y) * Math.cos(lat1) + (lat2 - lat1) * Math.sin(lat1) * N1) * 180 / Math.PI;
+
+      // Devolvemos los resultados en un objeto
+      return {
+        distance: distance,
+        azimuth: azimuth,
+        elevation: elevation,
+      };
+    }
+
+    function getGeographicCoordinates(azimuth, colatitude, distance, currentPosition) {
+      // Convertimos los ángulos a radianes
+      let lat = currentPosition[1] * Math.PI / 180;
+      let lon = currentPosition[0] * Math.PI / 180;
+      let azimuthRad = azimuth * Math.PI / 180;
+      let colatitudeRad = (Math.PI / 2 - colatitude) * Math.PI / 180;
+
+      // Calculamos las nuevas coordenadas geográficas
+      let newLat = Math.asin(Math.sin(lat) * Math.cos(distance) + Math.cos(lat) * Math.sin(distance) * Math.cos(azimuthRad));
+      let newLon = lon + Math.atan2(Math.sin(azimuthRad) * Math.sin(distance) * Math.cos(lat), Math.cos(distance) - Math.sin(lat) * Math.sin(newLat));
+
+      // Convertimos las coordenadas geográficas agrados y las devolvemos en un arreglo
+      return [newLon * 180 / Math.PI, newLat * 180 / Math.PI];
+    }
+
+    function getAzimuthAndColatitudeFromGeographicCoordinates(targetPosition, targetAltitude, currentPosition) {
+      // Convertimos las coordenadas geográficas a radianes
+      let lat1 = currentPosition[1] * Math.PI / 180;
+      let lon1 = currentPosition[0] * Math.PI / 180;
+      let lat2 = targetPosition[1] * Math.PI / 180;
+      let lon2 = targetPosition[0] * Math.PI / 180;
+
+      // Calculamos la distancia entre los dos puntos
+      let dLon = lon2 - lon1;
+      let cosLat2 = Math.cos(lat2);
+      let x = Math.sqrt((cosLat2 * Math.sin(dLon)) ** 2 + (Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(dLon)) ** 2);
+      let y = Math.sin(lat1) * Math.sin(lat2) + cosLat2 * Math.cos(lon2 - lon1) * Math.cos(lat1);
+
+      let distance = Math.atan2(x, y) * 6371 * 1000; // Radio de la Tierra en metros
+
+      // Calculamos la elevación del objeto respecto al horizonte
+      let targetElevation = Math.atan2(targetAltitude, distance);
+
+      // Calculamos el ángulo de elevación del objeto respecto al cenit
+      let colatitude = Math.PI / 2 - targetElevation - lat1;
+
+      // Calculamos el acimut del objeto respecto al norte magnético
+      let azimuth = Math.atan2(Math.sin(lon2 - lon1) * cosLat2, Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(lon2 - lon1));
+
+      // Convertimos los ángulos a grados y los devolvemos en un objeto
+      return {
+        azimuth: azimuth * 180 / Math.PI,
+        colatitude: colatitude * 180 / Math.PI,
+      };
+    }
+  }
+
+  unitaryTest() {
+    // Creamos una instancia del algoritmo de fusión de sensores
+    let fusion = new SensorFusion();
+
+    // Función para actualizar los datos de los sensores y mostrar la salida en la página
+    function update() {
+      // Simulamos la lectura de los sensores (en la práctica se usarían las API del dispositivo)
+      let data = {
+        timestamp: Date.now(),
+        latitude: 37.7749,
+        longitude: -122.4194,
+        altitude: 10,
+        speed: 5,
+        heading: 0,
+        magneticHeading: 0,
+        pitch: 0,
+        roll: 0,
+        accelerationIncludingGravity: {x: 0, y: 0, z: 9.81},
+      };
+
+      // Actualizamos el estado interno del algoritmo de fusión de sensores
+      fusion.update(data);
+
+      // Mostramos la salida en la página
+      let output = document.getElementById('output');
+      output.innerHTML = 'Posición: ' + fusion.position + '<br>' +
+        'Orientación: ' + fusion.orientation + '<br>' +
+        'Velocidad: ' + fusion.velocity + '<br>' +
+        'Aceleración: ' + fusion.acceleration;
+    }
+
+    // Actualizamos los datos de los sensores cada 100 ms
+    setInterval(update, 100);
+  }
+
 }
