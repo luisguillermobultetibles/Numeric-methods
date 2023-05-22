@@ -349,6 +349,12 @@ class Tienda {
     }
   };
 
+
+  // Esta es una clase básica para el mostrador no es un carrito de compras...
+  // Si quieres implementar alguno, hay uno bueno en:
+  // https://programadorwebvalencia.com/amp/javascript-ejemplo-carrito-de-compra/
+  // Y otro en:
+  //
   static Mostrador = class {
     constructor(tienda) {
       this.tienda = tienda;
@@ -761,10 +767,17 @@ class Tienda {
     static #id = '';
     static #secret = '';
 
-    constructor(paypalApiKey = '(c) 2023 ', clientId = 'Luis Guillermo Bultet Ibles', secret = 'Para ti.') {
+    constructor() {
+      // dummy
+      if (arguments.length > 0) {
+        CobrosPagos.setup(...arguments);
+      }
+    }
+
+    static setup(paypalApiKey = '(c) 2023 ', clientId = 'Luis Guillermo Bultet Ibles', secret = 'Para ti.') {
       CobrosPagos.#paypalApiKey = paypalApiKey; // La API Key de PayPal
-      CobrosPagos.#id = id;
-      CobrosPagos.#secret = secret;
+      CobrosPagos.id = id;
+      CobrosPagos.secret = secret;
     }
 
     static async PaypalAccessToken() {
@@ -895,7 +908,7 @@ class Tienda {
     // Las siguientes dos funciones asumen que tienes una cuenta bancaria asociada a la tarjeta
 
     // Función para transferir saldo a una cuenta bancaria
-    transferirSaldoACuentaBancaria(cuentaBancaria, monto) {
+    static async transferirSaldoACuentaBancaria(cuentaBancaria, monto) {
       // Configurar la petición a la API de PayPal
       const url = 'https://api.paypal.com/v1/payments/payouts';
       const data = {
@@ -934,7 +947,7 @@ class Tienda {
     }
 
     // Función para transferir saldo a una tarjeta de débito o crédito
-    transferirSaldoATarjeta(tarjeta, monto) {
+    static async transferirSaldoATarjeta(tarjeta, monto) {
       // Configurar la petición a la API de PayPal
       const url = 'https://api.paypal.com/v1/payments/payouts';
       const data = {
@@ -976,7 +989,7 @@ class Tienda {
 
 // Función para asociar una cuenta bancaria a la cuenta de PayPal
 
-    asociarCuentaBancaria(cuentaBancaria) {
+    static async asociarCuentaBancaria(cuentaBancaria) {
       // Configurar la petición a la API de PayPal
       const url = 'https://api.paypal.com/v1/user/payments/paypal-accounts';
       const data = {
@@ -1010,7 +1023,7 @@ class Tienda {
 
 // Función para desasociar una cuenta bancaria de la cuenta de PayPal
 
-    desasociarCuentaBancaria(idCuentaBancaria) {
+    static async desasociarCuentaBancaria(idCuentaBancaria) {
       // Configurar la petición a la API de PayPal
       const url = `https://api.paypal.com/v1/user/payments/paypal-accounts/${idCuentaBancaria}`;
       const options = {
@@ -1033,7 +1046,7 @@ class Tienda {
 
 // Función para asociar una tarjeta de débito o crédito a la cuenta de PayPal
 
-    asociarTarjeta(tarjeta) {
+    static async asociarTarjeta(tarjeta) {
       // Configurar la petición a la API de PayPal
       const url = 'https://api.paypal.com/v1/vault/credit-cards';
       const data = {
@@ -1073,7 +1086,7 @@ class Tienda {
 
 // Función para desasociar una tarjeta de débito o crédito de la cuenta de PayPal
 
-    desasociarTarjeta(idTarjeta) {
+    static async desasociarTarjeta(idTarjeta) {
       // Configurar la petición a la API de PayPal
       const url = `https://api.paypal.com/v1/vault/credit-cards/${idTarjeta}`;
       const options = {
@@ -1106,7 +1119,7 @@ class Tienda {
 
     */
 
-    obtenerCuentasAsociadasATarjeta(idTarjeta) {
+    static async obtenerCuentasAsociadasATarjeta(idTarjeta) {
       // Obtener el token de acceso de PayPal
       const accessToken = CobrosPagos.PaypalAccessToken();
 
@@ -1129,7 +1142,7 @@ class Tienda {
         });
     }
 
-    obtenerTarjetasAsociadasACuenta() {
+    static async obtenerTarjetasAsociadasACuenta() {
       // Obtener el token de acceso de PayPal
       const accessToken = CobrosPagos.PaypalAccessToken();
 
@@ -1174,7 +1187,7 @@ class Tienda {
     // Paypal generará tu Client ID y Secret (que usarás para obtener un access token)
     // Para obtener el access token, llama a la API de auth de Paypal pasando tu Client ID y Secret:
 
-    static cobrarPaypal(cantidad) {
+    static async  cobrarPaypal(cantidad) {
       const url = `https://api.paypal.com/v1/payments/payment`;
       const headers = {Authorization: `Bearer ${this.paypalApiKey}`};
       const data = {
@@ -1273,8 +1286,8 @@ class Tienda {
       let saldotarjeta = 0;
       const paypalAuthUrl = 'https://api.sandbox.paypal.com/v1/oauth2/token'; // cambiar a 'https://api.paypal.com/v1/oauth2/token' para producción
 
-      const clientId = CobrosPagos.#id;
-      const clientSecret = CobrosPagos.#secret;
+      const clientId = CobrosPagos.id;
+      const clientSecret = CobrosPagos.secret;
 
       const authString = `${clientId}:${clientSecret}`;
       const base64AuthString = btoa(authString);
