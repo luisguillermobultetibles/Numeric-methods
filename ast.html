@@ -1,0 +1,845 @@
+<html lang="es">>
+<head>
+    <meta charset="UTF-8">
+    <title>Árbol de sintaxis abstracta</title>
+</head>
+<body>
+<textarea cols="50" id="input" rows="10"></textarea><br>
+<button onclick="buildTree()">Construir árbol</button>
+<br>
+<div id="output"></div>
+
+<script>
+  // ast_to_json
+  // Vlad Trushin
+  // monospectr@mail.ru
+
+  // Estos son los tipos de token y nodos del árbol de sintaxis abstracta Javascript-Ecmascript ya construido:
+  const tokenTypeUnkKnown = 'Token desconocido';
+  const tokenTypeLineComent = 'Comentario de línea';
+  const tokenTypeBlockComent = 'Comentario de bloque';
+  const tokenTypeSimpleQuotes = 'Comillas simples';
+  const tokenTypeDoubleQuotes = 'Comillas dobles';
+  const tokenTypeFrenchQuotes = 'Comillas francesas';
+  const tokenTypeBrackets = 'Corchetes';
+  const tokenTypeBraces = 'Llaves';
+  const tokenTypeParenthesis = 'Paréntesis';
+  const tokenTypeOperator = 'Operador';
+  const tokenTypeReservedWord = 'Palabra reservada';
+  const tokenTypeSymbol = 'Símbolo';
+  const tokenTypeIdentifier = 'Identificador';
+
+  // Categorías de nodos en un árbol de sintáxsis abstracta
+  const tokenCathegoryOpener = 'node opener';
+  const tokenCathegoryCloser = 'node closer';
+  const tokenCathegorySymbol = 'node symbol';
+  const tokenCathegoryOperator = 'node operator';
+  const tokenCathegoryReservedWord = 'node reserved word';
+  const tokenCathegoryExpression = 'node expression';
+
+  // Conjuntos de caracteres (Se utiliza en sub-clases).
+  const characterSetConsonantes = [
+    'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'ñ', 'p', 'q', 'r', 's', 't', 'v', 'x', 'y', 'z', 'B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'P', 'Q', 'R', 'S', 'T', 'V', 'X', 'Y', 'Z',
+  ];
+  const characterSetVocales = [
+    'a', 'e', 'i', 'o', 'u', 'á', 'é', 'í', 'ó', 'ú', 'ü', 'A', 'E', 'I', 'O', 'U', 'Á', 'É', 'Í', 'Ó', 'Ú', 'Ü',
+  ];
+  const characterDigits = [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+  ];
+  const tokens = [
+    {symbol: '(', type: tokenTypeParenthesis, cathegory: tokenCathegoryOpener},
+    {symbol: '{', type: tokenTypeBlockComent, cathegory: tokenCathegoryOpener},
+    {symbol: '[', type: tokenTypeBrackets, cathegory: tokenCathegoryOpener},
+    {symbol: '"', type: tokenTypeDoubleQuotes, cathegory: tokenCathegoryOpener},
+    {symbol: '\'', type: tokenTypeSimpleQuotes, cathegory: tokenCathegoryOpener},
+    {symbol: '`', type: tokenTypeFrenchQuotes, cathegory: tokenCathegoryOpener},
+    {symbol: ')', type: tokenTypeParenthesis, cathegory: tokenCathegoryCloser},
+    {symbol: '}', type: tokenTypeBlockComent, cathegory: tokenCathegoryCloser},
+    {symbol: ']', type: tokenTypeBrackets, cathegory: tokenCathegoryCloser},
+    {symbol: '"', type: tokenTypeDoubleQuotes, cathegory: tokenCathegoryCloser},
+    {symbol: '\'', type: tokenTypeSimpleQuotes, cathegory: tokenCathegoryCloser},
+    {symbol: '`', type: tokenTypeFrenchQuotes, cathegory: tokenCathegoryCloser},
+    {symbol: '/', type: tokenTypeSymbol, cathegory: tokenCathegoryCloser},
+    {symbol: ';', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '.', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '@', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '#', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '$', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '%', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '^', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '&', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '*', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '~', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: ':', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '{', type: tokenTypeBraces, cathegory: tokenCathegorySymbol},
+    {symbol: '}', type: tokenTypeBraces, cathegory: tokenCathegorySymbol},
+    {symbol: '=', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '[', type: tokenTypeBrackets, cathegory: tokenCathegorySymbol},
+    {symbol: ']', type: tokenTypeBrackets, cathegory: tokenCathegorySymbol},
+    {symbol: ',', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '>', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: '<', type: tokenTypeSymbol, cathegory: tokenCathegorySymbol},
+    {symbol: 'instanceof', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: 'typeof', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '>>>=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '>>>', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '>>=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '<>=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '===', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '!==', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '<=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '>=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '&&', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '||', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '++', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '--', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '+=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '-=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '*=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '/=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '%=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '^=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '&=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '!=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '|=', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '&', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '|', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '^', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '<', type: tokenTypeSymbol, cathegory: tokenCathegoryOperator},
+    {symbol: '>', type: tokenTypeSymbol, cathegory: tokenCathegoryOperator},
+    {symbol: '!', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '~', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '+', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '-', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '*', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '/', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: '%', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {symbol: ';', type: tokenTypeSymbol, cathegory: tokenCathegoryOperator},
+    {symbol: ',', type: tokenTypeSymbol, cathegory: tokenCathegoryOperator},
+    {symbol: '=>', type: tokenTypeOperator, cathegory: tokenCathegoryOperator},
+    {
+      symbol: 'break',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'case',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'catch',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'class',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'const',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'continue',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'debugger',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'default',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'delete',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'do',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'else',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'enum',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'export',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'extends',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'false',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'finally',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'for',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'function',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'if',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'implements',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'import',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'in',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'instanceof',
+      type: tokenTypeOperator,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'interface',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'let',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'new',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'null',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'package',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'private',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'protected',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'public',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'return',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'static',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'super',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'switch',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'this',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'throw',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'true',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'try',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'typeof',
+      type: tokenTypeOperator,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'var',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'void',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'while',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'with',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+    {
+      symbol: 'yield',
+      type: tokenTypeReservedWord,
+      cathegory: tokenCathegoryReservedWord,
+    },
+  ];
+
+  function extractSubstring(originalString, startPosition, numberOfCharacters) {
+    let result;
+    if (startPosition < 0 || startPosition >= originalString.length || numberOfCharacters <= 0) { // La posición inicial está fuera de los límites de la cadena o no se pidió extraer ningún elemento
+      result = '';
+    } else {
+      if (startPosition + numberOfCharacters > originalString.length) { // No es posible extraer n elementos a partir de la posición start
+        numberOfCharacters = originalString.length - startPosition;
+      }
+      result = String(originalString).substr(startPosition, numberOfCharacters);
+    }
+    return result;
+  }
+
+  function obtenerTokensDuplicados(chart, caracteres = 1) {
+    const duplicados = [];
+    const map = {};
+    chart.forEach((e, i) => {
+      let nombre = extractSubstring(e.symbol, 0, caracteres);
+      if (map[nombre] === 1) {
+        duplicados.push(nombre);
+      }
+      map[nombre] = (map[nombre] || 0) + 1;
+    });
+    return duplicados;
+  }
+
+
+  // Los índices de estos dos deben corresponderse, agrupar en una sola estructura...
+  const classOpeners = tokens.filter(el => el.cathegory === tokenCathegoryOpener).map(el => el.symbol); // ['(', '{', '[', '"', '\'', '`', '/'];
+  const classClosers = tokens.filter(el => el.cathegory === tokenCathegoryCloser).map(el => el.symbol); // [')', '}', ']', '"', '\'', '`', '/'];
+
+  const classSymbols = tokens.filter(el => el.cathegory === tokenCathegorySymbol).map(el => el.symbol); // [';', '.', '@', '#', '$', '%', '^', '&', '*', '~', ':', '{', '}', '=', '[', ']', ',', '>', '<'];
+  const classOperators = tokens.filter(el => el.cathegory === tokenCathegoryOperator).map(el => el.symbol); // ['instanceof', 'typeof', '>>>=', '>>>', '>>=', '<>=', '===', '!==', '<=', '>=', '&&', '||', '++', '--', '+=', '-=', '*=', '/=', '%=', '^=', '&=', '!=', '|=', '&', '|', '^', '<', '>', '!', '~', '+', '-', '*', '/', '%', ';', ',', '=>'];
+
+  // Sintactical analizer (next to where the operator in position ends).
+  const syntaxCheck = (cadena, posicion) => {
+    if (posicion === -1 || posicion >= cadena.length) {
+      return false;
+    }
+    const pairs = {
+      '(': ')',
+      '{': '}',
+      '[': ']',
+      '\'': true,
+      '"': true,
+      '`': true,
+    };
+    if (cadena.substring(posicion, posicion + 2) === '//') {
+      const endComment = cadena.indexOf('\n', posicion + 2);
+      return (endComment === -1) ? cadena.length + 1 : endComment + 1;
+    } else if (cadena.substring(posicion, posicion + 2) === '/*') {
+      const endComment = cadena.indexOf('*/', posicion);
+      return (endComment === -1) ? -1 : endComment + 2;
+    } else {
+      let nextPosition = posicion;
+      const currentChar = cadena[posicion];
+      if (currentChar in pairs) {
+        if (pairs[currentChar] === true) {
+          nextPosition = cadena.indexOf(currentChar, nextPosition + 1);
+        } else {
+          nextPosition = cadena.indexOf(pairs[currentChar], nextPosition + 1);
+        }
+      } else {
+        for (let i = 0; i < pairs.length; i++) {
+          const start = pairs[i];
+          if (cadena.substring(posicion, posicion + start.length) === start) {
+            nextPosition = posicion + start.length;
+            for (let j = nextPosition; j < cadena.length; j++) {
+              const end = pairs[start];
+              if (cadena.substring(j, j + end.length) === end) {
+                nextPosition = j + end.length;
+                break;
+              } else if (pairs[cadena[j]]) {
+                j = syntaxCheck(cadena, j) - 1;
+                if (j === -2) {
+                  return -1;
+                }
+                nextPosition = j + 1;
+              }
+            }
+            break;
+          }
+        }
+      }
+      return (nextPosition >= cadena.length) ? -1 : nextPosition;
+    }
+  };
+
+  function genericParse(v, options = {
+    functionCallback: null,
+    variableCallback: null,
+  }) {
+    const result = [];
+    let token = '';
+    let nodeEnd = 0;
+
+    const pushToken = (type = tokenTypeUnkKnown) => {
+      const tmp = token.trim();
+      token = '';
+      const tok = {source: tmp, content: tmp, type: type};
+      if (tok.type === tokenTypeBraces || tok.type === tokenTypeBrackets || tok.type === tokenTypeParenthesis || tok.type === tokenTypeSimpleQuotes || tok.type === tokenTypeDoubleQuotes || tok.type === tokenTypeFrenchQuotes) {
+        tok.content = tmp.substring(1, tmp.length - 1);
+        if (tok.type === tokenTypeBraces || tok.type === tokenTypeBrackets || tok.type === tokenTypeParenthesis) {
+          tok.entry = genericParse(tmp.substring(1, tmp.length - 1));
+        }
+      } else if (tok.type === tokenTypeOperator) {
+        tok.content = tmp;
+      }
+      result.push(tok);
+      return tmp.length;
+    };
+    const typeAt = (so, p = 0, len = 1) => {
+      const chart = tokens.filter(
+        (el) =>
+          so.length > 0 &&
+          el.symbol[0] === so[0] &&
+          extractSubstring(el.symbol, 0, len) === extractSubstring(so, p, len),
+      );
+      if (chart.length === 0) {
+        return resultado;
+      }
+      if (classOperators.includes(so.substring(p, p + len))) {
+        if (chart.length === 1) {
+          resultado.tipo = tokenTypeOperator;
+          return resultado;
+        }
+      }
+      let str = extractSubstring(so, p, syntaxCheck(so, p) - p);
+      if (str) {
+        chart.forEach((posibility) => {
+          if (posibility.symbol === '/') {
+            if (p + 1 < str.length && (str[1] === '/' || tokens.filter((el) => el.symbol[0] === str[p + 1]).length > 0)) {
+              resultado.tipo = tokenTypeLineComent;
+            } else {
+              resultado.tipo = tokenTypeBlockComent;
+            }
+          } else {
+            let tokenApertura = classOpeners.findIndex((el) => el.symbol[0] === str[0]);
+            let tokenCierra = classClosers.findIndex((el) => el.symbol[0] === str[str.length - 1]);
+            if (tokenApertura !== -1 && tokenApertura === tokenCierra) {
+              resultado.tipo = classOpeners[tokenApertura].type;
+            }
+          }
+        });
+      }
+      return resultado;
+    };
+
+    // First pass, generic parse
+    while (nodeEnd < v.length) {
+      const nodeBegin = nodeEnd;
+      nodeEnd = syntaxCheck(v, nodeEnd);
+      if (nodeEnd !== -1 && nodeEnd > nodeBegin + 1 && classOpeners.includes(v[nodeBegin]) && classClosers.includes(v[nodeEnd - 1])) {
+        if (token !== '') {
+          pushToken(typeAt(token));
+        }
+        pushToken(typeAt(v, nodeBegin, nodeEnd - nodeBegin));
+      } else {
+        token += v[nodeBegin];
+        if (typeAt(token).tipo === tokenTypeOperator) {
+          pushToken(typeAt(token));
+        }
+      }
+      nodeEnd++;
+    }
+
+    if (token.trim() !== '') {
+      pushToken();
+    }
+
+    // Second pass, specific parse
+    if (options.functionCallback || options.variableCallback) {
+      result.forEach((tok, i) => {
+        if (tok.type === tokenTypeVariable && options.variableCallback) {
+          result[i] = options.variableCallback(tok);
+        } else if (tok.type === tokenTypeFunction && options.functionCallback) {
+          result[i] = options.functionCallback(tok);
+        }
+      });
+    }
+
+    return result;
+  }
+
+  // Para probar
+  console.log(genericParse('1+2+3+4+sum(1,2,3)+avg(1+1+2+3+4)+apellidos("Luis Guillermo Bultet " + `Ibles`, 1+1)'));
+  // Faltan los operadores, símbolos y palabras reservadas.
+  // Recuerda probar con objetos, vacíos, es decir, {}, (), [] porsia pero debe parsear bien... allá por la línea 145.
+
+  class SimpleParse {
+    /**
+     * Constructor de la clase Parse.
+     *
+     * @param {Object} instrucciones Un objeto que define las instrucciones válidas y sus formatos de argumentos.
+     */
+    constructor(instrucciones = []) {
+      this.instrucciones = instrucciones;
+    }
+
+    /**
+     * Analiza el código fuente y devuelve una lista de instrucciones.
+     *
+     * @param {string} codigo El código fuente a analizar.
+     * @returns {Array} Una lista de objetos que representan las instrucciones en el código.
+     * @throws {Error} Si el código contiene una instrucción inválida.
+     */
+    parsear(codigo) {
+      // Separar el código en líneas
+      const lineas = codigo.trim().split('\n');
+
+      // Crear una lista de instrucciones
+      const instrucciones = [];
+      for (let i = 0; i < lineas.length; i++) {
+        // Eliminar los espacios en blanco al principio y al final de la línea
+        const linea = lineas[i].trim();
+
+        // Si la línea está en blanco o es un comentario, ignorarla
+        if (linea === '' || linea.startsWith('//')) {
+          continue;
+        }
+
+        // Separar la línea en sus componentes
+        const componentes = linea.split(/[\s,]+/);
+
+        // Obtener el código de operación y los argumentos
+        const op = componentes[0];
+        const args = componentes.slice(1);
+
+        // Crear un objeto que representa la instrucción y agregarlo a la lista
+        instrucciones.push({
+          op: op,
+          args: args,
+        });
+      }
+
+      // Verificar que las instrucciones sean válidas
+      // for (let i = 0; i < instrucciones.length; i++) {
+      //   const instruccion = instrucciones[i];
+      //   if (!this.instrucciones.hasOwnProperty(instruccion.op)) {
+      //     throw new Error(`Instrucción inválida: ${instruccion.op}`);
+      //   }
+      // }
+
+      // Devolver la lista de instrucciones
+      return instrucciones;
+    }
+  }
+
+  class AnothnerParser {
+    constructor(input) {
+      this.input = input;
+      this.pos = 0;
+    }
+
+    getNextToken() {
+      while (this.pos < this.input.length && this.input[this.pos] === ' ') {
+        this.pos++;
+      }
+
+      if (this.pos >= this.input.length) {
+        return null;
+      }
+
+      const char = this.input[this.pos];
+
+      if (char === '+' || char === '-') {
+        this.pos++;
+        return char;
+      }
+
+      if (/\d/.test(char)) {
+        let num = '';
+
+        while (this.pos < this.input.length && /\d/.test(this.input[this.pos])) {
+          num += this.input[this.pos];
+          this.pos++;
+        }
+
+        return parseInt(num);
+      }
+
+      throw new Error(`Unexpected character ${char} at position ${this.pos}`);
+    }
+
+    parseNumber() {
+      const value = this.getNextToken();
+      return {type: 'Number', value};
+    }
+
+    parseFactor() {
+      const token = this.getNextToken();
+
+      if (typeof token === 'number') {
+        return {type: 'Number', value: token};
+      }
+
+      if (token === '(') {
+        const node = this.parseExpression();
+
+        if (this.getNextToken() !== ')') {
+          throw new Error(`Expected ')' at position ${this.pos}`);
+        }
+
+        return node;
+      }
+
+      throw new Error(`Unexpected token ${token} at position ${this.pos}`);
+    }
+
+    parseTerm() {
+      let node = this.parseFactor();
+
+      while (this.input[this.pos] === '*' || this.input[this.pos] === '/') {
+        const operator = this.getNextToken();
+        const right = this.parseFactor();
+        node = {
+          tipo: operator,
+          left: node,
+          right: right,
+        };
+      }
+
+      return node;
+    }
+
+    parseExpression() {
+      let node = this.parseTerm();
+
+      while (this.input[this.pos] === '+' || this.input[this.pos] === '-') {
+        const operator = this.getNextToken();
+        const right = this.parseTerm();
+        node = {
+          tipo: operator,
+          left: node,
+          right: right,
+        };
+      }
+
+      return node;
+    }
+
+    parse() {
+      return this.parseExpression();
+    }
+  }
+
+  class Parser3 {
+    constructor(input) {
+      this.input = input;
+      this.pos = 0;
+    }
+
+    getNextToken() {
+      // Implementa aquí la lógica para obtener el siguiente token
+    }
+
+    parseNumber() {
+      // Implementa aquí la lógica para parsear un número y devolver un nodo del árbol AST
+    }
+
+    parseFactor() {
+      // Implementa aquí la lógica para parsear un factor y devolver un nodo del árbol AST
+    }
+
+    parseTerm() {
+      // Implementa aquí la lógica para parsear un término y devolver un nodo del árbol AST
+    }
+
+    parseExpression() {
+      let node = this.parseTerm();
+
+      while (this.input[this.pos] === '+' || this.input[this.pos] === '-') {
+        const operator = this.getNextToken();
+        const right = this.parseTerm();
+        node = {
+          type: operator,
+          left: node,
+          right: right,
+        };
+      }
+
+      return node;
+    }
+
+    parse() {
+      return this.parseExpression();
+    }
+  }
+
+  class Parser4 {
+    constructor(input) {
+      this.input = input;
+      this.pos = 0;
+    }
+
+    getNextToken() {
+      while (this.pos < this.input.length && this.input[this.pos] === ' ') {
+        this.pos++;
+      }
+
+      if (this.pos >= this.input.length) {
+        return null;
+      }
+
+      const char = this.input[this.pos];
+
+      if (char === '+' || char === '-') {
+        this.pos++;
+        return char;
+      }
+
+      if (/\d/.test(char)) {
+        let num = '';
+
+        while (this.pos < this.input.length && /\d/.test(this.input[this.pos])) {
+          num += this.input[this.pos];
+          this.pos++;
+        }
+
+        return parseInt(num);
+      }
+
+      throw new Error(`Unexpected character ${char} at position ${this.pos}`);
+    }
+
+    parseNumber() {
+      const value = this.getNextToken();
+      return {type: 'Number', value};
+    }
+
+    parseFactor() {
+      const token = this.getNextToken();
+
+      if (typeof token === 'number') {
+        return {type: 'Number', value: token};
+      }
+
+      if (token === '(') {
+        const node = this.parseExpression();
+
+        if (this.getNextToken() !== ')') {
+          throw new Error(`Expected ')' at position ${this.pos}`);
+        }
+
+        return node;
+      }
+
+      throw new Error(`Unexpected token ${token} at position ${this.pos}`);
+    }
+
+    parseTerm() {
+      let node = this.parseFactor();
+
+      while (this.input[this.pos] === '*' || this.input[this.pos] === '/') {
+        const operator = this.getNextToken();
+        const right = this.parseFactor();
+        node = {
+          tipo: operator,
+          left: node,
+          right: right,
+        };
+      }
+
+      return node;
+    }
+
+    parseExpression() {
+      let node = this.parseTerm();
+
+      while (this.input[this.pos] === '+' || this.input[this.pos] === '-') {
+        const operator = this.getNextToken();
+        const right = this.parseTerm();
+        node = {
+          tipo: operator,
+          left: node,
+          right: right,
+        };
+      }
+
+      return node;
+    }
+
+    parse() {
+      return this.parseExpression();
+    }
+  }
+
+
+  function buildTree() {
+    const input = document.getElementById('input').value;
+    const tree = Parser3(input);
+    document.getElementById('output').innerHTML = JSON.stringify(tree, null, 2);
+  }
+
+
+</script>
+</body>
+</html>
