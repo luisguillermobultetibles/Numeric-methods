@@ -106,6 +106,52 @@ class LightSensor extends CustomSensor {
   }
 }
 
+
+class FingerprintSensor extends CustomSensor {
+  constructor() {
+    super();
+    this.sensorType = 'fingerprint';
+    this.data = {};
+    this._onSuccess = this._onSuccess.bind(this);
+    this._onError = this._onError.bind(this);
+  }
+
+  _onSuccess(data) {
+    if (this.isRunning) {
+      console.log('Huella digital autenticada exitosamente.');
+      this.data = {result: 'success', data: data};
+      this.notifyListeners(this.data);
+    }
+  }
+
+  _onError(error) {
+    if (this.isRunning) {
+      console.log('Error al autenticar la huella digital:', error);
+      this.data = {result: 'error', error: error};
+      this.notifyListeners(this.data);
+    }
+  }
+
+  start() {
+    this.isRunning = true;
+    if (window.PublicKeyCredential) {
+      navigator.credentials.get({publicKey: {}})
+        .then((data) => {
+          this._onSuccess(data);
+        })
+        .catch((error) => {
+          this._onError(error);
+        });
+    } else {
+      console.log('La API de autenticación web no está disponible en este navegador.');
+    }
+  }
+
+  stop() {
+    this.isRunning = false;
+  }
+}
+
 class TemperatureSensor extends CustomSensor {
   constructor() {
     super();
@@ -241,92 +287,6 @@ class BatterySensor extends CustomSensor {
   }
 }
 
-class AbsoluteOrientationSensor extends CustomSensor {
-  constructor(options) {
-    super();
-    if (!options) {
-      options = {};
-    }
-
-    this._alpha = null;
-    this._beta = null;
-    this._gamma = null;
-
-    this._quaternion = new Quaternion();
-    this._euler = new Euler();
-
-    this._frequency = options.frequency || 60;
-
-    if (typeof DeviceOrientationEvent !== 'undefined') {
-      this._deviceOrientationListener = this._handleDeviceOrientation.bind(this);
-      window.addEventListener('deviceorientation', this._deviceOrientationListener);
-    } else {
-      throw new Error('DeviceOrientation API not supported');
-    }
-  }
-
-  get quaternion() {
-    return this._quaternion.toArray();
-  }
-
-  get euler() {
-    return this._euler.toArray();
-  }
-
-  get alpha() {
-    return this._alpha;
-  }
-
-  get beta() {
-    return this._beta;
-  }
-
-  get gamma() {
-    return this._gamma;
-  }
-
-  start() {
-    if (!this._interval) {
-      this._interval = setInterval(() => {
-        this._updateOrientation();
-      }, 1000 / this._frequency);
-    }
-  }
-
-  stop() {
-    if (this._interval) {
-      clearInterval(this._interval);
-      this._interval = null;
-    }
-  }
-
-  _handleDeviceOrientation(event) {
-    this._alpha = event.alpha;
-    this._beta = event.beta;
-    this._gamma = event.gamma;
-  }
-
-  _updateOrientation() {
-    this._quaternion.setFromEuler(
-        this._euler.set(
-            this._beta * Math.PI / 180,
-            this._alpha * Math.PI / 180,
-            -this._gamma * Math.PI / 180,
-            'ZYX',
-        ),
-    );
-  }
-
-  destroy() {
-    this.stop();
-
-    window.removeEventListener('deviceorientation', this._deviceOrientationListener);
-
-    this._quaternion = null;
-    this._euler = null;
-  }
-}
-
 class OrientationSensor extends CustomSensor {
   constructor(latitude, hourAngle) {
     super();
@@ -385,7 +345,146 @@ class OrientationSensor extends CustomSensor {
     }
   }
 
+  // Métodos para trabajar con cuaterniones
+
+  // crear un cuaternión a partir de un vector de ángulos de Euler
+  static eulerToQuaternion(alpha, beta, gamma) {
+    const cq = Math.cos(gamma / 2);
+    const sq = Math.sin(gamma / 2);
+    const cp = Math.cos(beta / 2);
+    const sp = Math.sin(beta / 2);
+    const cr = Math.cos(alpha / 2);
+    const sr = Math.sin(alpha / 2);
+    const q = new Float32Array(4);
+    q[0] = cr * sp * cq - sr * cp * sq;
+    q[1] = cr * cp * sq + sr * sp * cq;
+    q[2] = sr * cp * cq - cr * sp * sq;
+    q[3] = cr * cp * cq + sr * sp * sq;
+    return q;
+  }
+
+  // crear un cuaternión a partir de un eje de rotación y un ángulo
+  static axisAngleToQuaternion(axis, angle) {
+    const axisNorm = Math.sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
+    const axisUnit = [axis[0] / axisNorm, axis[1] / axisNorm, axis[2] / axisNorm];
+    const q = newFloat32Array(4);
+    const halfAngle = angle / 2;
+    const sinHalfAngle = Math.sin(halfAngle);
+    q[0] = Math.cos(halfAngle);
+    q[1] = axisUnit[0] * sinHalfAngle;
+    q[2] = axisUnit[1] * sinHalfAngle;
+    q[3] = axisUnit[2] * sinHalfAngle;
+    return q;
+  }
+
+  // multiplicación de cuaterniones
+  static quaternionMultiply(q1, q2) {
+    const w1 = q1[0];
+    const x1 = q1[1];
+    const y1 = q1[2];
+    const z1 = q1[3];
+    const w2 = q2[0];
+    const x2 = q2[1];
+    const y2 = q2[2];
+    const z2 = q2[3];
+    const q = new Float32Array(4);
+    q[0] = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2;
+    q[1] = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2;
+    q[2] = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2;
+    q[3] = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2;
+    return q;
+  }
+
+  // inverso de un cuaternión
+  static quaternionInverse(q) {
+    const w = q[0];
+    const x = q[1];
+    const y = q[2];
+    const z = q[3];
+    const mag2 = w * w + x * x + y * y + z * z;
+    const qInv = new Float32Array(4);
+    qInv[0] = w / mag2;
+    qInv[1] = -x / mag2;
+    qInv[2] = -y / mag2;
+    qInv[3] = -z / mag2;
+    return qInv;
+  }
+
+  // convertir ángulos de Euler a cuaternión (convención ZYZ)
+  static eulerZyzToQuaternion(alpha, beta, gamma) {
+    const c1 = Math.cos(alpha / 2);
+    const s1 = Math.sin(alpha / 2);
+    const c2 = Math.cos(beta / 2);
+    const s2 = Math.sin(beta / 2);
+    const c3 = Math.cos(gamma / 2);
+    const s3 = Math.sin(gamma / 2);
+    const q = new Float32Array(4);
+    q[0] = c1 * c2 * c3 - s1 * s2 * s3;
+    q[1] = s1 * s2 * c3 + c1 * c2 * s3;
+    q[2] = s1 * c2 * c3 + c1 * s2 * s3;
+    q[3] = c1 * c2 * s3 - s1 * s2 * c3;
+    return q;
+  }
+
+  // convertir ángulos de Euler a cuaternión (convención XYZ)
+  static eulerXyzToQuaternion(alpha, beta, gamma) {
+    const cq = Math.cos(gamma / 2);
+    const sq = Math.sin(gamma / 2);
+    const cp = Math.cos(beta / 2);
+    const sp = Math.sin(beta / 2);
+    const cr = Math.cos(alpha / 2);
+    const sr = Math.sin(alpha / 2);
+    const q = new Float32Array(4);
+    q[0] = cr * sp * cq + sr * cp * sq;
+    q[1] = sr * cp * cq - cr * sp * sq;
+    q[2] = cr * cp * sq + sr * sp * cq;
+    q[3] = cr * cp * cq - sr * sp * sq;
+    return q;
+  }
+
+  // convertir cuaternión a ángulos de Euler (convención ZYZ)
+  static quaternionToEulerZyz(q) {
+    const w = q[0];
+    const x = q[1];
+    const y = q[2];
+    const z = q[3];
+    const alpha = Math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z));
+    const beta = Math.acos(1 - 2 * (x * x + z * z));
+    const gamma = Math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y));
+    return [alpha, beta, gamma];
+  }
+
+  // convertir cuaternión a ángulos de Euler (convención XYZ)
+  static quaternionToEulerXyz(q) {
+    const w = q[0];
+    const x = q[1];
+    const y = q[2];
+    const z = q[3];
+    const alpha = Math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y));
+    const beta = Math.asin(2 * (w * y - z * x));
+    const gamma = Math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z));
+    return [alpha, beta, gamma];
+  }
+
+
   _handleSensorReading() {
+    /*
+        // manipulador clásico
+
+        // obtener cuaternión y ángulos de Euler en convención ZXY
+        var q = this.sensor.quaternion;
+        var euler = this.sensor.euler;
+
+        // imprimir los valores
+        console.log('Quaternion:', q);
+        console.log('Euler angles (ZXY):', euler);
+
+        // convertir cuaternión a ángulos de Euler en convención XYZ
+        var xyzEuler = OrientationSensor.quaternionToEulerXyz(q);
+        console.log('Euler angles (XYZ):', xyzEuler);
+    */
+
+
     let {
       northAngle,
       zenithAngle,
@@ -646,132 +745,160 @@ class GeoLocationSensor extends CustomSensor {
   #getCurrentLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const {latitude, longitude} = position.coords;
-            const data = {latitude, longitude};
-            this._currentLocation = data;
-          },
-          (error) => {
-            throw new Error(`Error getting location: ${error.message}`);
-          },
-          {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 5000,
-          },
+        (position) => {
+          const {latitude, longitude} = position.coords;
+          const data = {latitude, longitude};
+          this._currentLocation = data;
+        },
+        (error) => {
+          throw new Error(`Error getting location: ${error.message}`);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 5000,
+        },
       );
     } else {
       throw new Error('Geolocation API not supported');
     }
   }
 
-  getMagneticVariation() {
-    const magneticDeclination = (latitude, longitude, altitude) => {
-      function toRadians(degrees) {
-        return degrees * (Math.PI / 180);
-      }
+  /* Variación magnética:
 
-      const phi = toRadians(latitude);
-      const lambda = toRadians(longitude);
-      const h = altitude / 1000; // convert altitude to km
-      const r = 6371.2 + h;
+    Compasses, instruments that align themselves with the magnetic poles of the
+    Earth, have been used in navigation for centuries. The earth’s rotational axis
+     defines the geographic north and south poles that we use for map references.
+     It turns out that there is a discrepancy of around 11.5 degrees (around 1000 miles)
+     between the geographic poles and the magnetic poles. Declination angle is applied
+     to the magnetic direction to correct for this situation.
 
-      const cos_phi = Math.cos(phi);
-      const sin_phi = Math.sin(phi);
-      const cos_lambda = Math.cos(lambda);
-      const sin_lambda = Math.sin(lambda);
+   */
 
-      const x = r * cos_phi * cos_lambda;
-      const y = r * cos_phi * sin_lambda;
-      const z = r * sin_phi;
+  static magneticDeclination = (latitude, longitude, altitude) => {
+    function toRadians(degrees) {
+      return degrees * (Math.PI / 180);
+    }
 
-      const a = 6371.2;
-      const b = 6356.9;
-      const f = (a - b) / a;
-      const e = Math.sqrt(2 * f - f * f);
+    const phi = toRadians(latitude);
+    const lambda = toRadians(longitude);
+    const h = altitude / 1000; // convert altitude to km
+    const r = 6371.2 + h;
 
-      const p = Math.sqrt(x * x + y * y);
-      const theta = Math.atan2(z * a, p * b);
+    const cos_phi = Math.cos(phi);
+    const sin_phi = Math.sin(phi);
+    const cos_lambda = Math.cos(lambda);
+    const sin_lambda = Math.sin(lambda);
 
-      const declination = Math.atan2(y, x);
-      const inclination = Math.atan2(z, p);
+    const x = r * cos_phi * cos_lambda;
+    const y = r * cos_phi * sin_lambda;
+    const z = r * sin_phi;
 
-      const bh = Math.sqrt(x * x + y * y + z * z) - 6371.2; // convert back to meters
+    const a = 6371.2;
+    const b = 6356.9;
+    const f = (a - b) / a;
+    const e = Math.sqrt(2 * f - f * f);
 
-      const g = 9.80665;
-      const gamma = Math.atan2(z, p);
-      const dip = toRadians(11.45);
+    const p = Math.sqrt(x * x + y * y);
+    const theta = Math.atan2(z * a, p * b);
 
-      const B = (3 * g * a * a * z) / (2 * (a * a * z * z + b * b * p * p) ^ (3 / 2));
-      const C = (3 * g * b * b * p) / (2 * (a * a * z * z + b * b * p * p) ^ (3 / 2));
-      const D = -2 * gamma - dip;
+    const declination = Math.atan2(y, x);
+    const inclination = Math.atan2(z, p);
 
-      const H = B * sin(D);
-      const Z = C * cos(D);
+    const bh = Math.sqrt(x * x + y * y + z * z) - 6371.2; // convert back to meters
 
-      const H0 = H * cos_theta + Z * sin_theta;
-      const Z0 = Z * cos_theta - H * sin_theta;
+    const g = 9.80665;
+    const gamma = Math.atan2(z, p);
+    const dip = toRadians(11.45);
 
-      return toDegrees(declination - H0);
-    };
-    const {latitude, longitude, altitude} = this._currentLocation;
-    const magneticVariation = magneticDeclination(latitude, longitude, altitude);
-    return magneticVariation;
-  }
+    const B = (3 * g * a * a * z) / (2 * (a * a * z * z + b * b * p * p) ^ (3 / 2));
+    const C = (3 * g * b * b * p) / (2 * (a * a * z * z + b * b * p * p) ^ (3 / 2));
+    const D = -2 * gamma - dip;
+
+    const H = B * sin(D);
+    const Z = C * cos(D);
+
+    const H0 = H * cos_theta + Z * sin_theta;
+    const Z0 = Z * cos_theta - H * sin_theta;
+
+    return toDegrees(declination - H0);
+  };
+
+  /*
+          I show you how to do this in other ... mode.
+
+          // First, get the latitude and longitude (omitted for brevity).
+          var latitude = 0, longitude = 0;
+
+          // Then, get the magnetic declination using your favorite web service.
+          var base = 'http://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination';
+          fetch(base + '?lat1=' + latitude + '&lon1=' + longitude + '&resultFormat=csv')
+            .then(response => response.text()).then(text => {
+              var declinationDegrees =
+                  parseFloat(text.replace(/^#.*$/gm, '').trim().split(',')[4]);
+              // Compensate for the magnetic declination to get the true north.
+              console.log('True heading in degrees: ' + (headingDegrees + declinationDegrees));
+          });
+
+
+  * */
+
+  static gravityAnomaly = (latitude, longitude, altitude) => {
+    // Implementación del cálculo de la anomalía gravitacional
+    // utilizando la fórmula de Somigliana (https://en.wikipedia.org/wiki/Somigliana_formula)
+    // que requiere la latitud, longitud y altitud
+    const a = 6378137; // radio ecuatorial de la Tierra en metros
+    const b = 6356752.3142; // radio polar de la Tierra en metros
+    const gamma_e = 9.7803253359; // valor de la gravedad en el ecuador en m/s^2
+    const gamma_p = 9.8321849378; // valor de la gravedad en el polo en m/s^2
+    const gamma_0 = (gamma_e + gamma_p) / 2; // valor de la gravedad a nivel del mar en el ecuador
+    const e2 = 1 - (b / a) ** 2; // excentricidad al cuadrado
+    const sinLat = Math.sin(latitude * Math.PI / 180);
+    const W = Math.sqrt(1 - e2 * sinLat ** 2);
+    const N = a / W; // radio de curvatura de la esfera que coincide con la Tierra en el ecuador
+    const M = a * (1 - e2) / (W ** 3); // radio de curvatura de la esfera que coincide con la Tierra en la dirección normal al ecuador
+    const delta_gamma = gamma_0 * ((-2 * altitude / N) + (3 * altitude ** 2 / M ** 2)); // corrección de la gravedad debido a la altitud
+    const gravityAnomaly = gamma_0 - delta_gamma;
+    return gravityAnomaly;
+  };
 
   getGravityAnomaly() {
-    const gravityAnomaly = (latitude, longitude, altitude) => {
-      // Implementación del cálculo de la anomalía gravitacional
-      // utilizando la fórmula de Somigliana (https://en.wikipedia.org/wiki/Somigliana_formula)
-      // que requiere la latitud, longitud y altitud
-      const a = 6378137; // radio ecuatorial de la Tierra en metros
-      const b = 6356752.3142; // radio polar de la Tierra en metros
-      const gamma_e = 9.7803253359; // valor de la gravedad en el ecuador en m/s^2
-      const gamma_p = 9.8321849378; // valor de la gravedad en el polo en m/s^2
-      const gamma_0 = (gamma_e + gamma_p) / 2; // valor de la gravedad a nivel del mar en el ecuador
-      const e2 = 1 - (b / a) ** 2; // excentricidad al cuadrado
-      const sinLat = Math.sin(latitude * Math.PI / 180);
-      const W = Math.sqrt(1 - e2 * sinLat ** 2);
-      const N = a / W; // radio de curvatura de la esfera que coincide con la Tierra en el ecuador
-      const M = a * (1 - e2) / (W ** 3); // radio de curvatura de la esfera que coincide con la Tierra en la dirección normal al ecuador
-      const delta_gamma = gamma_0 * ((-2 * altitude / N) + (3 * altitude ** 2 / M ** 2)); // corrección de la gravedad debido a la altitud
-      const gravityAnomaly = gamma_0 - delta_gamma;
-      return gravityAnomaly;
-    };
     const {latitude, longitude, altitude} = this._currentLocation;
-    return gravityAnomaly(latitude, longitude, altitude);
+    return GeoLocationSensor.gravityAnomaly(latitude, longitude, altitude);
   }
 
+  static coriolis = (latitude) => {
+    // Implementación del cálculo del efecto Coriolis
+    // utilizando la fórmula de Coriolis (https://en.wikipedia.org/wiki/Coriolis_force)
+    // que requiere la latitud y la velocidad
+    const omega = 7.2921159e-5; // velocidad angular de la Tierra en rad/s
+    const coriolisEffect = 2 * omega * Math.sin(latitude * Math.PI / 180);
+    return coriolisEffect;
+  };
+
   getCoriolisEffect() {
-    const coriolis = (latitude) => {
-      // Implementación del cálculo del efecto Coriolis
-      // utilizando la fórmula de Coriolis (https://en.wikipedia.org/wiki/Coriolis_force)
-      // que requiere la latitud y la velocidad
-      const omega = 7.2921159e-5; // velocidad angular de la Tierra en rad/s
-      const coriolisEffect = 2 * omega * Math.sin(latitude * Math.PI / 180);
-      return coriolisEffect;
-    };
+
     const {latitude} = this._currentLocation;
-    const coriolisEffect = coriolis(latitude);
+    const coriolisEffect = GeoLocationSensor.coriolis(latitude);
     return coriolisEffect;
   }
 
   start() {
     if (navigator.geolocation) {
       this._watchId = navigator.geolocation.watchPosition(
-          (position) => {
-            const {latitude, longitude} = position.coords;
-            const data = {latitude, longitude};
-            this.notifyListeners(data);
-          },
-          (error) => {
-            throw new Error(`Error getting location: ${error.message}`);
-          },
-          {
-            enableHighAccuracy: true, // para obtener una ubicación más precisa
-            maximumAge: this._frequency, // para usar datos de ubicación en caché si están disponibles
-            timeout: this._frequency, // para establecer el tiempo máximo de espera para obtener una ubicación
-          },
+        (position) => {
+          const {latitude, longitude} = position.coords;
+          const data = {latitude, longitude};
+          this.notifyListeners(data);
+        },
+        (error) => {
+          throw new Error(`Error getting location: ${error.message}`);
+        },
+        {
+          enableHighAccuracy: true, // para obtener una ubicación más precisa
+          maximumAge: this._frequency, // para usar datos de ubicación en caché si están disponibles
+          timeout: this._frequency, // para establecer el tiempo máximo de espera para obtener una ubicación
+        },
       );
     } else {
       throw new Error('Geolocation API not supported');
@@ -812,7 +939,7 @@ class MagnetometerSensor extends CustomSensor {
     this.eulerAngle = {alpha: null, beta: null, gamma: null};
     this.quaternion = {w: null, x: null, y: null, z: null};
     this.sensor = null;
-    this.declination = 0;
+    this.declination = GeoLocationSensor.gravityAnomaly();
     // La frecuencia de muestreo del magnetómetro en este ejemplo se establece en 60Hz porque es la frecuencia máxima que admite el API de Web Sensor.
     this.frequency = frequency;
     this.minRange = minRange;
@@ -1249,37 +1376,37 @@ class SensorFusion {
 
   update(data) {
     // Calculamos el intervalo de tiempo desde la última actualización
-    let dt = (data.timestamp - this.timestamp) / 1000.0; // tiempo en segundos
+    const dt = (data.timestamp - this.timestamp) / 1000.0; // tiempo en segundos
     this.timestamp = data.timestamp;
 
     // Actualizamos la posición y velocidad usando los datos de geolocalización
-    let lat = data.latitude;
-    let lon = data.longitude;
-    let alt = data.altitude;
+    const lat = data.latitude;
+    const lon = data.longitude;
+    const alt = data.altitude;
     this.position = [lon, lat, alt];
     this.velocity = [data.speed * Math.cos(data.heading), data.speed * Math.sin(data.heading), 0];
 
     // Actualizamos la orientación usando los datos del magnetómetro y el giroscopio
-    let yaw = data.magneticHeading * Math.PI / 180.0; // conversión a radianes
-    let pitch = data.pitch * Math.PI / 180.0;
-    let roll = data.roll * Math.PI / 180.0;
+    const yaw = data.magneticHeading * Math.PI / 180.0; // conversión a radianes
+    const pitch = data.pitch * Math.PI / 180.0;
+    const roll = data.roll * Math.PI / 180.0;
     this.orientation = [yaw, pitch, roll];
 
     // Actualizamos la aceleración usando los datos del acelerómetro
-    let ax = data.accelerationIncludingGravity.x;
-    let ay = data.accelerationIncludingGravity.y;
-    let az = data.accelerationIncludingGravity.z;
+    const ax = data.accelerationIncludingGravity.x;
+    const ay = data.accelerationIncludingGravity.y;
+    const az = data.accelerationIncludingGravity.z;
     this.acceleration = [ax, ay, az];
 
     // Aplicamos el algoritmo de fusión de sensores para mejorar la precisión
     if (dt > 0) {
-      let alpha = 0.9; // factor de corrección
-      let gravity = [0, 0, -9.81]; // gravedad en m/s^2
-      let R = this.rotationMatrix(this.orientation);
-      let acc = this.rotateVector(this.acceleration, R);
-      let acc_corrected = [acc[0], acc[1], acc[2] - gravity[2]]; // corregimos la componente de la gravedad
-      let vel = [this.velocity[0] + acc_corrected[0] * dt, this.velocity[1] + acc_corrected[1] * dt, this.velocity[2] + acc_corrected[2] * dt];
-      let pos = [this.position[0] + vel[0] * dt, this.position[1] + vel[1] * dt, this.position[2] + vel[2] * dt];
+      const alpha = 0.9; // factor de corrección
+      const gravity = [0, 0, -9.81]; // gravedad en m/s^2
+      const R = this.rotationMatrix(this.orientation);
+      const acc = this.rotateVector(this.acceleration, R);
+      const acc_corrected = [acc[0], acc[1], acc[2] - gravity[2]]; // corregimos la componente de la gravedad
+      const vel = [this.velocity[0] + acc_corrected[0] * dt, this.velocity[1] + acc_corrected[1] * dt, this.velocity[2] + acc_corrected[2] * dt];
+      const pos = [this.position[0] + vel[0] * dt, this.position[1] + vel[1] * dt, this.position[2] + vel[2] * dt];
       this.velocity = [alpha * vel[0] + (1 - alpha) * this.velocity[0], alpha * vel[1] + (1 - alpha) * this.velocity[1], alpha * vel[2] + (1 - alpha) * this.velocity[2]];
       this.position = [alpha * pos[0] + (1 - alpha) * this.position[0], alpha * pos[1] + (1 - alpha) * this.position[1], alpha * pos[2] + (1 - alpha) * this.position[2]];
     }
@@ -1287,12 +1414,12 @@ class SensorFusion {
 
   // Función auxiliar para calcular la matriz de rotación a partir de los ángulos de Euler
   rotationMatrix(angles) {
-    let cy = Math.cos(angles[0]);
-    let sy = Math.sin(angles[0]);
-    let cp = Math.cos(angles[1]);
-    let sp = Math.sin(angles[1]);
-    let cr = Math.cos(angles[2]);
-    let sr = Math.sin(angles[2]);
+    const cy = Math.cos(angles[0]);
+    const sy = Math.sin(angles[0]);
+    const cp = Math.cos(angles[1]);
+    const sp = Math.sin(angles[1]);
+    const cr = Math.cos(angles[2]);
+    const sr = Math.sin(angles[2]);
     return [
       [cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr],
       [sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr],
@@ -1302,7 +1429,7 @@ class SensorFusion {
 
   // Función auxiliar para rotar un vector por una matriz de rotación
   rotateVector(vector, matrix) {
-    let result = [0, 0, 0];
+    const result = [0, 0, 0];
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         result[i] += matrix[i][j] * vector[j];
@@ -1323,24 +1450,24 @@ class SensorFusion {
       lon2 = lon2 * Math.PI / 180;
 
       // Calculamos la distancia entre los dos puntos
-      let dLat = lat2 - lat1;
-      let dLon = lon2 - lon1;
-      let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      let distance = ellipsoid.a * c;
+      const dLat = lat2 - lat1;
+      const dLon = lon2 - lon1;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = ellipsoid.a * c;
 
       // Calculamos el achatamiento del elipsoide a partir de b
-      let f = (ellipsoid.a - ellipsoid.b) / ellipsoid.a;
+      const f = (ellipsoid.a - ellipsoid.b) / ellipsoid.a;
 
       // Calculamos el radio de curvatura en el primer punto
-      let N1 = ellipsoid.a / Math.sqrt(1 - f * f * Math.sin(lat1) * Math.sin(lat1));
+      const N1 = ellipsoid.a / Math.sqrt(1 - f * f * Math.sin(lat1) * Math.sin(lat1));
 
       // Calculamos el acimut y la elevación entre los dos puntos
-      let y = Math.sin(lon2 - lon1) * Math.cos(lat2);
-      let x = Math.cos(lat1) * Math.sin(lat2) -
+      const y = Math.sin(lon2 - lon1) * Math.cos(lat2);
+      const x = Math.cos(lat1) * Math.sin(lat2) -
         Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1);
-      let azimuth = Math.atan2(y, x) * 180 / Math.PI;
-      let elevation = Math.atan2(alt2 - alt1, Math.sqrt(x * x + y * y) * Math.cos(lat1) + (lat2 - lat1) * Math.sin(lat1) * N1) * 180 / Math.PI;
+      const azimuth = Math.atan2(y, x) * 180 / Math.PI;
+      const elevation = Math.atan2(alt2 - alt1, Math.sqrt(x * x + y * y) * Math.cos(lat1) + (lat2 - lat1) * Math.sin(lat1) * N1) * 180 / Math.PI;
 
       // Devolvemos los resultados en un objeto
       return {
@@ -1352,14 +1479,14 @@ class SensorFusion {
 
     function getGeographicCoordinates(azimuth, colatitude, distance, currentPosition) {
       // Convertimos los ángulos a radianes
-      let lat = currentPosition[1] * Math.PI / 180;
-      let lon = currentPosition[0] * Math.PI / 180;
-      let azimuthRad = azimuth * Math.PI / 180;
-      let colatitudeRad = (Math.PI / 2 - colatitude) * Math.PI / 180;
+      const lat = currentPosition[1] * Math.PI / 180;
+      const lon = currentPosition[0] * Math.PI / 180;
+      const azimuthRad = azimuth * Math.PI / 180;
+      const colatitudeRad = (Math.PI / 2 - colatitude) * Math.PI / 180;
 
       // Calculamos las nuevas coordenadas geográficas
-      let newLat = Math.asin(Math.sin(lat) * Math.cos(distance) + Math.cos(lat) * Math.sin(distance) * Math.cos(azimuthRad));
-      let newLon = lon + Math.atan2(Math.sin(azimuthRad) * Math.sin(distance) * Math.cos(lat), Math.cos(distance) - Math.sin(lat) * Math.sin(newLat));
+      const newLat = Math.asin(Math.sin(lat) * Math.cos(distance) + Math.cos(lat) * Math.sin(distance) * Math.cos(azimuthRad));
+      const newLon = lon + Math.atan2(Math.sin(azimuthRad) * Math.sin(distance) * Math.cos(lat), Math.cos(distance) - Math.sin(lat) * Math.sin(newLat));
 
       // Convertimos las coordenadas geográficas agrados y las devolvemos en un arreglo
       return [newLon * 180 / Math.PI, newLat * 180 / Math.PI];
@@ -1367,27 +1494,27 @@ class SensorFusion {
 
     function getAzimuthAndColatitudeFromGeographicCoordinates(targetPosition, targetAltitude, currentPosition) {
       // Convertimos las coordenadas geográficas a radianes
-      let lat1 = currentPosition[1] * Math.PI / 180;
-      let lon1 = currentPosition[0] * Math.PI / 180;
-      let lat2 = targetPosition[1] * Math.PI / 180;
-      let lon2 = targetPosition[0] * Math.PI / 180;
+      const lat1 = currentPosition[1] * Math.PI / 180;
+      const lon1 = currentPosition[0] * Math.PI / 180;
+      const lat2 = targetPosition[1] * Math.PI / 180;
+      const lon2 = targetPosition[0] * Math.PI / 180;
 
       // Calculamos la distancia entre los dos puntos
-      let dLon = lon2 - lon1;
-      let cosLat2 = Math.cos(lat2);
-      let x = Math.sqrt((cosLat2 * Math.sin(dLon)) ** 2 + (Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(dLon)) ** 2);
-      let y = Math.sin(lat1) * Math.sin(lat2) + cosLat2 * Math.cos(lon2 - lon1) * Math.cos(lat1);
+      const dLon = lon2 - lon1;
+      const cosLat2 = Math.cos(lat2);
+      const x = Math.sqrt((cosLat2 * Math.sin(dLon)) ** 2 + (Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(dLon)) ** 2);
+      const y = Math.sin(lat1) * Math.sin(lat2) + cosLat2 * Math.cos(lon2 - lon1) * Math.cos(lat1);
 
-      let distance = Math.atan2(x, y) * 6371 * 1000; // Radio de la Tierra en metros
+      const distance = Math.atan2(x, y) * 6371 * 1000; // Radio de la Tierra en metros
 
       // Calculamos la elevación del objeto respecto al horizonte
-      let targetElevation = Math.atan2(targetAltitude, distance);
+      const targetElevation = Math.atan2(targetAltitude, distance);
 
       // Calculamos el ángulo de elevación del objeto respecto al cenit
-      let colatitude = Math.PI / 2 - targetElevation - lat1;
+      const colatitude = Math.PI / 2 - targetElevation - lat1;
 
       // Calculamos el acimut del objeto respecto al norte magnético
-      let azimuth = Math.atan2(Math.sin(lon2 - lon1) * cosLat2, Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(lon2 - lon1));
+      const azimuth = Math.atan2(Math.sin(lon2 - lon1) * cosLat2, Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * cosLat2 * Math.cos(lon2 - lon1));
 
       // Convertimos los ángulos a grados y los devolvemos en un objeto
       return {
@@ -1399,12 +1526,12 @@ class SensorFusion {
 
   unitaryTest() {
     // Creamos una instancia del algoritmo de fusión de sensores
-    let fusion = new SensorFusion();
+    const fusion = new SensorFusion();
 
     // Función para actualizar los datos de los sensores y mostrar la salida en la página
     function update() {
       // Simulamos la lectura de los sensores (en la práctica se usarían las API del dispositivo)
-      let data = {
+      const data = {
         timestamp: Date.now(),
         latitude: 37.7749,
         longitude: -122.4194,
@@ -1421,7 +1548,7 @@ class SensorFusion {
       fusion.update(data);
 
       // Mostramos la salida en la página
-      let output = document.getElementById('output');
+      const output = document.getElementById('output');
       output.innerHTML = 'Posición: ' + fusion.position + '<br>' +
         'Orientación: ' + fusion.orientation + '<br>' +
         'Velocidad: ' + fusion.velocity + '<br>' +
@@ -1431,5 +1558,4 @@ class SensorFusion {
     // Actualizamos los datos de los sensores cada 100 ms
     setInterval(update, 100);
   }
-
 }
