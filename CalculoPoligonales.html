@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generalización del cálculo de poligonales</title>
+</head>
+<body>
+<canvas height="600" id="canvas" width="800">
+</canvas>
+
+<script>
+  class CalculoMultiPoligonal {
+    constructor({vertices, aristas, restricciones}) {
+      this.vertices = vertices;
+      this.aristas = aristas;
+      this.restricciones = restricciones;
+      this.soluciones = [];
+    }
+
+    resolver() {
+      const vertices = this.vertices;
+      const aristas = this.aristas;
+      const restricciones = this.restricciones;
+
+      const soluciones = [];
+
+      function backtrack(solucionParcial) {
+        if (solucionParcial.length === vertices.length) {
+          soluciones.push(solucionParcial);
+          return;
+        }
+
+        const aristaActual = solucionParcial[solucionParcial.length - 1];
+
+        for (const arista of aristas) {
+          const aristaA = arista[0];
+          const aristaB = arista[1];
+
+          if (aristaActual === aristaA && !solucionParcial.includes(aristaB)) {
+            const nuevaSolucion = [...solucionParcial, aristaB];
+            backtrack(nuevaSolucion);
+          } else if (aristaActual === aristaB && !solucionParcial.includes(aristaA)) {
+            const nuevaSolucion = [...solucionParcial, aristaA];
+            backtrack(nuevaSolucion);
+          }
+        }
+      }
+
+      for (const vertice of vertices) {
+        backtrack([vertice]);
+      }
+
+      const solucionesFinales = [];
+
+      for (const solucion of soluciones) {
+        let esValida = true;
+
+        for (const restriccion of restricciones) {
+          if (restriccion.vertice) {
+            const vertice = solucion.find((n) => n === restriccion.vertice);
+
+            if (!vertice) {
+              esValida = false;
+              break;
+            }
+          } else if (restriccion.arista) {
+            const verticeA = solucion.find((n) => n === restriccion.arista[0]);
+            const verticeB = solucion.find((n) => n === restriccion.arista[1]);
+
+            if (!verticeA || !verticeB) {
+              esValida = false;
+              break;
+            }
+
+            const distancia = Math.sqrt(
+              Math.pow(restriccion.longitud, 2) - Math.pow(Math.abs(verticeA - verticeB), 2),
+            );
+
+            if (isNaN(distancia)) {
+              esValida = false;
+              break;
+            }
+          } else if (restriccion.angulo) {
+            const verticeA = solucion.find((n) => n === restriccion.angulo[0]);
+            const verticeB = solucion.find((n) => n === restriccion.angulo[1]);
+            const verticeC = solucion.find((n) => n === restriccion.angulo[2]);
+
+            if (!verticeA || !verticeB || !verticeC) {
+              esValida = false;
+              break;
+            }
+
+            const angulo = Math.abs(restriccion.amplitud - this.#calcularAngulo(verticeA, verticeB, verticeC));
+
+            if (angulo > 1) {
+              esValida = false;
+              break;
+            }
+          }
+        }
+
+        if (esValida) {
+          solucionesFinales.push(solucion);
+        }
+      }
+
+      this.soluciones = solucionesFinales;
+
+      return solucionesFinales;
+    }
+
+    obtenerDistancias(solucion) {
+      const distancias = [];
+
+      for (const restriccion of this.restricciones) {
+        if (restriccion.arista) {
+          const verticeA = solucion.find((n) => n === restriccion.arista[0]);
+          const verticeB = solucion.find((n) => n === restriccion.arista[1]);
+
+          if (verticeA && verticeB) {
+            const distancia = Math.sqrt(
+              Math.pow(restriccion.longitud, 2) - Math.pow(Math.abs(verticeA - verticeB), 2),
+            );
+
+            if (!isNaN(distancia)) {
+              distancias.push({arista: restriccion.arista, distancia});
+            }
+          }
+        }
+      }
+
+      return distancias;
+    }
+
+    obtenerCoordenadas(solucion) {
+      const coordenadas = [];
+
+      for (const restriccion of this.restricciones) {
+        if (restriccion.vertice) {
+          const vertice = solucion.find((n) => n === restriccion.vertice);
+
+          if (vertice) {
+            coordenadas.push({vertice, coordenada: restriccion.coordenada});
+          }
+        }
+      }
+
+      return coordenadas;
+    }
+
+    #calcularAngulo(verticeA, verticeB, verticeC) {
+      const coseno =
+        (Math.pow(verticeA, 2) + Math.pow(verticeC, 2) - Math.pow(verticeB, 2)) /
+        (2 * verticeA * verticeC);
+      const anguloRad = Math.acos(coseno);
+      return anguloRad * (180 / Math.PI);
+    }
+
+    obtenerAngulos(solucion) {
+      const angulos = [];
+
+      for (const restriccion of this.restricciones) {
+        if (restriccion.angulo) {
+          const verticeA = solucion.find((n) => n === restriccion.angulo[0]);
+          const verticeB = solucion.find((n) => n === restriccion.angulo[1]);
+          const verticeC = solucion.find((n) => n === restriccion.angulo[2]);
+
+          if (verticeA && verticeB && verticeC) {
+            const angulo = Math.abs(
+              restriccion.amplitud - this.#calcularAngulo(verticeA, verticeB, verticeC),
+            );
+
+            if (angulo <= 1) {
+              angulos.push({angulo: restriccion.angulo, amplitud: angulo});
+            }
+          }
+        }
+      }
+
+      return angulos;
+    }
+  }
+
+  const grafo = new CalculoMultiPoligonal({
+      vertices:
+        ['A', 'B', 'C', 'D'],
+      aristas:
+        [
+          ['A', 'B'],
+          ['B', 'C'],
+          ['C', 'D'],
+          ['A', 'C'],
+          ['B', 'D'],
+        ],
+      restricciones:
+        [
+          {vertice: 'A', coordenada: [0, 0]},
+          {vertice: 'C', coordenada: [10, 0]},
+          {arista: ['A', 'B'], longitud: 5},
+          {arista: ['B', 'C'], longitud: 5},
+          {arista: ['C', 'D'], longitud: 5},
+          {arista: ['A', 'C'], longitud: 10},
+          {arista: ['B', 'D'], longitud: 10},
+          {angulo: ['A', 'C', 'D'], amplitud: 90},
+        ],
+    },
+  );
+
+  const soluciones = grafo.resolver();
+
+  for (const solucion of soluciones) {
+    console.log('Solución:', solucion);
+    console.log('Distancias:', grafo.obtenerDistancias(solucion));
+    console.log('Coordenadas:', grafo.obtenerCoordenadas(solucion));
+  }
+
+  // Para exportar a dxf
+  function exportToDXF(graph, name = 'graph.dxf') {
+    let dxfContent = '0\nSECTION\n2\nHEADER\n9\n$ACADVER\n1\nAC1009\n0\nENDSEC\n';
+    dxfContent += '0\nSECTION\n2\nENTITIES\n';
+
+    // Define los estilos de línea
+    dxfContent += '0\nTABLE\n2\nLTYPE\n70\n1\n0\nLTYPE\n2\nDASHED\n3\nDashed Line\n73\n0\n40\n0.2\n49\n0.1\n0\nENDTAB\n';
+
+    // Define las capas
+    dxfContent += '0\nTABLE\n2\nLAYER\n70\n2\n0\nLAYER\n2\nPoints\n70\n0\n62\n7\n6\nCONTINUOUS\n0\nLAYER\n2\nLines\n70\n0\n62\n1\n6\nDASHED\n0\nENDTAB\n';
+
+    // Agrega las entidades
+    let pointLayer = 'Points';
+    let lineLayer = 'Lines';
+    let entityId = 1;
+    for (let node of graph.nodes) {
+      dxfContent += `0\nPOINT\n8\n${pointLayer}\n10\n${node.x}\n20\n${node.y}\n30\n${node.z}\n`;
+      dxfContent += `0\nTEXT\n8\n${pointLayer}\n10\n${node.x + 0.1}\n20\n${node.y + 0.1}\n30\n${node.z}\n1\n${node.id}\n`;
+      entityId++;
+    }
+    for (let edge of graph.edges) {
+      dxfContent += `0\nLINE\n8\n${lineLayer}\n10\n${edge.start.x}\n20\n${edge.start.y}\n30\n${edge.start.z}\n`;
+      dxfContent += `11\n${edge.end.x}\n21\n${edge.end.y}\n31\n${edge.end.z}\n`;
+      entityId++;
+    }
+
+    dxfContent += '0\nENDSEC\n0\nEOF\n';
+
+    // Crea un objeto Blob para descargar el archivo
+    let blob = new Blob([dxfContent], {type: 'application/dxf'});
+    let url = window.URL.createObjectURL(blob);
+
+    // Crea un enlace para descargar el archivo
+    let link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+
+    // Agrega el enlace al documento y haz clic en él para descargar el archivo
+    document.body.appendChild(link);
+    link.click();
+
+    // Libera la URL creada para el objeto Blob
+    window.URL.revokeObjectURL(url);
+  }
+
+  const graph = {
+    nodes: [
+      {id: 'A', x: 0, y: 0, z: 0},
+      {id: 'B', x: 2, y: 0, z: 0},
+      {id: 'C', x: 2, y: 2, z: 0},
+      {id: 'D', x: 0, y: 2, z: 0},
+    ],
+    edges: [
+      {start: {x: 0, y: 0, z: 0}, end: {x: 2, y: 0, z: 0}},
+      {start: {x: 2, y: 0, z: 0}, end: {x: 2, y: 2, z: 0}},
+      {start: {x: 0, y: 0, z: 0}, end: {x: 2, y: 0, z: 0}}],
+  };
+
+  // Utiliza esto para exportar a dxf
+  exportToDXF(graph, name = 'grafo.dxf');
+
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////
+  // Demostración de un patrón de diseño observador: Puedes utilizar el patrón de diseño observador para notificar a los
+  // componentes de la interfaz gráfica de usuario cuando se realicen cambios en el grafo. Esto te permitirá mantener la
+  // interfaz actualizada de manera más eficiente y sin tener que hacer actualizaciones innecesarias.
+
+  // Sección del editor
+  class Node {
+    constructor(id, x, y) {
+      this.id = id;
+      this.x = x;
+      this.y = y;
+      this.radius = 10;
+    }
+
+    draw(ctx, selected) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+      if (selected) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'red';
+        ctx.stroke();
+      }
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'black';
+      ctx.stroke();
+    }
+
+    contains(x, y) {
+      const dx = this.x - x;
+      const dy = this.y - y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance <= this.radius;
+    }
+
+    move(x, y) {
+      this.x = x;
+      this.y = y;
+    }
+  }
+
+  class Edge {
+    constructor(startNodeId, endNodeId) {
+      this.startNodeId = startNodeId;
+      this.endNodeId = endNodeId;
+    }
+
+    draw(ctx, nodes) {
+      const startNode = nodes.find((one) => one.id === this.startNodeId);
+      const endNode =  nodes.find((one) => one.id === this.endNodeId);
+      ctx.beginPath();
+      ctx.moveTo(startNode.x, startNode.y);
+      ctx.lineTo(endNode.x, endNode.y);
+      ctx.stroke();
+    }
+  }
+
+  class Graph {
+    constructor() {
+      this.nodes = [];
+      this.edges = new Set();
+      this.selectedNode = null;
+      this.draggingNode = false;
+      this.dragStartPoint = null;
+      this.canvas = document.getElementById('canvas');
+      this.ctx = this.canvas.getContext('2d');
+      this.canvas.addEventListener('click', this.handleCanvasClick.bind(this));
+      this.canvas.addEventListener('dblclick', this.handleCanvasDoubleClick.bind(this));
+      this.canvas.addEventListener('mousedown', this.handleCanvasDragStart.bind(this));
+      this.canvas.addEventListener('mousemove', this.handleCanvasDrag.bind(this));
+      this.canvas.addEventListener('mouseup', this.handleCanvasDragEnd.bind(this));
+      this.canvas.addEventListener('mouseleave', this.handleCanvasDragEnd.bind(this));
+      this.updateCanvas = this.updateCanvas.bind(this);
+      this.updateCanvas();
+      this.observers = [];
+    }
+
+    addNode(x, y) {
+      const id = this.nodes.length.toString();
+      const node = new Node(id, x, y);
+      this.nodes.push(node);
+      this.notify();
+    }
+
+    findNode(x, y) {
+      for (const node of this.nodes) {
+        if (node.contains(x, y)) {
+          return node;
+        }
+      }
+      return null;
+    }
+
+    addEdge(startNodeId, endNodeId) {
+      const edge = new Edge(startNodeId, endNodeId);
+      this.edges.add(edge);
+      this.notify();
+    }
+
+    deleteNode(node) {
+      this.nodes = this.nodes.filter(n => n.id !== node.id);
+      this.edges = new Set([...this.edges].filter(edge => edge.startNodeId !== node.id && edge.endNodeId !== node.id));
+      this.selectedNode = null;
+      this.notify();
+    }
+
+    deleteEdge(startNodeId, endNodeId) {
+      this.edges = new Set([...this.edges].filter(edge => edge.startNodeId !== startNodeId || edge.endNodeId !== endNodeId));
+      this.notify();
+    }
+
+    handleCanvasClick(event) {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const clickedNode = this.findNode(x, y);
+      if (clickedNode) {
+        // Si se ha hecho click en un nodo, lo seleccionamos
+        this.selectedNode = clickedNode;
+        this.draggingNode = false;
+        this.notify();
+      } else {
+        // Si no se ha hecho click en un nodo, añadimos uno nuevo
+        this.addNode(x, y);
+      }
+    }
+
+    handleCanvasDoubleClick(event) {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const clickedNode = this.findNode(x, y);
+      if (clickedNode) {
+        // Si se ha hecho doble click en un nodo, lo eliminamos
+        this.deleteNode(clickedNode);
+      }
+    }
+
+    handleCanvasDragStart(event) {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const clickedNode = this.findNode(x, y);
+      if (clickedNode) {
+        // Si se ha hecho click en un nodo, lo seleccionamos y registramos el punto de inicio del arrastre
+        this.selectedNode = clickedNode;
+        this.draggingNode = true;
+        this.dragStartPoint = {x, y};
+        this.notify();
+      }
+    }
+
+    handleCanvasDrag(event) {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      if (this.selectedNode && this.draggingNode) {
+        // Si hay un nodo seleccionado y se está arrastrando, dibujamos una línea temporal desde el nodo seleccionado hasta la posición actual del ratón
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        for (const edge of this.edges) {
+          edge.draw(this.ctx, this.nodes);
+        }
+        for (const node of this.nodes) {
+          if (node === this.selectedNode) {
+            this.ctx.beginPath();
+            this.ctx.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.fill();
+            this.ctx.strokeStyle = '#000';
+            this.ctx.stroke();
+          } else {
+            node.draw(this.ctx, false);
+          }
+        }
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.selectedNode.x, this.selectedNode.y);
+        this.ctx.lineTo(x, y);
+        this.ctx.strokeStyle = '#000';
+        this.ctx.stroke();
+      }
+    }
+
+    handleCanvasDragEnd(event) {
+      const rect = this.canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      if (this.selectedNode && this.draggingNode) {
+        // Si hay un nodo seleccionado y se está arrastrando, buscamos si el punto de suelta está dentro de algún otro nodo y si es así, conectamos los nodos
+        const endNode = this.findNode(x, y);
+        if (endNode && endNode !== this.selectedNode) {
+          this.addEdge(this.selectedNode.id, endNode.id);
+        }
+        this.selectedNode = null;
+        this.draggingNode = false;
+        this.dragStartPoint = null;
+        this.notify();
+      }
+    }
+
+    /*
+    Para detectar si el nodo suelto está dentro de otro nodo, puedes utilizar la distancia entre los centros de los nodos. Si la distancia entre los centros de los nodos es menor que la suma de los radios de los nodos, entonces el nodo suelto está dentro del otro nodo.
+    * */
+    // handleCanvasDragEnd(event) {
+    //   const rect = this.canvas.getBoundingClientRect();
+    //   const x = event.clientX - rect.left;
+    //   const y = event.clientY - rect.top;
+    //   if (this.selectedNode && this.draggingNode) {
+    //     // Si hay un nodo seleccionado y se está arrastrando, buscamos si el punto de suelta está dentro de algún otro nodo y si es así, conectamos los nodos
+    //     const endNode = this.findNode(x, y);
+    //     if (endNode && endNode !== this.selectedNode) {
+    //       const distance = Math.sqrt((endNode.x - this.selectedNode.x) ** 2 + (endNode.y - this.selectedNode.y) ** 2);
+    //       if (distance < endNode.radius + this.selectedNode.radius) {
+    //         this.addEdge(this.selectedNode.id, endNode.id);
+    //       }
+    //     }
+    //     this.selectedNode = null;
+    //     this.draggingNode = false;
+    //     this.dragStartPoint = null;
+    //     this.notify();
+    //   }
+    // }
+
+    updateCanvas() {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+      // Dibujamos las aristas
+      for (const edge of this.edges) {
+        edge.draw(this.ctx, this.nodes);
+      }
+
+      // Dibujamos los nodos
+      for (const node of this.nodes) {
+        node.draw(this.ctx, node === this.selectedNode);
+      }
+
+      requestAnimationFrame(this.updateCanvas);
+    }
+
+    addObserver(observer) {
+      this.observers.add(observer);
+    }
+
+    removeObserver(observer) {
+      this.observers.delete(observer);
+    }
+
+    notify() {
+      for (const observer of this.observers) {
+        observer.update();
+      }
+    }
+  }
+
+  let sgo = new Graph();
+
+</script>
+</body>
+</html>
