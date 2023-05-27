@@ -685,6 +685,18 @@ class MotionSensor extends CustomSensor {
   constructor() {
     super();
     this.data = {};
+    this.lastX = null;
+    this.lastY = null;
+    this.lastZ = null;
+    this.lastUpdate = null;
+    this.threshold = 10; // umbral de aceleración para detectar una caída
+    this.impactThreshold = 50; // umbral de impacto para detectar el impacto con el suelo
+    this.impactDurationThreshold = 500; // duración mínima del impacto en milisegundos
+    this.falling = false;
+    this.movimientoCircular = false;
+    this.movimientoAFavorMacecillas = false;
+    this.radioMovimientoCircular = 0;
+    this.impactDetected = false;
     this._ondevicemotion = this._ondevicemotion.bind(this);
   }
 
@@ -722,6 +734,114 @@ class MotionSensor extends CustomSensor {
       accelerationIncludingGravity,
       rotationRate,
     };
+
+    const x = acceleration.x;
+    const y = acceleration.y;
+    const z = acceleration.z;
+
+    this.radioMovimientoCircular = Math.sqrt(x * x + y * y +z * z); // radio del movimiento circular o en 8
+    let direction = '';
+    let angle = 0;
+
+    const now = new Date().getTime();
+    const timeDiff = now - this.lastUpdate;
+    const deltaX = x - this.lastX;
+    const deltaY = y - this.lastY;
+    const deltaZ = z - this.lastZ;
+    const speed = Math.abs(deltaX + deltaY + deltaZ) / timeDiff * 10000;
+
+    // detectar sacudidas arriba y abajo
+    if (Math.abs(deltaY) > 10 && speed > 500) {
+      if (deltaY < 0) {
+        console.log('Sacudida hacia arriba');
+      } else {
+        console.log('Sacudida hacia abajo');
+        if (!falling) { // si no se estaba cayendo antes
+          this.falling = true;
+          this.lastUpdate = now;
+        }
+      }
+    }
+
+    // detectar sacudidas adelante y atrás
+    if (Math.abs(deltaZ) > 10 && speed > 500) {
+      if (deltaZ < 0) {
+        console.log('Sacudida hacia adelante');
+      } else {
+        console.log('Sacudida hacia atrás');
+      }
+    }
+
+    // detectar sacudidas de lado a lado
+    if (Math.abs(deltaX) > 10 && speed > 500) {
+      if (deltaX < 0) {
+        console.log('Sacudida hacia la izquierda');
+      } else {
+        console.log('Sacudida hacia la derecha');
+      }
+    }
+
+    // detectar si está cayéndose
+    if (lastZ !== null && falling) {
+      if (deltaZ > threshold) { // se ha detectado una caída
+        if (!impactDetected) { // aún no se ha detectado el impacto
+          this.impactDetected = true;
+          this.lastUpdate = now;
+        } else { // ya se detectó el impacto
+          var impactDuration = now - lastUpdate;
+          if (deltaZ > impactThreshold && impactDuration > impactDurationThreshold) {
+            console.log("El dispositivo ha sufrido un impacto con el suelo.");
+            this.falling = false;
+            this.impactDetected = false;
+          }
+        }
+      } else { // no se ha detectado una caída
+        this.impactDetected = false;
+      }
+    }
+
+    this.lastX = x;
+    this.lastY = y;
+    this.lastZ = z;
+    this.lastUpdate = now;
+
+    if (Math.abs(x) < Math.abs(y)) { // movimiento en 8
+      if (x > 0 && y > 0) {
+        direction = 'en sentido diagonal hacia abajo y hacia la derecha';
+        angle = Math.atan(y / x) * 180 / Math.PI;
+      } else if (x < 0 && y > 0) {
+        direction = 'en sentido diagonal hacia abajo y hacia la izquierda';
+        angle = Math.atan(-x / y) * 180 / Math.PI + 90;
+      } else if (x < 0 && y < 0) {
+        direction = 'en sentido diagonal hacia arriba y hacia la izquierda';
+        angle = Math.atan(y / x) * 180 / Math.PI + 180;
+      } else if (x > 0 && y < 0) {
+        direction = 'en sentido diagonal hacia arriba y hacia la derecha';
+        angle = Math.atan(x / -y) * 180 / Math.PI + 270;
+      }
+    } else { // movimiento circular
+      const angleXY = Math.atan(y / x) * 180 / Math.PI;
+      const angleXZ = Math.atan(z / x) * 180 / Math.PI;
+      const angleYZ = Math.atan(z / y) * 180 / Math.PI;
+
+      this.movimientoCircular = true;
+      if (Math.abs(angleXY - angleXZ) < 30 && Math.abs(angleXY - angleYZ) < 30) {
+        this.movimientoAFavorMacecillas = true;
+        direction = 'en sentido horario';
+      } else if (Math.abs(angleXY - angleXZ) < 30 && Math.abs(angleXY - angleYZ) > 150) {
+        this.movimientoAFavorMacecillas = false;
+        direction = 'en sentido antihorario';
+      } else {
+        this.movimientoCircular = false;
+        return; // no es un movimiento circular válido
+      }
+
+      angle = Math.atan2(y, x) * 180 / Math.PI;
+    }
+
+    console.log('Radio: ' + this.radioMovimientoCircular);
+    console.log('Dirección: ' + direction);
+    console.log('Ángulo: ' + angle);
 
     this.notifyListeners(this.data);
   }
