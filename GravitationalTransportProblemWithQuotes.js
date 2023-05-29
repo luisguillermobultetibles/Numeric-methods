@@ -2,7 +2,10 @@
  * Clase que representa un problema de transporte.
  * y la resuelve teniendo en cuenta la distancia gravitacional y el tamaño de cuotas compatibles.
  *
- * ... test, callme to thanks if works.
+ * Copyright (C) Lic. Luis Guillermo Bultet Ibles 2023.
+ * (All rights reserved, please notify if you pretend comercial use;
+ *  no money for this, is free; just for responsibility delegation).
+ *
  */
 class GravitationalTransportProblemWithQuotes {
   /**
@@ -23,7 +26,7 @@ class GravitationalTransportProblemWithQuotes {
 
   /**
    * Resuelve el problema de transporte y devuelve la solución óptima.
-   * @returns {Object} - Un objeto con dos propiedades: 'x' es una matriz
+   * @return {Object} - Un objeto con dos propiedades: 'x' es una matriz
    *   que indica la cantidad a transportar desde cada suministro a cada
    *   consumo, y 'totalCost' es el costo total de la solución óptima.
    */
@@ -44,8 +47,8 @@ class GravitationalTransportProblemWithQuotes {
           ponderacion[i][j] = 1;
         } else {
           const distancia = this.costs[i][j] / Math.cosh(this.distancia(this.supply[i], this.demand[j]));
-          const adaptacion = Math.exp(this.demand[j] % mcd) / mcd;
-          ponderacion[i][j] = distancia * adaptacion;
+          const enrarecimiento = 1 - Math.sin(Math.PI * (this.demand[j] % mcd) / mcd);
+          ponderacion[i][j] = distancia * enrarecimiento;
         }
       }
     }
@@ -92,7 +95,7 @@ class GravitationalTransportProblemWithQuotes {
   /**
    * Devuelve las asignaciones de la solución óptima como un array de objetos
    * que indican la cantidad asignada, el suministro y el consumo correspondientes.
-   * @returns {Object[]} - Un array de objetos con tres propiedades: 'cantidad'
+   * @return {Object[]} - Un array de objetos con tres propiedades: 'cantidad'
    *   indica la cantidad asignada, 'suministro' indica el índice del suministro
    *   correspondiente (empezando por 0) y 'consumo' indica el índice del consumo
    *   correspondiente (empezando por 0).
@@ -118,7 +121,7 @@ class GravitationalTransportProblemWithQuotes {
    * Calcula la distancia entre dos valores.
    * @param {number} a - El primer valor.
    * @param {number} b - El segundo valor.
-   * @returns {number} - La distancia entre los valores (la diferencia absoluta).
+   * @return {number} - La distancia entre los valores (la diferencia absoluta).
    */
   distancia(a, b) {
     return Math.abs(a - b);
@@ -128,7 +131,7 @@ class GravitationalTransportProblemWithQuotes {
    * Calcula el máximo común divisor de dos números usando el algoritmo de Euclides.
    * @param {number} a - El primer número.
    * @param {number} b - El segundo número.
-   * @returns {number} - El máximo común divisor de los dos números.
+   * @return {number} - El máximo común divisor de los dos números.
    */
   mcd(a, b) {
     const r = a % b;
@@ -152,7 +155,5 @@ class GravitationalTransportProblemWithQuotes {
     asignaciones.forEach(({cantidad, suministro, consumo}) => {
       console.log(`  ${cantidad} desde suministro ${suministro} a consumo ${consumo}`);
     });
-
   }
-
 }
