@@ -106,7 +106,6 @@ class LightSensor extends CustomSensor {
   }
 }
 
-
 class FingerprintSensor extends CustomSensor {
   constructor() {
     super();
