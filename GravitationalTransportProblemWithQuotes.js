@@ -47,7 +47,7 @@ class GravitationalTransportProblemWithQuotes {
           ponderacion[i][j] = 1;
         } else {
           const distancia = this.costs[i][j] / Math.cosh(this.distancia(this.supply[i], this.demand[j]));
-          const enrarecimiento = 1 - Math.sin(Math.PI * (this.demand[j] % mcd) / mcd);
+          const enrarecimiento = 1 - Math.sin(Math.PI * (this.supply[j] % mcd) / mcd); // revisar, creoq ue está bien, ayudara montar un demo en html.
           ponderacion[i][j] = distancia * enrarecimiento;
         }
       }
