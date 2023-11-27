@@ -64,4 +64,6 @@ Objetivo general de la asignatura:
 
   Este esquema es una guía general y flexible que puede ajustarse a las necesidades específicas de los participantes y a la profundidad con la que se quieran abarcar ciertos temas. La asignatura debería estar acompañada de una plataforma en línea donde los profesores puedan acceder a recursos adicionales, discutir problemas y compartir soluciones.
 
+  Precisamente, el objetivo es el mejoramiento de la escuela https://github.com/luisguillermobultetibles/Numeric-methods/blob/main/Minischool.js que debe evolucionar a la par de los resultados de los proyectos de los peofesores, con las ideas que TODOS puedan aportar.
+
  */
