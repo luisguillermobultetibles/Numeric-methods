@@ -62,9 +62,10 @@ Objetivo general de la asignatura:
 - Ejercicios: Proyecto final donde los estudiantes deben resolver un problema práctico usando los conceptos aprendidos.
 - Bibliografía: “The Master Algorithm” por Pedro Domingos; “Data Structures and Algorithms in JavaScript” por Michael McMillan.
 
-  Este esquema es una guía general y flexible que puede ajustarse a las necesidades específicas de los participantes y a la profundidad con la que se quieran abarcar ciertos temas. La asignatura debería estar acompañada de una plataforma en línea donde los profesores puedan acceder a recursos adicionales, discutir problemas y compartir soluciones.
-  El punto de partida para este proyecto es https://github.com/luisguillermobultetibles/Numeric-methods/blob/main/Minischool.js
-  Los proyectos del curso deben integrarse con las proposiciones de los profesores para mejorar la mini escuela virtual.
+  Este esquema es una guía general y flexible que puede ajustarse a las necesidades específicas de los participantes y a la profundidad con la que se quieran abarcar ciertos temas. 
+  La asignatura debería estar acompañada de una plataforma en línea donde los profesores puedan acceder a recursos adicionales, discutir problemas y compartir soluciones.
+  El punto de partida para esta plataforma es la mini escuela virtual https://github.com/luisguillermobultetibles/Numeric-methods/blob/main/Minischool.js
+  Los mejores proyectos del curso seleccionados pueden integrarse con las proposiciones de los profesores para mejorar la mini escuela virtual.
   Se incluirán las otras asignaturas.
   El código fuente es abierto, libre y se basa en el principio de dirección colectiva y descentralizada.
 */
