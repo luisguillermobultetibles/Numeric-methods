@@ -67,3 +67,4 @@ Objetivo general de la asignatura:
   Los proyectos del curso deben integrarse con las proposiciones de los profesores para mejorar la mini escuela virtual.
   Se incluirán las otras asignaturas.
   El código fuente es abierto, libre y se basa en el principio de dirección colectiva y descentralizada.
+*/
