@@ -63,5 +63,8 @@ Objetivo general de la asignatura:
 - Bibliografía: “The Master Algorithm” por Pedro Domingos; “Data Structures and Algorithms in JavaScript” por Michael McMillan.
 
   Este esquema es una guía general y flexible que puede ajustarse a las necesidades específicas de los participantes y a la profundidad con la que se quieran abarcar ciertos temas. La asignatura debería estar acompañada de una plataforma en línea donde los profesores puedan acceder a recursos adicionales, discutir problemas y compartir soluciones.
+  El punto de partide es https://github.com/luisguillermobultetibles/Numeric-methods/blob/main/Minischool.js que constituirá el centro donde se incorporarán los proyectos, con la necesaria introducción de otras asignaturas.
+  Cada proyecto puede integrarse al proyecto anterior.
+  
 
  */
