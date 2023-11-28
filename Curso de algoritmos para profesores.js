@@ -68,4 +68,6 @@ Objetivo general de la asignatura:
   Los mejores proyectos del curso seleccionados pueden integrarse con las proposiciones de los profesores para mejorar la mini escuela virtual.
   Se incluirán las otras asignaturas.
   El código fuente es abierto, libre y se basa en el principio de dirección colectiva y descentralizada.
+  El primer curso paralelo a este debe ser el de arquitecturo o ingeniería de software cuyos datos aparecen en https://github.com/luisguillermobultetibles/Numeric-methods/blob/main/Computación.txt y cuyos contenidos deben ser horizontalizados con este para los aseguramientos de niveles de partida de las clases.
+  
 */
