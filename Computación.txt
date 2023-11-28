@@ -1,0 +1,325 @@
+____________
+
+Algoritmo + Datos = Software
+Software + Hardware = Computación
+
+Datos:
+
+Cuando aparecieron las primeras computadoras digitales en la década de 1940,[8] el desarrollo de software era algo tan nuevo que era casi imposible hacer predicciones de las fechas estimadas de finalización del proyecto y muchos de ellos sobrepasaban los presupuestos y tiempo estimados.. Los desarrolladores tenían que volver a escribir todos sus programas para correr en máquinas nuevas que salían cada uno o dos años, haciendo obsoletas las ya existentes.
+
+En los comienzos de la programación, los programas eran lineales y monolíticos. El flujo de ejecución era simple y predecible, ejecutándose línea tras línea.
+
+Aparecieron dos conceptos para estructurar el código: la modularidad y la reutilización de los componentes: se crean bibliotecas de componentes reutilizables. El flujo se complica, saltando de componente a componente, y aparece un nuevo problema: la dependencia (acoplamiento) entre los componentes.
+
+Extraer los requisitos de un producto software es la primera etapa para crearlo. Durante la fase de análisis, el cliente plantea las necesidades que se presenta e intenta explicar lo que debería hacer el software o producto final para satisfacer dicha necesidad mientras que el desarrollador actúa como interrogador, como la persona que resuelve problemas. Con este análisis, el ingeniero de sistemas puede elegir la función que debe realizar el software y establecer o indicar cuál es la interfaz más adecuada para el mismo.[16]
+
+La ingeniería de software aplica diferentes normas y métodos que permiten obtener mejores resultados, en cuanto al desarrollo y uso del software, mediante la aplicación correcta de estos procedimientos se puede llegar a cumplir de manera satisfactoria con los objetivos fundamentales de la ingeniería de software.
+
+Entre los objetivos de la ingeniería de software están:
+
+    Mejorar el diseño de aplicaciones o software de tal modo que se adapten de mejor manera a las necesidades de las organizaciones o finalidades para las cuales fueron creadas.
+    Promover mayor calidad al desarrollar aplicaciones complejas.
+    Brindar mayor exactitud en los costos de proyectos y tiempo de desarrollo de los mismos.
+    Aumentar la eficiencia de los sistemas al introducir procesos que permitan medir mediante normas específicas, la calidad del software desarrollado, buscando siempre la mejor calidad posible según las necesidades y resultados que se quieren generar.
+    Una mejor organización de equipos de trabajo, en el área de desarrollo y mantenimiento de software.
+    Detectar a través de pruebas, posibles mejoras para un mejor funcionamiento del software desarrollado.[12]
+
+El ciclo de vida de un software contiene los siguientes procedimientos:
+
+    Definición de objetivos: definir el resultado del proyecto y su papel en la estrategia global.[23]
+    Análisis de los requisitos y su viabilidad: recopilar, examinar y formular los requisitos del cliente y examinar cualquier restricción que se pueda aplicar.[23]
+    Diseño general: requisitos generales de la arquitectura de la aplicación.[23]
+    Diseño en detalle: definición precisa de cada subconjunto de la aplicación.[23]
+    Programación (programación e implementación): es la implementación de un lenguaje de programación para crear las funciones definidas durante la etapa de diseño.[23]
+    Prueba de unidad: prueba individual de cada subconjunto de la aplicación para garantizar que se implementaron de acuerdo con las especificaciones.[23]
+    Integración: para garantizar que los diferentes módulos se integren con la aplicación. Este es el propósito de la prueba de integración que está cuidadosamente documentada.[23]
+    Prueba beta (o validación), para garantizar que el software cumple con las especificaciones originales.[23]
+    Documentación: sirve para documentar información necesaria para los usuarios del software y para desarrollos futuros.[23]
+    Implementación
+    Mantenimiento: para todos los procedimientos correctivos (mantenimiento correctivo) y las actualizaciones secundarias del software (mantenimiento continuo).[23]
+
+
+
+____________
+
+
+La arquitectura de software es el arte de organizar las piezas para hacer algo en el mundo de software. 
+Describe cuáles algunas de las principales arqruitecturas en el desarrollo de software.
+Describe algunas arqruitecturas de descartadas por ineficientes o inconvenientes.
+Describe algunas técnicas generales, por ejemplo la Arquitectuar limpia, los patrones de diseño ayudan a dar el acabado, son soluciones establecidas a subproblemas.
+Se espera, organización estructural, escalabilidad, mantenibilidad, estabilidad y perduribilidad en el tiempo.
+Pero además portabilidad, reutilización de código, seguridad y operatividad considerando que la seguridad es un proceso no un producto y es inversamente proporcional a la operatividad.
+A través de la (compartimentación por) separación de resposabilidades en capas de abstracción.
+Y la minimización de acoplamiento entre ellas (modularización funcional).
+
+Beneficios:
+
+Independencia: de framewokrs (o de plataformas).
+Desacoplamiento: separación de la estructura del dominio (ej: bd, lógica del código|casos de uso, reglas de negocios|interfaces humanas y visuales).
+Facilita remplazo de librerías y además, el código es más declarativo para futuras implementaciones.
+ 
+Elementos de ingeniería de software (Si necesitas cuatro palos no necesitas ingeniería):
+
+    SOLID -> (Single responsibility, Open-closed, Liskov substitution, Interface segregation and Dependency inversion)
+            Es un acrónimo mnemónico introducido por Robert C. Martin[1][2] a comienzos de la década del 2000[3] que representa cinco principios básicos de la programación orientada a objetos y el diseño. 
+            Las iniciales significan:
+            Inicial 	Acrónimo 	Concepto
+            S 	        SRP 	    Principio de responsabilidad única (Single responsibility principle): la noción de que un objeto solo debería tener una única responsabilidad.
+            O 	        OCP 	    Principio de abierto/cerrado (Open/closed principle): la noción de que las “entidades de software … deben estar abiertas para su extensión, pero cerradas para su modificación”.
+            L 	        LSP 	    Principio de sustitución de Liskov (Liskov substitution principle): la noción de que los “objetos de un programa deberían ser reemplazables por instancias de sus subtipos sin alterar el correcto funcionamiento del programa”. Ver también diseño por contrato.
+            I 	        ISP 	    Principio de segregación de la interfaz (Interface segregation principle): la noción de que “muchas interfaces cliente específicas son mejores que una interfaz de propósito general”.[5]
+            D 	        DIP 	    Principio de inversión de la dependencia (Dependency inversion principle): la noción de que se debe “depender de abstracciones, no depender de implementaciones”.[5] La Inyección de Dependencias es uno de los métodos que siguen este principio.
+
+    DDD -> (Domain driven design)  
+           No es una tecnología ni una metodología, este provee una estructura de prácticas y terminologías para tomar decisiones de diseño que enfoquen y aceleren el manejo de dominios complejos en los proyectos de software.           
+           El término fue acuñado por Eric Evans en su libro "Domain-Driven Design - Tackling Complexity in the Heart of Software"
+           Poner el foco primario del proyecto en el núcleo y la lógica del dominio.
+           Basar los diseños complejos en un modelo.
+           Iniciar una creativa colaboración entre técnicos y expertos del dominio para interactuar lo más cercano posible a los conceptos fundamentales del problema.            
+
+    TDD -> Es una práctica de ingeniería de software que involucra otras dos prácticas: Escribir las pruebas primero (Test First Development) y Refactorización (Refactoring). 
+           No es solamante crear, crear y crear, pues suena a ir al baño sin haber comido nada y... crear. Hay que probar lo que se hace y si es posible aplicándolo.
+           Para escribir las pruebas generalmente se utilizan las pruebas unitarias (unit test en inglés). En primer lugar, se escribe una prueba y se verifica que las pruebas fallan. 
+           A continuación, se implementa el código que hace que la prueba pase satisfactoriamente y seguidamente se refactoriza el código escrito. 
+           El propósito del desarrollo guiado por pruebas es lograr un código limpio que funcione. 
+           La idea es que los requisitos sean traducidos a pruebas, de este modo, cuando las pruebas pasen se garantizará que el software cumple con los requisitos que se han establecido.
+           Ciclo de desarrollo conducido por pruebas en la TDD:  
+           
+                En primer lugar se debe definir una lista de requisitos y después se ejecuta el siguiente ciclo:
+
+                Elegir un requisito: Se elige de una lista el requisito que se cree que nos dará mayor conocimiento del problema y que a la vez sea fácilmente implementable.
+                Escribir una prueba: Se comienza escribiendo una prueba para el requisito. Para ello el programador debe entender claramente las especificaciones y los requisitos de la funcionalidad que está por implementar. Este paso fuerza al programador a tomar la perspectiva de un cliente considerando el código a través de sus interfaces.
+                Verificar que la prueba falla: Si la prueba no falla es porque el requisito ya estaba implementado o porque la prueba es errónea.
+                Escribir la implementación: Escribir el código más sencillo que haga que la prueba funcione. Se usa la expresión "Déjelo simple" ("Keep It Simple, Stupid!"), conocida como principio KISS.
+                Ejecutar las pruebas automatizadas: Verificar si todo el conjunto de pruebas funciona correctamente.
+                Eliminación de duplicación: El paso final es la refactorización, que se utilizará principalmente para eliminar código duplicado. Se hace un pequeño cambio cada vez y luego se corren las pruebas hasta que funcionen.
+                Actualización de la lista de requisitos: Se actualiza la lista de requisitos tachando el requisito implementado. 
+                Asimismo se agregan requisitos que se hayan visto como necesarios durante este ciclo y se agregan requisitos de diseño (P. ej que una funcionalidad esté desacoplada de otra).
+
+                Tener un único repositorio universal de pruebas facilita complementar TDD con otra práctica recomendada por los procesos ágiles de desarrollo, la "Integración Continua". 
+                Integrar continuamente nuestro trabajo con el del resto del equipo de desarrollo permite ejecutar toda batería de pruebas y así descubrir si nuestra última versión es compatible con el resto del sistema. 
+                Es recomendable y menos costoso corregir pequeños problemas cada pocas horas que enfrentarse a problemas enormes cerca de la fecha de entrega fijada.
+
+                Características:
+
+                Una característica de esta forma de programación es el evitar escribir código innecesario ("You Ain't Gonna Need It" (YAGNI)). 
+                Se intenta escribir el mínimo código posible, y si el código pasa una prueba aunque sepamos que es incorrecto nos da una idea de que tenemos que modificar nuestra lista de requisitos agregando uno nuevo.
+                La generación de pruebas para cada funcionalidad hace que el programador confíe en el código escrito. 
+                Esto permite hacer modificaciones profundas del código (posiblemente en una etapa de mantenimiento del programa) pues sabemos que si luego logramos hacer pasar todas las pruebas tendremos un código que funcione correctamente.
+                Otra característica del Test Driven Development es que requiere que el programador primero haga fallar los casos de prueba. 
+                La idea es asegurarse de que los casos de prueba realmente funcionen y puedan recoger un error.
+
+                Ventajas:
+
+                Los programadores que utilizan el desarrollo guiado por pruebas en un proyecto virgen encuentran que en raras ocasiones tienen la necesidad de utilizar el depurador o debugger.
+
+                A pesar de los elevados requisitos iniciales de aplicar esta metodología, el desarrollo guiado por pruebas (TDD) puede proporcionar un gran valor añadido en la creación de software, produciendo aplicaciones de más calidad y en menos tiempo. 
+                Ofrece más que una simple validación del cumplimiento de los requisitos, también puede guiar el diseño de un programa. 
+                Centrándose en primer lugar en los casos de prueba uno debe imaginarse cómo los clientes utilizarán la funcionalidad (en este caso, los casos de prueba). 
+                Por lo tanto, al programador solo le importa la interfaz y no la implementación. 
+                Esta ventaja es similar al diseño por convenio pero se parece a él por los casos de prueba más que por las aserciones matemáticas.
+                El poder del TDD radica en la capacidad de avanzar en pequeños pasos cuando se necesita. 
+                Permite que un programador se centre en la tarea actual y la primera meta es, a menudo, hacer que la prueba pase. 
+                Inicialmente no se consideran los casos excepcionales y el manejo de errores. Estos, se implementan después de que se haya alcanzado la funcionalidad principal. 
+                Otra ventaja es que, cuando es utilizada correctamente, se asegura de que todo el código escrito está cubierto por una prueba. 
+                Esto puede dar al programador un mayor nivel de confianza en el código.
+
+                Limitaciones:
+
+                El desarrollo guiado por pruebas requiere que las pruebas puedan automatizarse. Esto resulta complejo en los siguientes dominios:
+
+                    .Interfaces Gráfica de usuario (GUIs), aunque hay soluciones parciales propuestas.
+                    .Objetos distribuidos, aunque los objetos simulados (MockObjects) pueden ayudar.
+                    .Bases de datos. Hacer pruebas de código que trabaja con base de datos es complejo porque requiere poner en la base de datos unos datos conocidos antes de hacer las pruebas y verificar que el contenido de la base de datos es el esperado después de la prueba (Todo esto hace que la prueba sea costosa de codificar, aparte de tener disponible una base de datos que se pueda modificar libremente).
+
+        Por ejemplo:
+        CLI -> 
+            Infraestructura (de lenguaje común), es una especificación estandarizada que describe un entorno virtual para la ejecución de aplicaciones, cuya principal característica es la de permitir que aplicaciones escritas en distintos lenguajes de alto nivel puedan luego ejecutarse en múltiples plataformas tanto de hardware como de software sin necesidad de reescribir o recompilar su código fuente.
+            Características:
+                Permitir escribir componentes ínteroperables independientemente de la plataforma subyacente y del lenguaje de programación utilizado.
+                Exponer todas las entidades programáticas a través de un único sistema unificado de tipos (en la especificación, este sistema es conocido como CTS, o Common Type System).
+                Empaquetar todos los tipos en unidades completamente auto descriptivas y portables.
+                Cargar los tipos de forma tal que se encuentren aislados unos de otros en tiempo de ejecución, pero que puedan a su vez compartir recursos.
+                Resolver dependencias entre tipos en tiempo de ejecución usando una política flexible que pueda tener en cuenta la versión, atributos de localización y políticas administrativas.
+                Ejecutar aplicaciones bajo la supervisión de un entorno privilegiado que permita controlar y hacer cumplir políticas en tiempo de ejecución.
+                Diseñar toda la infraestructura y servicios basándose en metadatos extensibles, de manera tal que toda la arquitectura pueda acomodarse con poco impacto a nuevas incorporaciones y cambios.
+                Poder realizar tareas de bajo nivel, como carga de tipos en memoria, enlace con librerías y compilación a código nativo sólo cuando sea necesario (este enfoque se conoce típicamente como “on demand”, o “just in time”).
+                Proveer una serie de funcionalidades comunes mediante un grupo de librerías de programación que los desarrolladores puedan utilizar para construir sus aplicaciones.    
+            La especificación del CLI está formada por cuatro partes:
+                Sistema común de tipos, en inglés Common Type System (CTS).
+                Metadatos.
+                Especificaciones de lenguaje común, en inglés Common Language Specification (CLS).
+                Sistema de ejecución virtual, del inglés Virtual Execution System (VES).    
+    Aplicación ->        
+    Dominio ->  
+        Es un modelo conceptual de todos los temas relacionados con un problema específico, en él se describen las distintas entidades, sus atributos, papeles y relaciones, además de las restricciones que rigen el dominio del problema.
+    Actores -> 
+        Se le llama actor a toda entidad externa al sistema que guarda una relación con éste y que le demanda una funcionalidad. Esto incluye a los operadores humanos pero también incluye a todos los sistemas externos, además de entidades abstractas, como el tiempo.        
+    Tipos de relaciones -> 
+        Comunica (<<communicates>>): Relación (asociación) entre un actor y un caso de uso que denota la participación del actor en dicho caso de uso.
+        Usa (<<uses>>) (o <<include>> en la nueva versión de UML): Relación de dependencia entre dos casos de uso que denota la inclusión del comportamiento de un escenario en otro.
+        Extiende (<<extends>>): Relación de dependencia entre dos casos de uso que denota que un caso de uso es una especialización de otro. Por ejemplo, podría tenerse un caso de uso que extienda la forma de pedir azúcar, para que permita escoger el tipo de azúcar (normal, dietético o moreno) y además la cantidad en las unidades adecuadas (cucharadas o bolsas).
+    
+    Patrones de diseño -> Los patrones arquitectónicos, o patrones de arquitectura, también llamados arquetipos ofrecen soluciones a problemas de arquitectura de software en ingeniería de software. 
+        Algunos patrones de diseño:
+            Control de acceso. Hay muchas situaciones en las cuales el acceso a datos, características y funcionalidad son limitadas a la definición de los usuarios. Desde un punto de vista arquitectónico, acceder a determinadas partes del software debe tener un riguroso control.
+            Concurrencia. Muchas aplicaciones deben manejar múltiples tareas de forma que simule el paralelismo. Hay muchas formas de manejar esta concurrencia y cada una puede ser presentada por un patrón arquitectónico diferente.
+            Distribución. El problema de distribución dirige el problema de forma en que los sistemas o componentes se comunican con otros en un entorno distribuido. El patrón más común para afrontar el problema es the broker. Actuando como un middleman entre el componente cliente y el servidor. El cliente envía un mensaje al broker y éste se encarga de completar la conexión.
+            Persistencia. Los datos persistentes son almacenados en bases de datos o archivos y pueden ser leídos o modificados por otros procesos más adelante. En los entornos orientados a objetos esto va más allá y lo que puede ser accedido o modificable son las propiedades de los objetos.
+            Inversión de control: (Inversion of Control en inglés, IoC) es un método de programación en el que el flujo de ejecución de un programa se invierte respecto a los métodos de programación tradicionales, en los que la interacción se expresa de forma imperativa haciendo llamadas a procedimientos (procedure calls) o funciones. Tradicionalmente el programador especifica la secuencia de decisiones y procedimientos que pueden darse durante el ciclo de vida de un programa mediante llamadas a funciones. En su lugar, en la inversión de control se especifican respuestas deseadas a sucesos o solicitudes de datos concretas, dejando que algún tipo de entidad o arquitectura externa lleve a cabo las acciones de control que se requieran en el orden necesario y para el conjunto de sucesos que tengan que ocurrir. El flujo habitual se da cuando es el código del usuario quien invoca a un procedimiento de una biblioteca.
+                La inversión de control sucede cuando es la biblioteca la que invoca el código del usuario.
+                Típicamente sucede cuando la biblioteca es la que implementa las estructuras de alto nivel y es el código del usuario el que implementa las tareas de bajo nivel.
+                La utilización de interfaces y la aparición de los frameworks han popularizado este término. De hecho es el concepto central del Framework de Spring, ya que implementa un "Contenedor" que se encarga de gestionar las instancias (así como sus creaciones y destrucciones) de los objetos del usuario. Por tanto las aplicaciones que utilicen el framework de Spring (no Spring propiamente dicho) utilizarán Inversión de Control.
+            Inversión de dependencias: Es un patrón de diseño orientado a objetos, en el que se suministran objetos a una clase en lugar de ser la propia clase la que cree dichos objetos. El término fue acuñado por primera vez por Martin Fowler.
+            Capas de abstracción: Una capa de abstracción (o nivel de abstracción) es una forma de ocultar los detalles de implementación de ciertas funcionalidades. 
+                Puede usarse para definir sistemas asociados que implican una separación entre procesos tal como el cerebro humano y el lenguaje simbólico o cultura; el software computacional y el hardware que lo sustenta; el frenado en un auto mediano por un sistema de control antibloqueo.
+                
+                1._ Infraestructura:
+                    Esta capa se encarga de los detalles técnicos del programa (plumbing, o plomería), la conexión con bases de datos, con los servicios externos.
+                    se consideran la base de la estructura, si se construyese de arriba hacia arriba, por lo tanto este patrón de diseño incluye otro patrón conocido como: Regla de dependencia                    
+                    Se consideran los cimientoss y las tuberías para que todo funcione correctamente.
+                                   
+                    contiene a la capa:
+ 
+                    2._ Aplicación 
+                        Esta capa se ocupa de cómo el programa o aplicación utiliza las reglas de dominio para llevar a cabo tareas específicas.
+                        Los casos de uso pueden interactuar con la capa de dominio a través de la inversión de dependencias.
+                        Por ejemplo la acción de pagar después de llenar por la selección de productos y cantidades, un carrito en un mostrador (virtuales).
+
+                        En esta capa, 
+
+                        contiene a la capa:
+
+                        3._ Dominio
+                        Aquí es donde se definen las reglas fundamentales y las partes esenciales del programa, es como el esqueleto de la casa que le da forma a la estuctura.
+                        Entidades, métodos y funciones que pudiesen interactuar con la capa Infraestructura, a través de la inversión de dependencias. 
+                        Suelen clasificarse en (cosas muy diferentes): 
+
+                            -Caso de uso: 
+                                Un caso de uso es una descripción de los pasos o las actividades que deberán realizarse para llevar a cabo algún proceso. 
+                                Un caso de uso debe:
+
+                                    Describir una tarea del negocio que sirva a una meta de negocio.
+                                    Tener un nivel apropiado del detalle.
+                                    Ser bastante sencillo como que un desarrollador lo elabore en un único lanzamiento. 
+
+                                Situaciones que pueden darse:
+
+                                    Un actor se comunica con un caso de uso (si se trata de un actor primario la comunicación la iniciará el actor, en cambio si es secundario, el sistema será el que inicie la comunicación).
+                                    Un caso de uso extiende otro caso de uso.
+                                    Un caso de uso utiliza otro caso de uso.
+
+                                Campos o atributos a tenerse en cuenta para la Definición de un Caso de Uso:
+
+                                ID
+                                NOMBRE
+                                REFERENCIAS CRUZADAS
+                                CREADO POR
+                                ULTIMA ACTUALIZACIÓN POR
+                                FECHA DE CREACIÓN
+                                FECHA DE ULTIMA ACTUALIZACIÓN
+                                ACTORES
+                                DESCRIPCIÓN
+                                TRIGGER (QUÉ SE DISPARA CUANDO SE CUMPLE DETERMINADA CONDICIÓN)
+                                PRE-CONDICIÓN
+                                POST-CONDICIÓN
+                                FLUJO NORMAL
+                                FLUJOS ALTERNATIVOS
+                                INCLUDES (DEPENDENCIAS)
+                                FRECUENCIA DE USO
+                                REGLAS DE NEGOCIO (A VECES SUELEN CONSIDERARSE APARTE DE LOS CASOS DE USO)
+                                REQUISITOS ESPECIALES
+                                NOTAS Y ASUNTO
+
+                                La técnica de caso de uso tiene éxito en sistemas interactivos, ya que expresa la intención que tiene el actor (su usuario) al hacer uso del sistema.                                
+
+                            -Regla de negocio:
+
+
+            Regla de dependencia: Construir desde la capa exterior hacia la interior (de arriba hacia abajo). Otros sin abstractos, invertidos () o simplemente no lo hacen.
+            Normalización. (de códigos, uso de un mismo lenguaje algorítmico o de programación; normalización de los datos o base de datos relacionales o no, según lo estándares existentes).
+        Ejemplo de algunos que incluyen a otros (además de los anteriores, primer y segundo caso):    
+            Programación por capas
+            Tres niveles
+            Pipeline
+            Invocación implícita
+            Arquitectura en pizarra
+            Arquitectura dirigida por eventos, Presentación-abstracción-control
+            Peer-to-peer
+            Arquitectura orientada a servicios
+            Objetos desnudos
+            Modelo Vista Controlador    
+    OOP -> La programación orientada a objetos (POO, u OOP según sus siglas en inglés) es un paradigma de programación que viene a innovar la forma de obtener resultados. Los objetos manipulan los datos de entrada para la obtención de datos de salida específicos, donde cada objeto ofrece una funcionalidad especial.
+        Características fundamentales:
+        Abstracción: Denota las características esenciales de un objeto, donde se capturan sus comportamientos. Cada objeto en el sistema sirve como modelo de un "agente" abstracto que puede realizar trabajo, informar y cambiar su estado, y "comunicarse" con otros objetos en el sistema sin revelar "cómo" se implementan estas características. Los procesos, las funciones o los métodos pueden también ser abstraídos, y, cuando lo están, una variedad de técnicas son requeridas para ampliar una abstracción. El proceso de abstracción permite seleccionar las características relevantes dentro de un conjunto e identificar comportamientos comunes para definir nuevos tipos de entidades en el mundo real. La abstracción es clave en el proceso de análisis y diseño orientado a objetos, ya que mediante ella podemos llegar a armar un conjunto de clases que permitan modelar la realidad o el problema que se quiere atacar.
+        Encapsulación: Significa reunir todos los elementos que pueden considerarse pertenecientes a una misma entidad, al mismo nivel de abstracción. Esto permite aumentar la cohesión (diseño estructurado) de los componentes del sistema. Algunos autores confunden este concepto con el principio de ocultación, principalmente porque se suelen emplear conjuntamente.
+        Polimorfismo: Comportamientos diferentes, asociados a objetos distintos, pueden compartir el mismo nombre; al llamarlos por ese nombre se utilizará el comportamiento correspondiente al objeto que se esté usando. O, dicho de otro modo, las referencias y las colecciones de objetos pueden contener objetos de diferentes tipos, y la invocación de un comportamiento en una referencia producirá el comportamiento correcto para el tipo real del objeto referenciado. Cuando esto ocurre en "tiempo de ejecución", esta última característica se llama asignación tardía o asignación dinámica. Algunos lenguajes proporcionan medios más estáticos (en "tiempo de compilación") de polimorfismo, tales como las plantillas y la sobrecarga de operadores de C++.
+        Herencia: Las clases no se encuentran aisladas, sino que se relacionan entre sí, formando una jerarquía de clasificación. Los objetos heredan las propiedades y el comportamiento de todas las clases a las que pertenecen. La herencia organiza y facilita el polimorfismo y el encapsulamiento, permitiendo a los objetos ser definidos y creados como tipos especializados de objetos preexistentes. Estos pueden compartir (y extender) su comportamiento sin tener que volver a implementarlo. Esto suele hacerse habitualmente agrupando los objetos en clases y estas en árboles o enrejados que reflejan un comportamiento común. Cuando un objeto hereda de más de una clase se dice que hay herencia múltiple; siendo de alta complejidad técnica por lo cual suele recurrirse a la herencia virtual para evitar la duplicación de datos.
+        Modularidad: Se denomina "modularidad" a la propiedad que permite subdividir una aplicación en partes más pequeñas (llamadas módulos), cada una de las cuales debe ser tan independiente como sea posible de la aplicación en sí y de las restantes partes. Estos módulos se pueden compilar por separado, pero tienen conexiones con otros módulos. Al igual que la encapsulación, los lenguajes soportan la modularidad de diversas formas.
+        Principio de ocultación: Cada objeto está aislado del exterior, es un módulo natural, y cada tipo de objeto expone una "interfaz" a otros objetos que especifica cómo pueden interactuar con los objetos de la clase. El aislamiento protege a las propiedades de un objeto contra su modificación por quien no tenga derecho a acceder a ellas; solamente los propios métodos internos del objeto pueden acceder a su estado. Esto asegura que otros objetos no puedan cambiar el estado interno de un objeto de manera inesperada, eliminando efectos secundarios e interacciones inesperadas. Algunos lenguajes relajan esto, permitiendo un acceso directo a los datos internos del objeto de una manera controlada y limitando el grado de abstracción. La aplicación entera se reduce a un agregado o rompecabezas de objetos.
+        Recolección de basura: La recolección de basura (garbage collection) es la técnica por la cual el entorno de objetos se encarga de destruir automáticamente, y por tanto desvincular la memoria asociada, los objetos que hayan quedado sin ninguna referencia a ellos. Esto significa que el programador no debe preocuparse por la asignación o liberación de memoria, ya que el entorno la asignará al crear un nuevo objeto y la liberará cuando nadie lo esté usando. En la mayoría de los lenguajes híbridos que se extendieron para soportar el Paradigma de Programación Orientada a Objetos como C++ u Object Pascal, esta característica no existe y la memoria debe desasignarse expresamente.        
+    ORM -> El mapeo objeto-relacional (más conocido por su nombre en inglés, Object-Relational mapping, o sus siglas O/RM, ORM, y O/R mapping) es una técnica de programación para convertir datos entre el sistema de tipos utilizado en un lenguaje de programación orientado a objetos y la utilización de una base de datos relacional como motor de persistencia.
+    OQL -> Object Query Language (OQL) es un lenguaje de consulta estándar para bases de datos orientadas a objetos modelado a partir de SQL. 
+        OQL fue creado por el Object Data Management Group (ODMG). 
+        Debido a su complejidad ningún creador de software ha implementado completamente OQL. 
+        OQL ha influenciado el diseño de algunos lenguajes de consulta nuevos como JDOQL y EJBQL, pero estos no pueden ser considerados como versiones de OQL.
+
+    eXtreme Programming -> La programación extrema o eXtreme Programming (de ahora en adelante, XP) es una metodología de desarrollo de la ingeniería de software formulada por Kent Beck, autor del primer libro sobre la materia.
+        Los valores originales de la programación extrema son: simplicidad, comunicación, retroalimentación (feedback) y coraje. Un quinto valor, respeto.
+        Simplicidad: 
+            La simplicidad es la base de la programación extrema. Se simplifica el diseño para agilizar el desarrollo y facilitar el mantenimiento. Un diseño complejo del código junto a sucesivas modificaciones por parte de diferentes desarrolladores hacen que la complejidad aumente exponencialmente.
+            Para mantener la simplicidad es necesaria la refactorización del código, ésta es la manera de mantener el código simple a medida que crece.
+        Comunicación: 
+            La comunicación se realiza de diferentes formas. Para los programadores el código comunica mejor cuanto más simple sea. 
+            Si el código es complejo hay que esforzarse para hacerlo inteligible. El código autodocumentado es más fiable que los comentarios ya que éstos últimos pronto quedan desfasados con el código a medida que es modificado. 
+            Debe comentarse sólo aquello que no va a variar, por ejemplo el objetivo de una clase o la funcionalidad de un método.
+            Los programadores se comunican constantemente gracias a la programación por parejas. 
+            La comunicación con el cliente es fluida ya que el cliente forma parte del equipo de desarrollo. 
+            El cliente decide qué características tienen prioridad y siempre debe estar disponible para solucionar dudas.
+             Desarrollo iterativo e incremental: pequeñas mejoras, unas tras otras.
+        Pruebas unitarias continuas, frecuentemente repetidas y automatizadas, incluyendo pruebas de regresión. Se aconseja escribir el código de la prueba antes de la codificación. Véase, por ejemplo, las herramientas de prueba JUnit orientada a Java, DUnit orientada a Delphi, NUnit para la plataforma.NET o PHPUnit para PHP. Estas tres últimas inspiradas en JUnit, la cual, a su vez, se insipiró en SUnit, el primer framework orientado a realizar tests, realizado para el lenguaje de programación Smalltalk.
+        Programación en parejas: se recomienda que las tareas de desarrollo se lleven a cabo por dos personas en un mismo puesto. 
+            La mayor calidad del código escrito de esta manera -el código es revisado y discutido mientras se escribe- es más importante que la posible pérdida de productividad inmediata.
+        Frecuente integración del equipo de programación con el cliente o usuario: Se recomienda que un representante del cliente trabaje junto al equipo de desarrollo.
+        Corrección de todos los errores: antes de añadir nueva funcionalidad. Hacer entregas frecuentes.
+        Refactorización: del código, es decir, reescribir ciertas partes del código para aumentar su legibilidad y mantenibilidad pero sin modificar su comportamiento. Las pruebas han de garantizar que en la refactorización no se ha introducido ningún fallo.
+        Propiedad del código compartido: en vez de dividir la responsabilidad en el desarrollo de cada módulo en grupos de trabajo distintos, este método promueve el que todo el personal pueda corregir y extender cualquier parte del proyecto. Las frecuentes pruebas de regresión garantizan que los posibles errores serán detectados.
+        Simplicidad en el código: es la mejor manera de que las cosas funcionen. Cuando todo funcione se podrá añadir funcionalidad si es necesario. La programación extrema apuesta que es más sencillo hacer algo simple y tener un poco de trabajo extra para cambiarlo si se requiere, que realizar algo complicado y quizás nunca utilizarlo.     
+
+Resumen:
+
+El software moderno ha evolucionado desde sus inicios en la década de 1940, donde los proyectos eran difíciles de estimar en tiempo y costo, y las computadoras se actualizaban tan frecuentemente que los programas debían reescribirse constantemente. Los programas inicialmente lineales y monolíticos dieron paso a la modularidad y reutilización, con la organización de código en bibliotecas de componentes, esto complicó su flujo y generó dependencias entre ellos.
+
+La ingeniería de software surge para enfrentar estos desafíos aplicando métodos y normas para mejorar el diseño, calidad y eficiencia del desarrollo y mantenimiento de aplicaciones, estableciendo claridad en costos y tiempos, y una mejor organización de equipos de trabajo. El ciclo de vida del software abarca procesos como la definición de objetivos, análisis de requisitos, diseño, programación, pruebas y documentación hasta la implementación y mantenimiento.
+
+En cuanto a la arquitectura del software, se espera que sea estructuralmente organizada, escalable, mantenible, estable y duradera. Debe también ser portable, reutilizable y segura, con separación de responsabilidades y minimización del acoplamiento.
+
+Beneficios clave incluyen la independencia de frameworks y plataformas, facilitación del remplazo de librerías, y un enfoque más declarativo para futuras implementaciones. La ingeniería de software aprovecha principios generales como SOLID, DDD (Domain Driven Design) y TDD (Test Driven Development) para orientar el diseño y desarrollo.
+
+Elementos como la programación por capas, el uso de patrones arquitectónicos y principios de OOP (Object-Oriented Programming) ayudan a estructurar eficientemente el desarrollo de aplicaciones.
+
+La algoritmia o la computación, como ciencia que estudia los lenguajes y técnicas de programación, se puede beneficiar enormemente de los logros de la ingeniería en ciencia de la computación en varios aspectos tanto de hardware como de software. Aquí algunos ejemplos de cómo puede suceder esto:
+
+1. Optimización de recursos: La ingeniería en ciencia de la computación se centra en la creación de hardware y software que funcionan con mayor eficiencia. Algoritmos bien diseñados, cuando se ejecutan en plataformas optimizadas de hardware, pueden ofrecer rendimiento mejorado, menor uso de energía y utilización más eficiente de la memoria y los recursos del procesador.
+
+2. Paralelismo y concurrencia: Los avances en hardware multicore y multiprocesador abren nuevas posibilidades para algoritmos concurrentes y paralelos. La algoritmia se beneficia aprendiendo a descomponer problemas en tareas que se pueden ejecutar simultáneamente, aprovechando así todo el potencial del hardware moderno.
+
+3. Arquitecturas de cómputo especializadas: La existencia de hardware especializado como GPU (Unidades de Procesamiento Gráfico), TPU (Unidades de Procesamiento Tensorial) y FPGA (Arreglos de Puertas Programables en Campo) permite a los algoritmos aprovechar estas plataformas para agilizar tareas específicas como el procesamiento de gráficos, el aprendizaje automático y el procesamiento de señales.
+
+4. Mejores prácticas y herramientas de desarrollo: La ingeniería de software ha desarrollado una variedad de herramientas y prácticas (como control de versiones, pruebas automatizadas, integración continua) que permiten desarrollar, probar y mantener algoritmos con mayor facilidad, confiabilidad y eficiencia.
+
+5. Plataformas de alta abstracción: La disponibilidad de plataformas de programación de alto nivel y frameworks facilita la implementación de algoritmos complejos al encargarse de las cuestiones de bajo nivel, permitiendo al desarrollador enfocarse en la lógica algorítmica.
+
+6. Compatibilidad y estándares: La estandarización en el desarrollo de software y hardware asegura que los algoritmos sean más portables y compatibles entre diferentes sistemas y plataformas, lo que facilita la colaboración y el intercambio de conocimientos entre científicos y desarrolladores.
+
+7. Avances en inteligencia artificial y aprendizaje automático: Los algoritmos pueden incorporar técnicas de IA y aprendizaje automático para mejorar su diseño, eficiencia y capacidad de adaptación, resultando en soluciones más eficaces y autónomas.
+
+8. Big Data: Con el crecimiento exponencial de datos, la algoritmia se beneficia del desarrollo de nuevas técnicas y herramientas para el procesamiento y análisis de grandes volúmenes de información, lo cual es posible gracias a los avances en almacenamiento y procesamiento distribuido.
+
+9. Interfaces avanzadas y sensores: El desarrollo de hardware con nuevas capacidades sensoriales expande las aplicaciones de los algoritmos, permitiendo interacciones más intuitivas y complejas con el mundo real.
+
+10. Accesibilidad y colaboración: La ingeniería de software facilita la colaboración a través de plataformas de código abierto, repositorios y comunidades en línea, acelerando el intercambio de algoritmos y técnicas de programación.
+
+El desarrollo de software ha madurado a través de la adopción de prácticas estructuradas y principios de diseño que facilitan la producción de software robusto, adaptable y sostenible, con un enfoque en la calidad y la eficacia organizacional.
+
+La algoritmia se ve criticamente afectada por los avances en la ingeniería de la ciencia de la computación mediante el aumento de capacidades computacionales, mejores herramientas de desarrollo y oportunidades para aplicar algoritmos en una gama más amplia de contextos y problemas. Esto conduce a un progreso más rápido y una mayor innovación en la ciencia de la computación en general.
