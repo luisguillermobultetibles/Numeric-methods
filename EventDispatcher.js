@@ -50,4 +50,5 @@ class EventDispatcher {
       event.target = null;
     }
   }
+
 }

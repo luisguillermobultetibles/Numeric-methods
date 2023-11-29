@@ -2,13 +2,14 @@
 'use strict';
 import {EventDispathcer} from './EventDispatcher.js';
 
-export class CustomComponent {
-  constructor(owner = null, id = null, _class = null) {
+export class CustomComponent extends EventDispathcer {
+  constructor(owner = null, id = null, tagName = null) {
+    super();
     this.element = null;
     if (id) {
       this.element = document.getElementById(id);
-      if (!this.element && _class) {
-        this.element = document.createElement(_class);
+      if (!this.element && tagName) {
+        this.element = document.createElement(tagName);
         this.element.id = id;
         document.body.appendChild(this.container);
       }
@@ -26,16 +27,14 @@ export class CustomComponent {
     this.htmlElement = element;
   }
 
-  setEvent(eventName, handler = () => {
-    console.warn(` Empty event ${eventName} on ${this.constructor.name}.`);
-  }) {
-    this.handler = handler.bind(this);
-    this.element.addEventListener(eventName, this.handler);
+  setEvent(type, listener) {
+    this.addEventListener(type, listener);
+    this.element.addEventListener(type, listener);
   }
 
-  // Revisar si acepta un solo parámetro
-  removeEvent(eventName) {
-    this.element.removeEventListener(eventName, this.handler);
+  removeEvent(type, listener) {
+    this.removeEventListener(type, listener);
+    this.element.removeEventListener(type, listener);
   }
 
   hide() {
@@ -415,6 +414,181 @@ class HorizontalContainer extends CustomContainer {
   }
 }
 
+// Probar
+class Modal extends CustomContainer {
+  constructor(title, onAccept = null, onCancel = null) {
+    super(null, null, 'div');
+    this.title = title;
+    this.onAccept = onAccept;
+    this.onCancel = onCancel;
+
+    // Crear el título del modal
+    const modalTitle = document.createElement('h2');
+    modalTitle.textContent = this.title;
+    this.addComponent(modalTitle);
+
+    // Crear los campos del formulario
+    const form = document.createElement('form');
+    form.id = 'modal-form';
+    this.addComponent(form);
+
+    // Agregar el botón de aceptar al formulario
+    const acceptButton = new Button(null, 'Aceptar', async () => {
+      if (this.onAccept) {
+        this.onAccept();
+      }
+      this.close();
+    });
+    form.appendChild(acceptButton.getElement());
+
+    // Agregar el botón de cancelar al formulario
+    const cancelButton = new Button(null, 'Cancelar', async () => {
+      if (this.onCancel) {
+        this.onCancel();
+      }
+      this.close();
+    });
+    form.appendChild(cancelButton.getElement());
+
+    // Agregar el evento para cerrar el modal
+    const closeButton = new Button(null, 'Cerrar', () => {
+      this.close();
+    });
+    closeButton.element.style.position = 'absolute';
+    closeButton.element.style.top = '5px';
+    closeButton.element.style.right = '5px';
+    this.addComponent(closeButton);
+
+    // Establecer los estilos del modal
+    this.element.style.display = 'none';
+    this.element.style.backgroundColor = '#f1f1f1';
+    this.element.style.borderRadius = '5px';
+    this.element.style.padding = '20px';
+    this.element.style.position = 'fixed';
+    this.element.style.top = '50%';
+    this.element.style.left = '50%';
+    this.element.style.transform = 'translate(-50%, -50%)';
+    this.element.style.zIndex = '9999';
+
+    // Establecer los estilos del fondo del modal
+    const backdrop = document.createElement('div');
+    backdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    backdrop.style.width = '100%';
+    backdrop.style.height = '100%';
+    backdrop.style.position = 'fixed';
+    backdrop.style.top = '0';
+    backdrop.style.left = '0';
+    backdrop.style.zIndex = '9998';
+    backdrop.addEventListener('click', () => {
+      this.close();
+    });
+    this.addComponent(backdrop);
+  }
+
+  open() {
+    this.element.style.display = 'block';
+  }
+
+  close() {
+    this.element.style.display = 'none';
+  }
+}
+
+class Modal2 extends Component {
+  constructor(title, onAccept = null, onCancel = null) {
+    super();
+    this.title = title;
+    this.onAccept = onAccept;
+    this.onCancel = onCancel;
+
+    this.modalTitle = new Component('h2', {
+      textContent: this.title,
+    });
+
+    this.acceptButton = new Button('Aceptar', {
+      onClick: async () => {
+        if (this.onAccept) {
+          this.onAccept();
+        }
+        this.close();
+      },
+    });
+
+    this.cancelButton = new Button('Cancelar', {
+      onClick: async () => {
+        if (this.onCancel) {
+          this.onCancel();
+        }
+        this.close();
+      },
+    });
+
+    this.closeButton = new Button('Cerrar', {
+      onClick: () => {
+        this.close();
+      },
+    });
+
+    this.form = new Component('form', {
+      children: [this.acceptButton, this.cancelButton],
+    });
+
+    this.element = new Component('div', {
+      children: [this.modalTitle, this.form, this.closeButton],
+      style: {
+        display: 'none',
+        backgroundColor: '#f1f1f1',
+        borderRadius: '5px',
+        padding: '20px',
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: '9999',
+      },
+    });
+
+    this.backdrop = new Component('div', {
+      style: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        width: '100%',
+        height: '100%',
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        zIndex: '9998',
+      },
+      onClick: () => {
+        this.close();
+      },
+    });
+  }
+
+  open() {
+    this.element.setStyle('display', 'block');
+    document.body.appendChild(this.backdrop.getElement());
+    document.body.appendChild(this.element.getElement());
+  }
+
+  close() {
+    this.element.setStyle('display', 'none');
+    document.body.removeChild(this.backdrop.getElement());
+    document.body.removeChild(this.element.getElement());
+  }
+}
+
+class Button extends Component {
+  constructor(label, {onClick}) {
+    super('button', {
+      textContent: label,
+      onClick,
+      style: {
+        margin: '5px',
+      },
+    });
+  }
+}
+
 
 class PresentableText extends CustomComponent {
   constructor(owner, text, className = 'p') {
@@ -465,5 +639,92 @@ class Heading extends PresentableText {
   }
 }
 
+// Puramente teórico desde ChatGPT y sin probar
 
+export class Menu extends CustomComponent {
+  constructor(owner, id, items, onSelect) {
+    super(owner, id, 'ul');
+    this.items = items;
+    this.onSelect = onSelect;
+    this.renderItems();
+  }
 
+  renderItems() {
+    this.items.forEach((item) => {
+      const li = document.createElement('li');
+      li.innerText = item;
+      li.addEventListener('click', () => {
+        this.onSelect(item);
+      });
+      this.element.appendChild(li);
+    });
+  }
+
+  get items() {
+    return this._items;
+  }
+
+  set items(items) {
+    this._items = items;
+    this.renderItems();
+  }
+
+  get onSelect() {
+    return this._onSelect;
+  }
+
+  set onSelect(onSelect) {
+    this._onSelect = onSelect;
+  }
+}
+
+export class ContextMenu extends Menu {
+  constructor(owner, id, items, onSelect) {
+    super(owner, id, items, onSelect);
+  }
+
+  renderItems() {
+    this.items.forEach((item) => {
+      const li = document.createElement('li');
+      if (item instanceof Menu) {
+        const subMenu = document.createElement('ul');
+        subMenu.style.display = 'none';
+        subMenu.appendChild(item.getElement());
+        li.innerText = 'Expand'; // Add a label for the expandable item
+        li.appendChild(subMenu);
+        li.addEventListener('click', () => {
+          subMenu.style.display = subMenu.style.display === 'none' ? 'block' : 'none';
+        });
+      } else {
+        li.innerText = item;
+        li.addEventListener('click', () => {
+          this.onSelect(item);
+        });
+      }
+      this.element.appendChild(li);
+    });
+  }
+}
+
+// Un menú estático de parte superior de pantalla:
+export class StaticMenu extends Menu {
+  constructor(owner, id, items, onSelect) {
+    super(owner, id, items, onSelect);
+  }
+
+  render() {
+    const nav = document.createElement('nav');
+    nav.classList.add('menu');
+    nav.appendChild(this.getElement());
+    document.body.insertBefore(nav, document.body.firstChild);
+  }
+
+  unitaryTest() {
+    // Esta es una forma de probarlo en la aplicación principal.
+    const menu = new StaticMenu(null, 'menu', ['Inicio', 'Acerca de nosotros', 'Productos', 'Servicios', 'Contacto'], (item) => {
+      console.log(`Se seleccionó ${item}`);
+    });
+
+    menu.render();
+  }
+}
