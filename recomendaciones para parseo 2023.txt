@@ -1,0 +1,65 @@
+## Problemas identificados y correcciones necesarias:
+
+1. Error en la condición al introducir un símbolo unario: Actualmente, cuando manejas el caso unario, tienes un error tipográfico. Estás asignando 'unary+' en ambos casos ('+' y '-'), por lo que los operadores unarios negativos nunca se capturan.
+
+2. Verificación incorrecta de variables: Según la condición actual en esVariable, parece que siempre va a devolver false, porque estás verificando si formacion[0] se encuentra entre 'a' y 'z' y luego si no está entre 'A' y 'Z', lo que siempre será false para cualquier carácter alfabético. Deberías usar || en lugar de && en algunas condiciones.
+
+3. Problemas con el ciclo de variables y funciones: El ciclo que verifica las variables y las funciones puede no funcionar como se espera porque estas condiciones se comprueban después de añadir caracteres al currentToken. Esto significaría que, a menos que sean la palabra completa, estas condiciones nunca se cumplen.
+
+A continuación, te muestro cómo podrías corregir y mejorar el método tokenize:
+
+tokenize(expression = this.expression) {
+  // … (El resto de tu código)
+
+  // Corregir la implementación de esVariable
+  const esVariable = (token) => {
+    let formacion = String(token).trim();
+    if (formacion.length === 0) return false;
+    if (esPalabraReservada(token)) return false;
+    if (this.operators.some(op => op.name === formacion)) return false;
+    if (!((formacion[0] >= ‘a’ && formacion[1] <= ‘z’) || …)) return false;
+    // … (Corregir el resto de la implementación)
+  }
+
+  // … (El resto de tu código)
+
+  // Mejorar la lógica para manejar signos unarios positivo y negativo (+ -)
+  if ((char === ‘+’ || char === ‘-’) && (tokens.length === 0 ||
+    tokens[tokens.length - 1] === ‘(’ || this.operators.some(op => op.name === tokens[tokens.length - 1]))) {
+    currentToken = (char === ‘+’) ? ‘unary+’ : ‘unary-’; // Corregir a ‘unary-’
+    continue;
+  }
+
+  // … (El resto de tu código)
+
+  // Comprobar si el token actual es palabra reservada, variable o función ANTES de añadir un nuevo carácter
+  if (currentToken !== ‘’) {
+    if (esPalabraReservada(currentToken + char)) {
+      tokens.push(‘RESERVED_’ + currentToken.toUpperCase() + char);
+      currentToken = ‘’;
+    } else if (esVariable(currentToken + char)) {
+      tokens.push(‘VAR_’ + currentToken + char);
+      currentToken = ‘’;
+    } else if (esFuncion(currentToken + char)) {
+      tokens.push(‘FUNC_’ + currentToken + char);
+      currentToken = ‘’;
+    } else {
+      currentToken += char;
+    }
+  } else {
+    currentToken += char;
+  }
+
+  // … (El resto de tu código)
+
+  return tokens;
+}
+
+// … (El resto de tus métodos)
+
+
+### Notas finales:
+
+- Asegúrate de que el método esFuncion esté correctamente implementado para que pueda detectar si un token es una función.
+- Debes tener cuidado de implementar apropiadamente el proceso de crear un AST y resolverlo para que los nodos unarios sean evaluados correctamente.
+- Finalmente, en el bucle que crea el AST, debes manejar correctamente los operadores unarios cuando los sacas de la pila y los añades como nodos. Esto puede requerir una condición especial para asegurarse de que operadores como `'unary

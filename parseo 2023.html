@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AST Tree.</title>
+</head>
+
+<body>
+<p>Página de algoritmos de parseo, evaluación y árboles abstractos.</p>
+<p>Lic. Luis Guillermo Bultet Ibles. 2023. Cuba.</p>
+<br>
+<script>
+
+  // Hay que incluir variables, y luego...
+  // Hay que incluir en el tratamiento de funciones en las expresiones del siguiente árbol, mediante la siguiente estructura:
+
+  let functionSet = [
+    {name: 'acos', func: x => Math.acos(x)},
+    {name: 'asin', func: x => Math.asin(x)},
+    {name: 'atan', func: x => Math.atan(x)},
+    {name: 'cosh', func: x => Math.cosh(x)},
+    {name: 'sinh', func: x => Math.sinh(x)},
+    {name: 'atanh', func: x => Math.atanh(x)},
+    {name: 'cos', func: x => Math.cos(x)},
+    {name: 'sin', func: x => Math.sin(x)},
+    {name: 'sins', func: x => Math.sinh(x)},
+    {name: 'tan', func: x => Math.tan(x)},
+    {name: 'tanh', func: x => Math.tanh(x)},
+    {name: 'ln', func: x => Math.log(x)},
+    {name: 'log', func: (x, y) => Math.log(x) / Math.log(y)},
+  ];
+
+  // Luego, incluir las rutinas o la filosofía de
+
+
+  const descompilarScript = (str) => {
+
+    // Sintactical analizer (nexto to where the operator in position ends).
+
+
+    // TOKEN COMMENT
+    // Verfica que la primera sentencia de la cadena es un comentario correcto., TESTED 13:54|21/04/2022
+    function esComentario(line) {
+      return left(line.trim(), 2) === '//' || ((left(line.trim(), 2) === '/*') && sintaxCheck(line, line.indexOf('//') + 2));
+    }
+
+    // Extraer comentario en la variable por referencia comentario y devolver el resto... ok
+    function extraerComentario(line, comentario) {
+      comentario = '';
+      var myLine = '';
+      myLine = line.trim();
+      var posicionComentario = sintaxCheck(myLine, 0);
+      comentario = myLine.substring(0, posicionComentario);
+      line = myLine.substr(posicionComentario);
+      return {type: 'comment', content: comentario.trim(), remainder: line};
+    }
+
+    // TOKEN STRING
+
+    // Verfica que la primera instancia de cadena esté bien formada y devuelve su posición final., TESTED 13:54|21/04/2022
+    function esCadena(line) {
+      var posicion;
+      for (let index = 0; index < 3; index++) {
+        const stringSeparator = ['\'', '`', '"'][index];
+        if (left(line.trim(), 1) === stringSeparator) {
+          posicion = line.indexOf(stringSeparator, line.indexOf(stringSeparator) + 1);
+          if (posicion !== -1) {
+            return posicion; // eureka
+          }
+        }
+      }
+      return false;
+    }
+
+    // Extraer una cadena en la variable por referencia comentario y devolver el resto... ok
+    function extraerCadena(line) {
+      var isIt = esCadena(line);
+      return {
+        type: 'string literal',
+        content: line.substr(0, isIt + 1),
+        remainder: line.substr(isIt + 1),
+      };
+    }
+
+    // TOKEN PARENTHESIS
+
+    // Verfica que el primer elemento sea un paréntesis y que esté correctamente  cerrado
+    function esParenthesis(line) {
+      return left(line.trim(), 1) === '(' && sintaxCheck(line, line.indexOf('(') !== -1);
+    }
+
+    // Extraer comentario en la variable por referencia comentario y devolver el resto... ok
+    function extraerParenthesis(line) {
+      line = String(line);
+      var abreEn = line.indexOf('(');
+      var cierraEn = sintaxCheck(line, abreEn);
+      var cont = descompilarScript(line.substring(abreEn + 1, cierraEn - 1));
+      var resto = line.substring(cierraEn);
+      return {type: 'parenthesis', content: cont, remainder: resto};
+    }
+
+    // TOKEN IDENTIFIER
+
+    // Determinar si es un identificador
+    function esIdentificador(line) {
+      if ((!line) || (line.length === 0) || isNumericAt(line, 0)) {
+        return false;
+      }
+      var posicion = 0;
+      while ((posicion < line.length - 1) && isAlphanumericAt(line, posicion)) {
+        posicion++;
+      }
+      return posicion;
+    }
+
+    function extraerIdentificador(line) {
+      if (!line || line.length === 0 || isNumericAt(line, 0)) {
+        return false;
+      }
+      var posicion = esIdentificador(line);
+      var name = line.substr(0, posicion);
+      line = line.substring(posicion);
+      return {type: 'identifier', content: name, remainder: line.trim()};
+    }
+
+    // TOKEN NUMBER
+
+    // Determinar si es un identificador
+    function esNumero(line) {
+      if ((!line) || (line.length === 0) || !isNumericAt(line, 0)) {
+        return false;
+      }
+      var posicion = 0;
+      while (posicion < line.length - 1 && isNumericAt(line, posicion)) {
+        posicion++;
+      }
+      return posicion;
+    }
+
+    function extraerNumero(line) {
+      var posicion = esNumero(line);
+      var value = line.substr(0, posicion);
+      line = line.substring(posicion);
+      return {type: 'number', content: value, remainder: line.trim()};
+    }
+
+    // TOKEN FUNCTION (usar este mismo modelo para el while cuando código...)
+
+    function esFuncion(line) {
+      // Determinar si es una función
+      line = line.trim();
+      if (comienzaCon(line, 'function')) {
+        var firstParBeg = line.indexOf('(');
+        if (firstParBeg === -1) return false;
+        var firstParEnd = sintaxCheck(line, line.indexOf('('));
+        if (firstParEnd === -1) return false;
+        var corpusBeg = line.indexOf('{');
+        if (corpusBeg === -1 || corpusBeg < firstParEnd) return false;
+        var corpusEnd = sintaxCheck(line, line.indexOf('{'));
+        return true;
+      }
+      return false;
+    }
+
+    function extraerFuncion(line) {
+
+      var firstParBeg = line.indexOf('(');
+      var firstParEnd = sintaxCheck(line, line.indexOf('('));
+      var corpusBeg = line.indexOf('{');
+      if (corpusBeg < firstParEnd) return false;
+      var corpusEnd = sintaxCheck(line, corpusBeg);
+
+      var resultado = {};
+      resultado.type = 'function';
+      resultado.name = line.substring(String('function').length, line.firstParBeg - 1).trim();
+      resultado.parameters = line.substring(firstParBeg + 1, firstParEnd).split(',').filter((x) => x.trim() !== '');
+      resultado.content = line.substring(corpusBeg + 1, corpusEnd);
+      resultado.remainder = line.substring(corpusEnd + 1);
+
+      return resultado;
+    }
+
+    // TOKEN CLASS DECLARATION
+
+    // export class FormulaEntity extends GenericEntity implements fulano {
+    // ok tested
+    function obtenerProximoIdentificador(cadena) {
+      if (!cadena) {
+        return '';
+      }
+      var tmp = String(cadena).trim();
+      if ((tmp.length === 0) || isNumericAt(tmp, 0)) {
+        return '';
+      }
+      var posicion = 1;
+      var result = '';
+      while ((posicion < tmp.length) && isAlphanumericAt(tmp, posicion)) {
+        posicion++;
+      }
+      if (esIdentificador(tmp)) {
+        result = tmp.substring(0, posicion).trim();
+      }
+      return result;
+
+    }
+
+    // recortar por la izquierda a la cadena, con tantos caracteres como aparezcan el caracteres... ok tested
+    function recortarPorlaIzquierda(cadena, caracteres) {
+      if (!cadena || cadena.length === 0 || caracteres > cadena.length) {
+        return '';
+      }
+      return String(cadena).substring(caracteres);
+    }
+
+    function esDeclaracionDeClase(line) {
+      var next, tmp = line.trim();
+      var lista = [];
+      var result = {name: next, exported: false, extends: null, implements: []};
+
+      // Parseo rápido de identificadores por espacio antes del primer símbolo
+      next = obtenerProximoIdentificador(tmp);
+      tmp = recortarPorlaIzquierda(tmp, next.length).trim();
+      while (next !== '' && tmp.trim().length !== 0) {
+        lista.push(next);
+        next = obtenerProximoIdentificador(tmp);
+        tmp = recortarPorlaIzquierda(tmp, next.length).trim();
+      }
+      var declaraClase = false;
+      var identificadorDesconocido = false;
+      for (let index = 0; index < lista.length - 1; index++) {
+        const element = lista[index];
+        switch (element) {
+          case 'export':
+          case 'extends':
+          case 'implements': {
+            break;
+          }
+          case 'class': {
+            declaraClase = true;
+            break;
+          }
+        }
+      }
+      if (!esBloque(tmp)) return false;
+      return declaraClase && esBloque(tmp) !== -1 ? true : false;
+    }
+
+    function extraerDeclaracionDeClase(line) {
+      var next, tmp = line.trim();
+      var lista = [];
+      var result = {name: next, type: 'class', exported: false, extends: null, implements: []};
+
+      // Parseo rápido de identificadores por espacio antes del primer símbolo
+      next = obtenerProximoIdentificador(tmp);
+      tmp = recortarPorlaIzquierda(tmp, next.length).trim();
+      while (next !== '' && tmp.trim().length !== 0) {
+        lista.push(next);
+        next = obtenerProximoIdentificador(tmp);
+        tmp = recortarPorlaIzquierda(tmp, next.length).trim();
+      }
+      for (let index = 0; index < lista.length - 1; index++) {
+        const element = lista[index];
+        switch (element) {
+          case 'export': {
+            result.exported = true;
+            break;
+          }
+          case 'class': {
+            result.name = lista[index + 1];
+            break;
+          }
+          case 'extends': {
+            result.extends = lista[index + 1];
+            break;
+          }
+          case 'implements': {
+            result.implements.push(lista[index + 1]);
+            break;
+          }
+        }
+      }
+      result.content = descompilarScript(tmp);
+      if (result.content.length > 0 && result.content[0].type === 'block') {
+        if (!(result.content[0].body instanceof Array)) {
+          result.body = [];
+        } else {
+          result.body = result.content[0].body;
+        }
+
+
+        delete result.content;
+      }
+      result.remainder = line.substring(1 + sintaxCheck(line, line.indexOf('{')));
+
+      // se agregan los atributos al objeto clase
+      var attributes = [];
+      var downC = 0;
+      let tipoRelacion = '';
+      let nulabilidad = false;
+      let nullable = false;
+      while (downC < result.body.length - 3) {
+        if (result.body[downC].type === 'decorator' && result.body[downC].content === '@Column') {
+          let bloques = result.body[downC + 1].content;
+          for (let i = 0; i < bloques.length; i++) {
+            if (bloques[i].body && bloques[i].body.some(item => item.content === 'nullable')) {
+              let pos = bloques[i].body.findIndex(item => item.content === 'nullable');
+              nulabilidad = (pos !== -1);
+              if (nulabilidad) {
+                nullable = bloques[i].body[pos + 2].content;
+              }
+            }
+          }
+        }
+
+        if (result.body[downC].type === 'decorator' && (result.body[downC].content === '@OneToOne' || result.body[downC].content === '@ManyToOne' || result.body[downC].content === '@ManyToMany' || result.body[downC].content === '@OneToMany')) {
+          tipoRelacion = result.body[downC].content;
+          let bloques = result.body[downC + 1].content;
+          for (let i = 0; i < bloques.length; i++) {
+            if (bloques[i].type === 'block' && bloques[i].body.some(item => item.content === 'nullable')) {
+              let pos = bloques[i].body.findIndex(item => item.content === 'nullable');
+              nulabilidad = (pos !== -1);
+              if (nulabilidad) {
+                nullable = bloques[i].body[pos + 2].content;
+              }
+            }
+          }
+        }
+        if (result.body[downC].type === 'identifier' && result.body[downC + 1].type === 'symbol' && result.body[downC + 2].type === 'identifier') {
+          let objeto = {
+            type: 'attribute',
+            name: result.body[downC].content,
+            kind: result.body[downC + 2].content,
+          };
+          if (tipoRelacion !== '') {
+            objeto.relation = tipoRelacion;
+            tipoRelacion = '';
+          }
+          if (nulabilidad) {
+            objeto.nullable = nullable;
+          }
+          nulabilidad = false;
+          attributes.push(objeto);
+          downC = downC + 3;
+        } else {
+          downC++;
+        }
+      }
+      result.attributes = attributes;
+
+      // Recorrer el body buscando un token de type "identifier", seguidos de "parenthesis"
+      // Cuando lo encuentre, eso es un método... hasta el token de tipo "block"
+
+      return result;
+    }
+
+    // TOKEN CLASS CONSTRUCTOR (que puede estar y a su vez no es un CLASS DECARATION)
+
+    function esConstructorDeClase(line) {
+      // Determinar si es una función
+      line = line.trim();
+      if (comienzaCon(line, 'constructor')) {
+        var firstParBeg = line.indexOf('(');
+        if (firstParBeg === false) return false;
+        var firstParEnd = sintaxCheck(line, line.indexOf('('));
+        if (firstParEnd === false) return false;
+        var corpusBeg = line.indexOf('{');
+        if (corpusBeg === false || corpusBeg < firstParEnd) return false;
+        var corpusEnd = sintaxCheck(line, line.indexOf('{'));
+        if (corpusEnd === false) return false;
+        return true;
+      }
+      return false;
+    }
+
+    function extraerConstructorDeClase(line) {
+
+      var firstParBeg = line.indexOf('(');
+      var firstParEnd = sintaxCheck(line, line.indexOf('('));
+      var corpusBeg = line.indexOf('{');
+      if (corpusBeg < firstParEnd) return false;
+      var corpusEnd = sintaxCheck(line, corpusBeg);
+
+      var resultado = {};
+      resultado.type = 'constructor';
+      // pueden aparecer parámetros en blanco...
+      resultado.parameters = line.substring(firstParBeg + 1, firstParEnd - 1).split(',').filter((x) => x.trim() !== '');
+      resultado.content = descompilarScript(line.substring(corpusBeg + 1, corpusEnd - 1));
+      resultado.remainder = line.substring(corpusEnd + 1);
+
+      for (var index = 0; index < resultado.parameters.length; index++) {
+        const element = resultado.parameters[index];
+        if (element.indexOf(':') !== -1) {
+          // if the perameter is in typescript, pascal, format? Refactorize
+          resultado.parameters[index] = {
+            'name': element.substring(0, element.indexOf(':')).trim(),
+            'type': element.substring(element.indexOf(':') + 1).trim(),
+          };
+        } else {
+          resultado.parameters[index] = {'name': element.trim(), 'type': null}; // as it was in javascript, now and forever.
+        }
+      }
+
+      return resultado;
+    }
+
+    // TOKEN RESERVED WORD
+
+    function esPalabraReservada(line) {
+      // Determinar si es una palabra reservada
+      const palabrasReservadas = ['abstract', 'boolean', 'break', 'byte', 'case', 'catch',
+        'class', 'const', 'do', 'for', 'function', 'if', 'let',
+        'return', 'var', 'while', 'char', 'continue', 'default',
+        'do', 'double', 'else', 'extends', 'false', 'final', 'finally',
+        'float', 'for', 'implements', 'import', 'int',
+        'interface', 'long', 'native', 'new', 'null', 'package', 'private',
+        'protected', 'public', 'short', 'static', 'super', 'switch', 'syncronized', 'this',
+        'throw', 'throws', 'transient', 'true', 'try', 'void', 'volatile', 'rest', 'byvalue',
+        'cast', 'const', 'future', 'generic', 'goto', 'inner', 'operator', 'outer', 'experimental'];
+      var savedLine = line.trim();
+      for (var i = 0; i < palabrasReservadas.length; i++) {
+        if (left(savedLine, String(palabrasReservadas[i]).length) === palabrasReservadas[i]) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function extraerPalabraReservada(line) {
+      var resultado;
+      resultado = extraerIdentificador(line);
+      resultado.type = 'reserved word';
+      return resultado;
+    }
+
+    // TOKEN IMPORT
+
+    // Extraer la importación en la variable por referencia comentario y devolver el resto... ok
+    function esImportacion(line) {
+      return comienzaCon(line.trim(), 'import'); // fix
+    }
+
+    // Extraer la importación en la variable por referencia comentario y devolver el resto... ok
+    // recueda que puede darse el caso de: import * from '.'; import identificador1 from '.';
+    function extraerImportaciones(line) {
+      var importaciones = [];
+      var myLine = '';
+      myLine = line.trim();
+      if (esImportacion(line)) {
+        myLine = line.substring(0, line.indexOf(';'));
+        if (!myLine) {
+          throw new Error('La importación no está bien formada o falta el símbolo de ;.');
+        }
+        var imStr = transformar(myLine, 'import %a from %b', '%a');
+
+        if (esBloque(imStr)) {
+          imStr = imStr.substring(1, imStr.length - 1).trim();
+        }
+
+        var pathStr = transformar(myLine, 'import %a from %b', '%b');
+      }
+      line = line.substring(line.indexOf(';') + 1);
+      var resultado = {};
+      resultado.type = 'import';
+      resultado.modules = imStr;
+      resultado.path = pathStr;
+      resultado.remainder = line.trim();
+      return resultado;
+    }
+
+    // DECORATOR IMPORT here
+
+    // Determinar si es un identificador
+    function esDecorador(line) {
+      if ((!line) || (line.length === 0) || isNumericAt(line.trim(), 0)) {
+        return false;
+      }
+      line = line.trim();
+      var posicion = 0;
+      return isEqualAt(line, '@', 0) && isAlphanumericAt(line, 1);
+    }
+
+    // Extraer la importación en la variable por referencia comentario y devolver el resto... ok
+    function extraerDecorador(line) {
+      var resultado;
+      if (esIdentificador(line)) {
+        resultado = extraerIdentificador(line);
+      }
+      if (resultado) {
+        resultado.type = 'decorator';
+      }
+      return resultado;
+    }
+
+    // Es un bloque, verificar si es un bloque...
+
+    // Determinar si es un identificador
+    function esBloque(line) {
+      if ((!line) || (line.length === 0)) {
+        return false;
+      }
+      line = line.trim();
+      return (left(line, 1) === '{' && sintaxCheck(line, 0) !== -1);
+    }
+
+    // Extraer la importación en la variable por referencia comentario y devolver el resto... ok
+    function extraerBloque(line) {
+      var resultado;
+      line = line.trim();
+      if (esBloque(line)) {
+        var posicionFinBloque = sintaxCheck(line, 0);
+        var contenido = line.substring(1, posicionFinBloque - 1);
+        line = line.substring(posicionFinBloque + 1);
+        resultado = {
+          type: 'block',
+          body: descompilarScript(contenido),
+          remainder: line.substring(sintaxCheck(line, line.indexOf('{')) + 1),
+        };
+      }
+      return resultado;
+    }
+
+    // TOKEN OPERATOR
+
+    function esOperador(line) {
+      // Determinar si es un operador
+      const operadores = ['instanceof', 'typeof', '>>>=', '>>>', '>>=', '<>=', '===', '!==', '<=', '>=', '&&', '||', '++', '--', '+=', '-=', '*=', '/=', '%=', '^=', '&=', '!=', '|=', '&', '|', '^', '', '<', '>', '-', '!', '~', '+', '-', '*', '/', '%', ';', ',', '=>'];
+      var savedLine = line.trim();
+      for (var i = 0; i < operadores.length; i++) {
+        if (left(savedLine, operadores[i].length) === operadores[i]) {
+          return operadores[i];
+        }
+      }
+      return false;
+    }
+
+    function extraerOperador(line) {
+      var sysOp = esOperador(line);
+      var resultado = {};
+      resultado.type = 'operator';
+      resultado.content = sysOp;
+      line = line.substring(sysOp.length);
+      resultado.remainder = line;
+      return resultado;
+    }
+
+    // TOKEN SYMBOL
+
+    function esSimbolo(line) {
+      // Determinar si es un operador
+      const simbolos = [';', '.', '@', '#', '$', '%', '^', '&', '*', '~', ':', '{', '}', '=', '[', ']', ',', '>', '<'];
+      var savedLine = line.trim();
+      for (var i = 0; i < simbolos.length; i++) {
+        if (left(savedLine, String(simbolos[i]).length) === simbolos[i]) {
+          return simbolos[i];
+        }
+      }
+      return false;
+    }
+
+    function extraerSimbolo(line) {
+      var sysOp = esSimbolo(line);
+      var resultado = {};
+      resultado.type = 'symbol';
+      resultado.content = sysOp;
+      line = line.substring(sysOp.length);
+      resultado.remainder = line.trim();
+      return resultado;
+    }
+
+    //main
+    if (!str || str === '') return {};
+    str = String(str).trim();
+    // Primero
+    let datos = [];
+    // Se procesa al entidad completa...
+    var decorators = [];
+    str = str.trim();
+    while (str && str !== '') {
+      // alert(JSON.stringify(datos)); // keep for debug purposes...
+      // eliminar espacios
+      if (esBloque(str)) {
+        datos.push(extraerBloque(str));
+      } else if (esOperador(str)) {
+        datos.push(extraerOperador(str));
+      } else if (esComentario(str)) {
+        datos.push(extraerComentario(str));
+      } else if (esImportacion(str)) {
+        datos.push(extraerImportaciones(str));
+      } else if (esDecorador(str)) {
+        datos.push(extraerDecorador(str));
+      } else if (esSimbolo(str)) {
+        datos.push(extraerSimbolo(str));
+      } else if (esFuncion(str)) {
+        datos.push(extraerFuncion(str));
+      } else if (esConstructorDeClase(str)) {
+        datos.push(extraerConstructorDeClase(str));
+      } else if (esDeclaracionDeClase(str)) {
+        datos.push(extraerDeclaracionDeClase(str));
+        // } else if (esPalabraReservada(str)) {
+        //    datos.push(extraerPalabraReservada(str));
+      } else if (esIdentificador(str)) {
+        datos.push(extraerIdentificador(str));
+      } else if (esCadena(str)) {
+        datos.push(extraerCadena(str));
+      } else if (esNumero(str)) {
+        datos.push(extraerNumero(str));
+      } else if (esParenthesis(str)) {
+        datos.push(extraerParenthesis(str));
+      } else {
+        datos.push({type: 'Unknown token', content: str, remainder: ''});
+      }
+      // faltan por procesar constantes numéricas, booleanas y de cadena
+      // además de asociarle a los decoradores, el siguiente identificador si existe.
+      // asociarle los paréntesis y los corchetes al identificador anterior.,
+      // en los casos donde sea posible, parsear el contenido en profundidad.
+
+      str = String(datos[datos.length - 1].remainder).trim();
+
+    }
+    // Los decoradores deberían meterse en una lista de decoradores y no agregarse a la lista de datos, aunque sí deberían reducir str por el remainder.
+    // Se deben agregar al próximo elemento si no es de paréntesis, o corchetes...
+    // En caso de que termine el ciclo entonces, si quedaron quedaron decoradores sin asignar, es decir, sin otros objetos asociados...
+    // allí sí se agregan 1 x 1 y no de golpe.
+    // Los paréntesis siempre se agregan al elemento anterior, en la propiedad de tipo lista: parenthesis si no existe ninguno, se ponen de primeros... su contenido también puede que se parsee en profundidad.
+    // Los elementos que se encuentran dentro de los corchetes, también deberían parsearse en profundidad., si son complejos.
+    // Al igual que las directivas y prefijos de alcance, experimental, public, private, export., son condiciones lógicas., que se asocian al próximo elemento.
+
+    // Eliminar los remainders temporales, luego resolver utilizando nua variable global...
+    var lineCounter = 0;
+    while (lineCounter < datos.length) {
+      delete datos[lineCounter].remainder;
+      lineCounter++;
+    }
+
+    return datos;
+  };
+
+  // Revisar el elemento 20 subíndice 13... el objeto 3 reconoce una llava de cierre como objeto símbolo independiente... recortar ok.
+  // para el lunes... comentar la linea de delete remainders y ver en cual recorte falla ...
+
+  const compileScript = (parsing) => {
+    var lineCounter = 0;
+    var token;
+    var resultado = '';
+    while (lineCounter < parsing.length) {
+      token = parsing[lineCounter];
+      lineCounter++;
+      switch (token.type) {
+        case 'symbol': {
+          resultado += token.content;
+          break;
+        }
+        case 'comment': {
+          resultado += token.content + '\n';
+          break;
+        }
+        case 'decorator': {
+          resultado += token.content;
+          break;
+        }
+        case 'parenthesis': {
+          resultado += `(${compileScript(token.content)})\n`;
+          break;
+        }
+        case 'import': {
+          resultado += `import {${token.modules}} from ${token.path};\n`;
+          break;
+        }
+        case 'class': {
+          if (token.exported) {
+            resultado += `export class ${token.name} `;
+          } else {
+            resultado += `class ${token.name} `;
+          }
+          if (token.extends) {
+            resultado += `extends ${token.extends} `;
+          }
+          if (token.implements.length > 0) {
+            resultado += `implements ${token.implements.join(',')}`;
+          }
+          resultado += ' {\n'; // fix, provisional, el bloque no debería decompilar con llave de cierre.
+          resultado += compileScript(token.body);
+          resultado += '\n}';
+          break;
+        }
+        case 'block': {
+          resultado += `{${compileScript(token.body)}}`;
+          break;
+        }
+        case 'constructor': {
+          var parametros = [];
+          token.parameters.forEach(element => {
+            parametros.push(`${element.name}${element.type ? ':' + element.type : ''}`);
+          });
+          resultado += `constructor (${parametros.join(', ')}) {${compileScript(token.content)}}`;
+          break;
+        }
+        case 'identifier': {
+          if (token.content.toString().toLowerCase() === 'public' || token.content.toString().toLowerCase() === 'return') {
+            resultado += token.content + ' ';
+          } else {
+            resultado += token.content;
+          }
+
+          break;
+        }
+        default: {
+          resultado += token.content;
+          break;
+        }
+
+      }
+      // alert(JSON.stringify(resultado));
+    }
+    return resultado;
+  };
+
+
+  // Árbol de sintasis abstracta
+
+  class ES262AST {
+    operators = [
+      {name: '|', precedence: 1, func: (a, b) => a | b},
+      {name: '!', precedence: 1, func: (a) => !a},
+      {name: '&&', precedence: 2, func: (a, b) => a && b},
+      {name: '||', precedence: 2, func: (a, b) => a || b},
+      {name: 'instanceof', precedence: 3, func: (a, b) => a instanceof b},
+      {name: '=', precedence: 3, func: (a, b) => a = b},
+      {name: '===', precedence: 3, func: (a, b) => a === b},
+      {name: '==', precedence: 3, func: (a, b) => a == b},
+      {name: '!==', precedence: 3, func: (a, b) => a !== b},
+      {name: '<', precedence: 3, func: (a, b) => a < b},
+      {name: '<=', precedence: 3, func: (a, b) => a <= b},
+      {name: '>', precedence: 3, func: (a, b) => a > b},
+      {name: '>=', precedence: 3, func: (a, b) => a >= b},
+      {name: '+', precedence: 4, func: (a, b) => a + b},
+      {name: '-', precedence: 4, func: (a, b) => a - b},
+      {name: '*', precedence: 5, func: (a, b) => a * b},
+      {name: 'unary+', precedence: 5, func: (a) => -a},
+      {name: 'unary-', precedence: 5, func: (a) => +a},
+      {name: '/', precedence: 5, func: (a, b) => a / b},
+      {name: '%', precedence: 5, func: (a, b) => a % b},
+      {name: '^', precedence: 6, func: (a, b) => a ^ b},
+      {name: 'typeof', precedence: 7, func: (a) => typeof a},
+      {name: '>>>=', precedence: 7, func: (a, b) => a >>>= b},
+      {name: '>>>', precedence: 7, func: (a, b) => a >>> b},
+      {name: '>>=', precedence: 7, func: (a, b) => a >>= b},
+      {name: '<<=', precedence: 7, func: (a, b) => a <<= b},
+      {name: '++', precedence: 7, func: (a) => a++},
+      {name: '--', precedence: 7, func: (a) => a--},
+      {name: '+=', precedence: 7, func: (a, b) => a += b},
+      {name: '-=', precedence: 7, func: (a, b) => a -= b},
+      {name: '*=', precedence: 7, func: (a, b) => a *= b},
+      {name: '/=', precedence: 7, func: (a, b) => a /= b},
+      {name: '%=', precedence: 7, func: (a, b) => a %= b},
+      {name: '^=', precedence: 7, func: (a, b) => a ^= b},
+      {name: '&=', precedence: 7, func: (a, b) => a &= b},
+      {name: '!==', precedence: 7, func: (a, b) => a !== b},
+      {name: '|=', precedence: 7, func: (a, b) => a |= b},
+      {name: '&', precedence: 7, func: (a, b) => a & b},
+      {name: '~', precedence: 7},
+      {name: ';', precedence: 7},
+      {name: ',', precedence: 7},
+    ];
+
+    constructor(expression) {
+      this.expression = expression;
+      this.tokens = this.tokenize(this.expression);
+      this.ast = this.construirAST(this.tokens);
+    }
+
+    match(str1Full, str2Part, str1InitialPosition = 0, coincidenceLen = str2Part.length) {
+      for (let f = 0; f < coincidenceLen - 1; f++) {
+        if (str1Full[str1InitialPosition + f] !== str2Part[f]) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // Sintactical analizer (where the operator in position ends, else position of next char).
+    // No se utiliza, avanzado para el chequeo de la sintaxis en javascript... (tomar (me) la idea de las funciones de decompilación y compilación anteriores y generealiza Ecmascript-262)
+    sintaxCheck = (cadena, posicion) => {
+      let endComment;
+      if (
+        !cadena ||
+        cadena.length === 0 ||
+        posicion < 0 ||
+        posicion >= cadena.length
+      ) {
+        return -1;
+      }
+      // pares
+      const pares = [
+        {start: '(', end: ')'},
+        {start: '{', end: '}'},
+        {start: '[', end: ']'},
+      ];
+      if (cadena.substring(posicion, posicion + 2) === '//') {
+        // Line comment, until CR or EOF
+        endComment = cadena.indexOf('\n', posicion + 2);
+        if (endComment === -1) {
+          return cadena.length - 1;
+        }
+        return endComment; // hasta cr
+      } else if (cadena.substring(posicion, posicion + 2) === '/*') {
+        // Block comment, always until */, or error
+        endComment = cadena.indexOf('*/', posicion + 2);
+        return endComment !== -1 ? endComment : endComment + 2; // sino, completo.
+      }
+      // De otro modo
+      switch (cadena[posicion]) {
+        case '\'': // simples
+          return cadena.indexOf('\'', posicion + 1);
+        case '`': // francesas
+          return (posicion = cadena.indexOf('`', posicion + 1));
+        case '"': // dobles
+          return cadena.indexOf('"', posicion + 1);
+        default: {
+          let q;
+          for (let i = 0; i < pares.length; i++) {
+            if (cadena.substring(posicion, posicion + pares[i].start.length) === pares[i].start) {
+              q = posicion + pares[i].start.length; // reubica el puntero
+              while (q !== -1 && q < cadena.length) {
+                if (cadena.substring(q, q + pares[i].end.length) === pares[i].end) {
+                  return q + pares[i].end.length - 1;
+                } else {
+                  q = sintaxCheck(cadena, q);
+                  if (q !== -1 && q < cadena.length) {
+                    q++;
+                  } else {
+                    return -1;
+                  }
+                }
+              }
+              return -1;
+            }
+          }
+          // None of them
+        }
+      }
+      // Sino retorna posición y ya...
+      return posicion;
+    };
+
+    tokenize(expression = this.expression) {
+      let tokens = [];
+      let currentToken = '';
+
+      // Expande el conjunto de tokens para incluir posibles palabras reservadas y símbolos unarios.
+      const palabrasReservadas = ['IF', 'THEN', 'ELSE']; // Ejemplo de palabras reservadas.
+
+      // Agrega métodos que verificarán si un token es palabra reservada, variable o función.
+      const esPalabraReservada = (token) => {
+        return palabrasReservadas.includes(token.toUpperCase());
+      };
+
+      // Si no es un operador o una función, o un espacio, digamos que es una variable
+      // Desde luego, si cumple las condiciones de formación
+      const esVariable = (token) => {
+        // Implementación para comprobar si el token es una variable.
+        let formacion = String(token).trim();
+        if (formacion.length === 0) return false;
+        if (esPalabraReservada(token)) return false;
+        if (this.operators.some(op => op.name === formacion)) return false;
+        if (((formacion[0] >= 'a' && formacion[0] <= 'z') || (formacion[0] >= 'A' && formacion[0] <= 'Z') || formacion[0] === '_' || formacion[0] === '#')) return false;
+        for (let k = 1; k < formacion.length; k++) {
+          if ((formacion[k] >= 'a' && formacion[k] <= 'z') || (formacion[0] >= 'A' && formacion[k] <= 'Z') || formacion[k] === '_' || formacion[k] === '#' || (formacion[k] >= '0' && formacion[k] <= '9')) return false;
+        }
+        return true; // bueno, debería: no le queda mas remedio
+      }
+
+      const esFuncion = (token) => {
+        // Implementación para comprobar si el token es nombre de una función.
+      };
+
+      for (let i = 0; i < expression.length; i++) {
+        let char = expression[i];
+
+        // Verificamos si el caracter es un delimitador
+        if (char === ' ' || char === '(' || char === ')') {
+          if (currentToken !== '') {
+            tokens.push(currentToken);
+            currentToken = '';
+          }
+          if (char === '(' || char === ')') {
+            tokens.push(char);
+          }
+          continue;
+        }
+
+        if ((char === '+' || char === '-') && (tokens.length === 0 ||
+          tokens[tokens.length - 1] === '(' || this.operators.some(op => op.name === tokens[tokens.length - 1]))) {
+          currentToken = (char === '+') ? 'unary+' : 'unary-'; // Corregir a 'unary-'
+          continue;
+        }
+
+        // Verificamos si un operador más largo está siendo formado (utilizar match, pero previamente ordenar descendientemente la lista de operadores y funciones...)
+        let longestOperator = Math.max(...this.operators.map((opname) => opname.length));
+        let nextFewChars = expression.substring(i, i + longestOperator).toUpperCase(); // Usamos una longitud suficiente para cubrir el operador más largo
+        let foundOperator = false;
+        for (let op of this.operators.map(op => op.name)) {
+          if (nextFewChars.startsWith(op)) {
+            if (currentToken !== '') {
+              tokens.push(currentToken);
+              currentToken = '';
+            }
+            tokens.push(op);
+            i += op.length - 1; // Ajustamos el índice del bucle principal
+            foundOperator = true;
+            break;
+          }
+        }
+        if (foundOperator) continue;
+
+        // Agrega lógica para identificar palabras reservadas, variables y funciones.
+        if (esPalabraReservada(currentToken)) {
+          tokens.push('RESERVED_' + currentToken.toUpperCase()); // Prefijo para palabras reservadas.
+          currentToken = '';
+        } else if (esVariable(currentToken)) {
+          tokens.push('VAR_' + currentToken); // Prefijo para variables.
+          currentToken = '';
+        } else if (esFuncion(currentToken)) {
+          tokens.push('FUNC_' + currentToken); // Prefijo para funciones.
+          currentToken = '';
+        }
+
+        currentToken += char;
+      }
+
+      if (currentToken !== '') {
+        if (esPalabraReservada(currentToken)) {
+          tokens.push('RESERVED_' + currentToken.toUpperCase());
+        } else if (esVariable(currentToken)) {
+          tokens.push('VAR_' + currentToken);
+        } else if (esFuncion(currentToken)) {
+          tokens.push('FUNC_' + currentToken);
+        } else {
+          tokens.push(currentToken);
+        }
+      }
+
+      console.log('Tokens: ', tokens);
+
+      return tokens;
+    }
+
+    // Para convertir una serie de tokens en un AST, debemos construir una estructura de datos que capture la jerarquía de la expresión. Aquí utilizamos nodos para representar operadores y operandos:
+    construirAST(tokens = this.tokens) {
+      const pilaNodos = [];
+      const pilaOperadores = [];
+
+      const obtenerPrecedencia = (token) => {
+        const operador = this.operators.find(op => op.name === token);
+        return operador ? operador.precedence : -1;
+      };
+
+      let astNodeEntry = (valor, hijos = []) => {
+        return {token: valor, childrens: hijos};
+      };
+
+      tokens.forEach(token => {
+        if (token === '(') {
+          pilaOperadores.push(token);
+        } else if (this.operators.some(op => op.name === token)) {
+          while (
+            pilaOperadores.length > 0 &&
+            obtenerPrecedencia(token) <= obtenerPrecedencia(pilaOperadores[pilaOperadores.length - 1])
+            ) {
+            const operador = pilaOperadores.pop();
+            if (operador !== '!' && operador !== '(' && operador !== ')') {
+              const derecha = pilaNodos.pop();
+              const izquierda = pilaNodos.pop();
+              pilaNodos.push(astNodeEntry(operador, [izquierda, derecha]));
+            } else {
+              const nodo = pilaNodos.pop();
+              pilaNodos.push(astNodeEntry(operador, [nodo]));
+            }
+          }
+          pilaOperadores.push(token);
+        } else if (token === ')') {
+          while (pilaOperadores.length && pilaOperadores[pilaOperadores.length - 1] !== '(') {
+            const operador = pilaOperadores.pop();
+            if (operador !== '!' && operador !== '(' && operador !== ')') {
+              const derecha = pilaNodos.pop();
+              const izquierda = pilaNodos.pop();
+              pilaNodos.push(astNodeEntry(operador, [izquierda, derecha]));
+            } else {
+              const nodo = pilaNodos.pop();
+              pilaNodos.push(astNodeEntry(operador, [nodo]));
+            }
+          }
+          pilaOperadores.pop(); // Sacamos el '('
+        } else {
+          pilaNodos.push(astNodeEntry(token));
+        }
+      });
+
+      while (pilaOperadores.length) {
+        const operador = pilaOperadores.pop();
+        if (operador !== '!' && operador !== '(' && operador !== ')') {
+          const derecha = pilaNodos.pop();
+          const izquierda = pilaNodos.pop();
+          pilaNodos.push(astNodeEntry(operador, [izquierda, derecha]));
+        } else {
+          const nodo = pilaNodos.pop();
+          pilaNodos.push(astNodeEntry(operador, [nodo]));
+        }
+      }
+
+      return pilaNodos.pop(); // El último nodo de la pila es la raíz del AST
+    }
+
+    // Finalmente, para evaluar el AST, realizamos un recorrido postorden y calculamos el valor de cada nodo basándonos en sus hijos:
+    solveEntry(nodo = this.ast) {
+      console.log(nodo);
+      if (!nodo.childrens || nodo.childrens.length === 0) {
+        // Si es un literal booleano, lo convertimos a su valor correspondiente.
+        if (nodo.token === 'true') return true;
+        if (nodo.token === 'false') return false;
+        return parseFloat(nodo.token); // De otro modo, asumimos que es un número.
+      }
+
+      let operador = nodo.token;
+      let result;
+      // Despliega los operandos hijos en anchura
+      let operando = nodo.childrens.map((children) => children ? this.solveEntry(children) : null);
+      // Aplica los operadores
+      result = this.operators.find((op) => (op.name === operador)).func(...operando);
+      return result;
+    }
+
+    // Para convertir un AST de vuelta en tokens, recorremos el árbol y vamos acumulando los valores de los nodos en un array de tokens:
+    astATokens(nodo) {
+      if (!nodo) {
+        return [];
+      }
+
+      // Si es un nodo hoja, simplemente devolvemos el valor.
+      if (nodo.hijos.length === 0) {
+        return [nodo.token];
+      }
+
+      // Creamos un array con los tokens del subárbol izquierdo y derecho, más este nodo.
+      const todos = nodo.hijos.length > 0 ? nodo.hijos.map(hijo => this.astATokens(nodo.hijos)) : [];
+      return [...todos, nodo.token]; // Postorden
+    }
+
+    // ARREGLAR LUEGO VIEJO,,,  El objetivo es descomponer el código en sentencias
+    // pRUEBA CON ES262AST.lexer('alert("Hola"); alert("Habana"); if (joder) { cabron; else merd; punto y coma adentro;  }; alert("caga in")')
+    // Pero debería ignorar ; agrupados en { }, en comentarios o cadenas.
+    static lexer(ES262_sourceCode = '') { // quita el static luego
+
+      let sintaxCheck = (cadena, posicion) => {
+        let endComment;
+        if (
+          !cadena ||
+          cadena.length === 0 ||
+          posicion < 0 ||
+          posicion >= cadena.length
+        ) {
+          return -1;
+        }
+        // pares
+        const pares = [
+          {start: '(', end: ')'},
+          {start: '{', end: '}'},
+          {start: '[', end: ']'},
+        ];
+        if (cadena.substring(posicion, posicion + 2) === '//') {
+          // Line comment, until CR or EOF
+          endComment = cadena.indexOf('\n', posicion + 2);
+          if (endComment === -1) {
+            return cadena.length - 1;
+          }
+          return endComment; // hasta cr
+        } else if (cadena.substring(posicion, posicion + 2) === '/*') {
+          // Block comment, always until */, or error
+          endComment = cadena.indexOf('*/', posicion + 2);
+          return endComment !== -1 ? endComment : endComment + 2; // sino, completo.
+        }
+        // De otro modo
+        switch (cadena[posicion]) {
+          case '\'': // simples
+            return cadena.indexOf('\'', posicion + 1);
+          case '`': // francesas
+            return (posicion = cadena.indexOf('`', posicion + 1));
+          case '"': // dobles
+            return cadena.indexOf('"', posicion + 1);
+          default: {
+            let q;
+            for (let i = 0; i < pares.length; i++) {
+              if (cadena.substring(posicion, posicion + pares[i].start.length) === pares[i].start) {
+                q = posicion + pares[i].start.length; // reubica el puntero
+                while (q !== -1 && q < cadena.length) {
+                  if (cadena.substring(q, q + pares[i].end.length) === pares[i].end) {
+                    return q + pares[i].end.length - 1;
+                  } else {
+                    q = sintaxCheck(cadena, q);
+                    if (q !== -1 && q < cadena.length) {
+                      q++;
+                    } else {
+                      return -1;
+                    }
+                  }
+                }
+                return -1;
+              }
+            }
+            // None of them
+          }
+        }
+        // Sino retorna posición y ya...
+        return posicion;
+      };
+
+      const sentencias = [];
+
+      let posicionComienzoSentencia = 0;
+      let posicionFinSentencia = 0;
+
+      do {
+        posicionFinSentencia = sintaxCheck(ES262_sourceCode, posicionComienzoSentencia);
+        posicionFinSentencia = -1?ES262_sourceCode.length:posicionFinSentencia;
+        console.log(`Comienzo ${posicionComienzoSentencia} y fin ${posicionFinSentencia}, cadena = "${ES262_sourceCode.substring(posicionComienzoSentencia, posicionFinSentencia)}"`);
+        while (posicionFinSentencia < ES262_sourceCode.length) {
+          posicionFinSentencia = sintaxCheck(ES262_sourceCode, posicionComienzoSentencia);
+          posicionFinSentencia = -1?ES262_sourceCode.length - 1:posicionFinSentencia;
+        }
+        if (posicionFinSentencia < ES262_sourceCode.length && ES262_sourceCode[posicionFinSentencia] !== ';') {
+          sentencias.push(ES262_sourceCode.substring(posicionComienzoSentencia, posicionFinSentencia));
+          posicionComienzoSentencia = posicionFinSentencia + 1;
+        }
+      } while (posicionComienzoSentencia < ES262_sourceCode.length && posicionFinSentencia && posicionFinSentencia < ES262_sourceCode.length);
+      if (posicionFinSentencia < ES262_sourceCode.length) {
+        sentencias.push(ES262_sourceCode.substring(posicionComienzoSentencia, ES262_sourceCode.length - 1));
+      }
+      return sentencias;
+    }
+  }
+
+  let a = new ES262AST('4 <  5');
+  console.log(a.solveEntry()); // ya funciona ok
+
+  let b = new ES262AST('5 <= 4');
+  console.log(b.solveEntry()); // ya funciona ok
+
+  let c = new ES262AST('5 - 1 == 4');
+  console.log(c.solveEntry());
+
+  // let d = new ES262AST('-2 + ( 5 * (1 + 1 + 1))'); // Tampoco funciona
+  let d = new ES262AST('9*9');
+  console.log(d.solveEntry());
+
+
+</script>
+
+</body>
+
+</html>
